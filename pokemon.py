@@ -24,5 +24,16 @@ class Pokemon:
     def animation_clean_up(self):
         for frame in self.frames:
             os.remove(frame)
-    
+            
+butterfree = Pokemon("Charizard", "Fire", 100, 100, "./assets/butterfree.gif")  
 charizard = Pokemon("Charizard", "Fire", 100, 100, "./assets/charizard.gif")
+dugtrio = Pokemon("Charizard", "Fire", 100, 100, "./assets/dugtrio.gif")
+golbat = Pokemon("Charizard", "Fire", 100, 100, "./assets/golbat.gif")
+kadabra = Pokemon("Charizard", "Fire", 100, 100, "./assets/kadabra.gif")
+meowth = Pokemon("Charizard", "Fire", 100, 100, "./assets/meowth.gif")
+nidoking = Pokemon("Charizard", "Fire", 100, 100, "./assets/nidoking.gif")
+pidgeot = Pokemon("Charizard", "Fire", 100, 100, "./assets/pidgeot.gif")
+pikachu = Pokemon("Charizard", "Fire", 100, 100, "./assets/pikachu.gif")
+venonat = Pokemon("Charizard", "Fire", 100, 100, "./assets/venonat.gif")
+venusaur = Pokemon("Charizard", "Fire", 100, 100, "./assets/venusaur.gif")
+wartortle = Pokemon("Charizard", "Fire", 100, 100, "./assets/wartortle.gif")
