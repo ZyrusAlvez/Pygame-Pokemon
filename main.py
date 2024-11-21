@@ -14,7 +14,7 @@ scale_factor2 = 1.2
 scale_factor3 = 1
 
 # Array to store pokemons
-pokemons = [butterfree, charizard, dugtrio, golbat, kadabra, meowth, nidoking, pidgeot, pikachu, venonat, venusaur, wartortle]
+pokemons = [bulbasaur,charizard,blastoise,weepinbell,arcanine,psyduck,scyther,magmar,poliwrath,farfetchd,moltres,vaporeon]
 player1_pokemons = []
 player2_pokemons = []
 
