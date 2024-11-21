@@ -8,22 +8,23 @@ class Pokemon:
         self.health = health
         self.power = power
         self.file_path = file_path
-        
+        self.frames_number = 0
     # convert gif file to multiple images/frames
     def animation_frames(self):
         self.frames = []
         gif = Image.open(self.file_path)
-        for frame in range(gif.n_frames):
+        self.frames_number = gif.n_frames
+        for frame in range(self.frames_number):
             gif.seek(frame)
             frame_image = gif.copy()
-            frame_path = (f"./bin/frame_{frame}.png")
+            frame_path = (f"./bin/{self.name}frame_{frame}.png")
             frame_image.save(frame_path)
             self.frames.append(frame_path)
         return self.frames
     
     def animation_clean_up(self):
-        for frame in self.frames:
-            os.remove(frame)
+        for frame in range(self.frames_number):
+            os.remove(f"./bin/{self.name}frame_{frame}.png")
             
 bulbasaur = Pokemon("Bulbasaur", "Grass", 500, 280, "./assets/pokemon/bulbasaur.gif")  
 charizard = Pokemon("Charizard", "Fire", 480, 300, "./assets/pokemon/charizard.gif")
