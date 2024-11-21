@@ -29,7 +29,7 @@ for i, pokemon in enumerate(pokemons):
     pokemon_frame_index[i] = 0
     
 update = False
-focus = 2
+focus = 0
 running = True
 
 while running:
@@ -81,5 +81,6 @@ while running:
 pygame.quit()
 
 # Clean up extracted frames
-charizard.animation_clean_up()
+for pokemon in pokemons:
+    pokemon.animation_clean_up()
 # try lang ni renzo kung okay na sa collaboration

@@ -8,32 +8,33 @@ class Pokemon:
         self.health = health
         self.power = power
         self.file_path = file_path
-        
+        self.frames_number = 0
     # convert gif file to multiple images/frames
     def animation_frames(self):
         self.frames = []
         gif = Image.open(self.file_path)
-        for frame in range(gif.n_frames):
+        self.frames_number = gif.n_frames
+        for frame in range(self.frames_number):
             gif.seek(frame)
             frame_image = gif.copy()
-            frame_path = (f"./bin/frame_{frame}.png")
+            frame_path = (f"./bin/{self.name}frame_{frame}.png")
             frame_image.save(frame_path)
             self.frames.append(frame_path)
         return self.frames
     
     def animation_clean_up(self):
-        for frame in self.frames:
-            os.remove(frame)
+        for frame in range(self.frames_number):
+            os.remove(f"./bin/{self.name}frame_{frame}.png")
             
-butterfree = Pokemon("Charizard", "Fire", 100, 100, "./assets/pokemon/butterfree.gif")  
+butterfree = Pokemon("Butterfree", "Fire", 100, 100, "./assets/pokemon/butterfree.gif")  
 charizard = Pokemon("Charizard", "Fire", 100, 100, "./assets/pokemon/charizard.gif")
-dugtrio = Pokemon("Charizard", "Fire", 100, 100, "./assets/pokemon/dugtrio.gif")
-golbat = Pokemon("Charizard", "Fire", 100, 100, "./assets/pokemon/golbat.gif")
-kadabra = Pokemon("Charizard", "Fire", 100, 100, "./assets/pokemon/kadabra.gif")
-meowth = Pokemon("Charizard", "Fire", 100, 100, "./assets/pokemon/meowth.gif")
-nidoking = Pokemon("Charizard", "Fire", 100, 100, "./assets/pokemon/nidoking.gif")
-pidgeot = Pokemon("Charizard", "Fire", 100, 100, "./assets/pokemon/pidgeot.gif")
-pikachu = Pokemon("Charizard", "Fire", 100, 100, "./assets/pokemon/pikachu.gif")
-venonat = Pokemon("Charizard", "Fire", 100, 100, "./assets/pokemon/venonat.gif")
-venusaur = Pokemon("Charizard", "Fire", 100, 100, "./assets/pokemon/venusaur.gif")
-wartortle = Pokemon("Charizard", "Fire", 100, 100, "./assets/pokemon/wartortle.gif")
+dugtrio = Pokemon("Dugtrio", "Fire", 100, 100, "./assets/pokemon/dugtrio.gif")
+golbat = Pokemon("Golbat", "Fire", 100, 100, "./assets/pokemon/golbat.gif")
+kadabra = Pokemon("Kadabra", "Fire", 100, 100, "./assets/pokemon/kadabra.gif")
+meowth = Pokemon("Meowth", "Fire", 100, 100, "./assets/pokemon/meowth.gif")
+nidoking = Pokemon("Nidoking", "Fire", 100, 100, "./assets/pokemon/nidoking.gif")
+pidgeot = Pokemon("Pidgeot", "Fire", 100, 100, "./assets/pokemon/pidgeot.gif")
+pikachu = Pokemon("Pikachu", "Fire", 100, 100, "./assets/pokemon/pikachu.gif")
+venonat = Pokemon("Venonat", "Fire", 100, 100, "./assets/pokemon/venonat.gif")
+venusaur = Pokemon("Venusaur", "Fire", 100, 100, "./assets/pokemon/venusaur.gif")
+wartortle = Pokemon("Wartortle", "Fire", 100, 100, "./assets/pokemon/wartortle.gif")
