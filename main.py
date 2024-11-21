@@ -82,3 +82,4 @@ pygame.quit()
 
 # Clean up extracted frames
 charizard.animation_clean_up()
+# try lang ni renzo kung okay na sa collaboration
