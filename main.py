@@ -1,6 +1,6 @@
 import pygame
 from pokemon import *
-
+import random
 # Pygame setup
 pygame.init()
 screen = pygame.display.set_mode((800, 600))
@@ -26,7 +26,7 @@ for pokemon in pokemons:
 pokemon_frame_index = [0 for _ in range(len(pokemons))]
     
 update = False
-focus = 0
+focus = 2
 running = True
 
 background_image = pygame.transform.scale(pygame.image.load("./assets/layout/picking-middle.png"), (800, 600))
