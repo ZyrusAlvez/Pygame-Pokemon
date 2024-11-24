@@ -6,12 +6,6 @@ pygame.init()
 screen = pygame.display.set_mode((800, 600))
 clock = pygame.time.Clock()
 
-
-# Desired size (e.g., 1.5 times the original size)
-scale_factor1 = 1.5
-scale_factor2 = 1.2
-scale_factor3 = 1
-
 # Array to store pokemons
 pokemons = [bulbasaur,charizard,blastoise,weepinbell,arcanine,psyduck,scyther,magmar,poliwrath,farfetchd,moltres,vaporeon]
 player1_pokemons = []
@@ -26,7 +20,7 @@ for pokemon in pokemons:
 pokemon_frame_index = [0 for _ in range(len(pokemons))]
     
 update = False
-focus = 2
+focus = 0
 running = True
 
 background_image = pygame.transform.scale(pygame.image.load("./assets/layout/picking-middle.png"), (800, 600))
