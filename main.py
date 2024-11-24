@@ -1,5 +1,4 @@
 import pygame
-import os
 from pokemon import *
 
 # Pygame setup
@@ -18,19 +17,19 @@ pokemons = [bulbasaur,charizard,blastoise,weepinbell,arcanine,psyduck,scyther,ma
 player1_pokemons = []
 player2_pokemons = []
 
-# store the images in a dictionary
-loaded_images = {}
-for i, pokemon in enumerate(pokemons):
-    loaded_images[i] = [pygame.image.load(frame) for frame in pokemon.animation_frames()]
+# store the images in a list
+loaded_images = []
+for pokemon in pokemons:
+    loaded_images.append([pygame.image.load(frame) for frame in pokemon.animation_frames()])
 
 # makes sure that the index wont go beyond to the count of frames   
-pokemon_frame_index = {}
-for i, pokemon in enumerate(pokemons):
-    pokemon_frame_index[i] = 0
+pokemon_frame_index = [0 for _ in range(len(pokemons))]
     
 update = False
 focus = 0
 running = True
+
+background_image = pygame.transform.scale(pygame.image.load("./assets/layout/picking-middle.png"), (800, 600))
 
 while running:
     for event in pygame.event.get():
@@ -38,41 +37,42 @@ while running:
             running = False
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_RETURN:
-                player1_pokemons.append(pokemons[1])
+                player1_pokemons.append(pokemons[focus])
+                pokemons.pop(focus)
+                loaded_images.pop(focus)
+                pokemon_frame_index.pop(focus)
+            if event.key == pygame.K_RIGHT:
+                focus += 1
+                focus %= len(pokemons) - 1
+            if event.key == pygame.K_LEFT:
+                focus -= 1
+                focus %= len(pokemons) - 1
                 
                          
     # background
-    screen.fill((255, 255, 255))
+    screen.blit(background_image, (0, 0))
+
+    # image size
+    pokemon1_image_size = pygame.transform.scale(loaded_images[focus - 1][pokemon_frame_index[focus - 1]], (int(loaded_images[focus - 1][pokemon_frame_index[focus - 1]].get_width() * 1.1),int(loaded_images[focus - 1][pokemon_frame_index[focus - 1]].get_height() * 1.1)))
+    pokemon2_image_size = pygame.transform.scale(loaded_images[focus][pokemon_frame_index[focus]], (int(loaded_images[focus][pokemon_frame_index[focus]].get_width() * 2),int(loaded_images[focus][pokemon_frame_index[focus]].get_height() * 1.8)))
+    pokemon3_image_size = pygame.transform.scale(loaded_images[focus + 1][pokemon_frame_index[focus + 1]], (int(loaded_images[focus + 1][pokemon_frame_index[focus + 1]].get_width() * 1.1),int(loaded_images[focus + 1][pokemon_frame_index[focus + 1]].get_height() * 1.1)))
     
-    if not focus:
-        pass
-    elif focus == 1:
-        pokemon1_image_rect = loaded_images[0][pokemon_frame_index[0]].get_rect(center=((screen.get_width() // 2 - 200, screen.get_height() // 2)))
-        pokemon2_image_rect = loaded_images[1][pokemon_frame_index[1]].get_rect(center=((screen.get_width() // 2, screen.get_height() // 2)))
-        pokemon3_image_rect = loaded_images[2][pokemon_frame_index[2]].get_rect(center=((screen.get_width() // 2 + 200, screen.get_height() // 2)))
-        pokemon4_image_rect = loaded_images[3][pokemon_frame_index[3]].get_rect(center=((screen.get_width() // 2 + 400, screen.get_height() // 2)))
-        screen.blit(loaded_images[0][pokemon_frame_index[0]], pokemon1_image_rect)
-        screen.blit(loaded_images[1][pokemon_frame_index[1]], pokemon2_image_rect)
-        screen.blit(loaded_images[2][pokemon_frame_index[2]], pokemon3_image_rect)
-        screen.blit(loaded_images[3][pokemon_frame_index[3]], pokemon4_image_rect)
-    else:
-        pokemon1_image_rect = loaded_images[0][pokemon_frame_index[0]].get_rect(center=((screen.get_width() // 2 - 400, screen.get_height() // 2)))
-        pokemon2_image_rect = loaded_images[1][pokemon_frame_index[1]].get_rect(center=((screen.get_width() // 2 - 200, screen.get_height() // 2)))
-        pokemon3_image_rect = loaded_images[2][pokemon_frame_index[2]].get_rect(center=((screen.get_width() // 2, screen.get_height() // 2)))
-        pokemon4_image_rect = loaded_images[3][pokemon_frame_index[3]].get_rect(center=((screen.get_width() // 2 + 200, screen.get_height() // 2)))
-        pokemon5_image_rect = loaded_images[4][pokemon_frame_index[4]].get_rect(center=((screen.get_width() // 2 + 400, screen.get_height() // 2)))
-        screen.blit(loaded_images[0][pokemon_frame_index[0]], pokemon1_image_rect)
-        screen.blit(loaded_images[1][pokemon_frame_index[1]], pokemon2_image_rect)
-        screen.blit(loaded_images[2][pokemon_frame_index[2]], pokemon3_image_rect)
-        screen.blit(loaded_images[3][pokemon_frame_index[3]], pokemon4_image_rect)
-        screen.blit(loaded_images[4][pokemon_frame_index[4]], pokemon5_image_rect)
+    # get image's dimension and location of placement
+    pokemon1_image_rect = pokemon1_image_size.get_rect(midbottom=((screen.get_width() // 2 - 275, screen.get_height() // 2 - 30)))
+    pokemon2_image_rect = pokemon2_image_size.get_rect(midbottom=((screen.get_width() // 2, screen.get_height() // 2 + 20)))
+    pokemon3_image_rect = pokemon3_image_size.get_rect(midbottom=((screen.get_width() // 2 + 275, screen.get_height() // 2 - 30)))
+    
+    # place the image into the screen
+    screen.blit(pokemon1_image_size, pokemon1_image_rect)
+    screen.blit(pokemon2_image_size, pokemon2_image_rect)
+    screen.blit(pokemon3_image_size, pokemon3_image_rect)
 
     
     # update the screen
     pygame.display.flip()
     
     # makes sure that the index wont go beyond to the count of frames
-    for i in pokemon_frame_index:
+    for i in range(len(pokemon_frame_index)):
         pokemon_frame_index[i] = (pokemon_frame_index[i] + 1) % len(loaded_images[i])
 
     # fps
@@ -83,4 +83,3 @@ pygame.quit()
 # Clean up extracted frames
 for pokemon in pokemons:
     pokemon.animation_clean_up()
-# try lang ni renzo kung okay na sa collaboration
