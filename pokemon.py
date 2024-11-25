@@ -11,13 +11,13 @@ class Pokemon:
         self.frames_number = 0
         self.is_flying = is_flying
         self.size = (0,0)
+        
     # convert gif file to multiple images/frames
     def animation_frames(self):
         self.frames = []
         gif = Image.open(self.file_path)
         self.frames_number = gif.n_frames
         self.size = gif.size
-        print(gif.size)
         for frame in range(self.frames_number):
             gif.seek(frame)
             frame_image = gif.copy()
