@@ -1,8 +1,9 @@
 from PIL import Image
 import os
 class BattleEffects:
-    def __init__(self, gif_location) -> None:
+    def __init__(self, gif_location, element) -> None:
         self.gif_location = gif_location
+        self.element = element
 
     # convert gif file to multiple images/frames
     def animation_frames(self):
@@ -13,7 +14,7 @@ class BattleEffects:
         for frame in range(self.frames_number):
             gif.seek(frame)
             frame_image = gif.copy()
-            frame_path = (f"./bin/{self.name}frame_{frame}.png")
+            frame_path = (f"./bin/{self.element}frame_{frame}.png")
             frame_image.save(frame_path)
             self.frames.append(frame_path)
         return self.frames
@@ -21,3 +22,7 @@ class BattleEffects:
     def clear_residue(self):
         for frames in self.frames:
             os.remove(frames)
+
+fireball = BattleEffects("assets/Attack_Balls/Fire.gif", "Fire")
+waterball = BattleEffects("assets/Attack_Balls/Water.gif", "Water")
+grassball = BattleEffects("assets/Attack_Balls/Grass.gif", "Grass")

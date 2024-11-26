@@ -1,6 +1,7 @@
 import pygame
 from pokemon import *
 import random, time
+from battleeffects import *
 # Pygame setup
 pygame.init()
 screen = pygame.display.set_mode((800, 600))
@@ -17,11 +18,17 @@ player2_pokemon_frame_index = []
 
 # Array to store map information
 map_names = ["Viridale Plains", "Pyrolith Crater", "Azure Shoals"]
+
+# Array to store projectile objects
+battle_effects = [fireball, waterball, grassball]
 # Load Pokémon animation frames
 loaded_images = []
 for pokemon in pokemons:
     loaded_images.append([pygame.image.load(frame) for frame in pokemon.animation_frames()])
-
+# Load Battleeffects animation frames
+battleeffects_frames = []
+for effect in battle_effects:
+    battleeffects_frames.append([pygame.image.load(frame) for frame in effect.animation_frames()])
 # Frame index to track animation progress
 pokemon_frame_index = [0 for _ in range(len(pokemons))]
 
@@ -118,8 +125,8 @@ while running:
         if len(player1_pokemons) == 3:
             choosing_pokemon_scene = False
             map_selection = True
-            # Variables to be used for map randomizer / Next screen
-            map_index = random.randint(0, len(map_names)) # Random starting map
+            # Variables to be used for map randomizer / Next screen ( To avoid multiple declaration )
+            map_index = random.randint(0, len(map_names)-1) # Random starting map
             starting_show_speed = 0.05
             is_map_final = False
         # Update the screen
@@ -128,6 +135,15 @@ while running:
         clock.tick(40)
 
     if map_selection:
+        current_background = pygame.transform.scale(pygame.image.load(f"./assets/Battleground/{map_index}.png"), (800,600))
+        current_name = map_names[map_index]
+        screen.blit(current_background, (0,0))
+        show_text(map_names[map_index], 400, 50)
+        # Update the screen
+        pygame.display.flip()
+        # Cap the frame rate
+        clock.tick(60)
+        
         if not is_map_final:
             starting_show_speed *= 1.1
             map_index = (map_index + 1) % len(map_names)
@@ -136,25 +152,58 @@ while running:
                 is_map_final = True
                 map_selection = False
                 fighting_scene = True
-        current_background = pygame.transform.scale(pygame.image.load(f"assets\Battleground\{map_index}.png"), (800,600))
-        current_name = map_names[map_index]
-        screen.blit(current_background, (0,0))
-        show_text(map_names[map_index], 400, 50)
-        # Update the screen
-        pygame.display.flip()
-        # Cap the frame rate
-        clock.tick(60)
-        match_number = 0
-        another_round = False
+                # Preparation for next screen to avoid multiple declaration
+                match_number = 0
+                another_round = False
+                attacking = False
+                current_pokemon_index = (match_number) % 3
+                player_1_pokemon = player1_pokemons[current_pokemon_index]
+                player_2_pokemon = player2_pokemons[current_pokemon_index]
+                x_pos = 0
+                # Set up index to be used for each frame
+                index = 0
+
+                # Load up projectiles to be used by both pokemons
+                for num in range(len(battle_effects)):
+                    if battle_effects[num].element == player_1_pokemon.element:
+                        player_1_battle_effect_image = battleeffects_frames[num]
+                        player_1_battle_effect_index = 0
+                    elif battle_effects[num].element == player_2_pokemon.element:
+                        player_2_battle_effect_image = battleeffects_frames[num]
+                        player_2_battle_effect_index = 0
+        
+
+        
+
     if fighting_scene:
         if another_round:
             match_number += 1
+            another_round = False
+        
         current_pokemon_index = (match_number) % 3
         # Display chosen background
         screen.blit(current_background, (0,0))
-        #
-        player_1_pokemon = player1_pokemons[current_pokemon_index]
-        player_2_pokemon = player2_pokemons[current_pokemon_index]
+        attacking = True
+        if attacking:
+       
+            # Get current frames, resize and rotate them 
+            player_1_battle_effect_current_img = pygame.transform.scale(pygame.transform.rotate(player_1_battle_effect_image[player_1_battle_effect_index], -90), tuple([measure * 0.3 for measure in player_1_battle_effect_image[index].get_size()]))
+            player_2_battle_effect_current_img = pygame.transform.scale(pygame.transform.rotate(player_2_battle_effect_image[player_2_battle_effect_index], 90), tuple([measure * 0.3 for measure in player_2_battle_effect_image[index].get_size()]))
+            # Position each
+            player_1_battle_effect_current_img_rect = player_1_battle_effect_current_img.get_rect(midbottom = ((screen.get_width() // 2 - 200 ) + x_pos, screen.get_height() // 2 + 150 ))
+            player_2_battle_effect_current_img_rect = player_2_battle_effect_current_img.get_rect(midbottom = ((screen.get_width() // 2 + 200) - x_pos, screen.get_height() // 2 + 150))
+
+            # Increment x to make each image closer to middle ( 400 )
+            x_pos += 1
+            if player_1_battle_effect_current_img_rect.colliderect(player_2_battle_effect_current_img_rect):
+                show_text(f"{player_1_pokemon.name if player_1_pokemon.power > player_2_pokemon.power else player_2_pokemon.name} overwhelmes {player_2_pokemon.name if player_2_pokemon.power > player_1_pokemon.power else player_1_pokemon.name}", screen.get_width() // 2, screen.get_height() + 500)
+            
+            # Draw them each
+            screen.blit(player_1_battle_effect_current_img, player_1_battle_effect_current_img_rect)
+            screen.blit(player_2_battle_effect_current_img, player_2_battle_effect_current_img_rect)
+            # Update each index for the battle effect frame
+            player_1_battle_effect_index = (player_1_battle_effect_index + 1) % len(player_1_battle_effect_image)
+            player_2_battle_effect_index = (player_2_battle_effect_index + 1) % len(player_2_battle_effect_image)
 
         # Get current frame and resize it proportionally
         player_1_pokemon_image = pygame.transform.flip(pygame.transform.scale(player1_loaded_images[current_pokemon_index][player1_pokemon_frame_index[current_pokemon_index]], tuple([measure*1.5 for measure in player_1_pokemon.size])), True, False)
@@ -172,7 +221,6 @@ while running:
         player1_pokemon_frame_index[current_pokemon_index] = (player1_pokemon_frame_index[current_pokemon_index] + 1) % len(player1_loaded_images[current_pokemon_index])
         player2_pokemon_frame_index[current_pokemon_index] = (player2_pokemon_frame_index[current_pokemon_index] + 1) % len(player2_loaded_images[current_pokemon_index])
 
-        
         pygame.display.flip()
         clock.tick(40)
 # Clean up extracted frames
