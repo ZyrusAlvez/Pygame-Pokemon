@@ -15,6 +15,7 @@ player1_pokemon_frame_index = []
 player2_pokemons = []
 player2_loaded_images = []
 player2_pokemon_frame_index = []
+original_pokemons = pokemons[:]
 
 # Array to store map information
 map_names = ["Viridale Plains", "Pyrolith Crater", "Azure Shoals"]
@@ -51,6 +52,7 @@ def show_text(text, x_position, y_position):
     pygame.draw.rect(screen, "#A8E6A3", rendered_text_rect, 6, 2)
     screen.blit(rendered_text, rendered_text_rect)
 
+background_image = pygame.transform.scale(pygame.image.load("./assets/layout/pick-middle.png"), (800, 600))
 
 while running:
     for event in pygame.event.get():
@@ -224,7 +226,7 @@ while running:
         pygame.display.flip()
         clock.tick(40)
 # Clean up extracted frames
-for pokemon in pokemons:
+for pokemon in original_pokemons:
     pokemon.animation_clean_up()
 pygame.quit()
 
