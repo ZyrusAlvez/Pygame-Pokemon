@@ -14,6 +14,7 @@ player1_pokemon_frame_index = []
 player2_pokemons = []
 player2_loaded_images = []
 player2_pokemon_frame_index = []
+original_pokemons = pokemons[:]
 
 # Load Pokémon animation frames
 loaded_images = []
@@ -27,7 +28,7 @@ pokemon_frame_index = [0 for _ in range(len(pokemons))]
 focus = 0
 running = True
 number_of_selected = 0
-background_image = pygame.transform.scale(pygame.image.load("./assets/layout/picking-middle.png"), (800, 600))
+background_image = pygame.transform.scale(pygame.image.load("./assets/layout/pick-middle.png"), (800, 600))
 
 while running:
     for event in pygame.event.get():
@@ -104,5 +105,5 @@ while running:
 pygame.quit()
 
 # Clean up extracted frames
-for pokemon in pokemons:
+for pokemon in original_pokemons:
     pokemon.animation_clean_up()
