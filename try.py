@@ -93,6 +93,20 @@ def pokemon_selection_scene(pokemon_loaded_images: list) -> list:
         for i in range(len(pokemon_frame_index)):
             pokemon_frame_index[i] = (pokemon_frame_index[i] + 1) % len(pokemon_loaded_images[i])
             
+        # Conditional Rendering for icons
+        if len(player1_pokemons) >= 1:
+            screen.blit(scale(pygame.image.load(player1_pokemons[0].icon), 0.5), (15, 50))
+        if len(player2_pokemons) >= 1:
+            screen.blit(scale(pygame.image.load(player2_pokemons[0].icon), 0.5), (630, 50))
+        if len(player1_pokemons) >= 2:
+            screen.blit(scale(pygame.image.load(player1_pokemons[1].icon), 0.5), (65, 50))
+        if len(player2_pokemons) >= 2:
+            screen.blit(scale(pygame.image.load(player2_pokemons[1].icon), 0.5), (680, 50))
+        if len(player1_pokemons) >= 3:
+            screen.blit(scale(pygame.image.load(player1_pokemons[2].icon), 0.5), (115, 50))
+        if len(player2_pokemons) >= 3:
+            screen.blit(scale(pygame.image.load(player2_pokemons[2].icon), 0.5), (730, 50))
+            
         pygame.display.flip()
         clock.tick(40)
         

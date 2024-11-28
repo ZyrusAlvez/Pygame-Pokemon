@@ -115,7 +115,7 @@ while running:
         screen.blit(pokemon2_image_size, pokemon2_image_rect)
         screen.blit(pokemon3_image_size, pokemon3_image_rect)
 
-       
+
 
         # Update animation frames
         for i in range(len(pokemon_frame_index)):
