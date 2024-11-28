@@ -61,7 +61,9 @@ while running:
         if choosing_pokemon_scene:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
+                    print(focus)
                     if number_of_selected % 2 == 0:
+
                         # Save the selected Pokémon for player1
                         player1_pokemons.append(pokemons[focus])
                         player1_loaded_images.append(loaded_images[focus])
@@ -78,6 +80,7 @@ while running:
                     pokemon_frame_index.pop(focus)
                     
                     number_of_selected += 1
+                    focus -= 1
 
                 elif event.key == pygame.K_RIGHT:
                     focus += 1
@@ -115,7 +118,6 @@ while running:
         screen.blit(pokemon2_image_size, pokemon2_image_rect)
         screen.blit(pokemon3_image_size, pokemon3_image_rect)
 
-       
 
         # Update animation frames
         for i in range(len(pokemon_frame_index)):
@@ -124,7 +126,7 @@ while running:
             player1_pokemon_frame_index[i] = (player1_pokemon_frame_index[i] + 1) % len(player1_loaded_images[i])
 
         
-        if len(player1_pokemons) == 3:
+        if len(player2_pokemons) == 3:
             choosing_pokemon_scene = False
             map_selection = True
             # Variables to be used for map randomizer / Next screen ( To avoid multiple declaration )
@@ -166,11 +168,13 @@ while running:
                 index = 0
 
                 # Load up projectiles to be used by both pokemons
+                print(player_1_pokemon.element)
+                print(player_2_pokemon.element)
                 for num in range(len(battle_effects)):
                     if battle_effects[num].element == player_1_pokemon.element:
                         player_1_battle_effect_image = battleeffects_frames[num]
                         player_1_battle_effect_index = 0
-                    elif battle_effects[num].element == player_2_pokemon.element:
+                    if battle_effects[num].element == player_2_pokemon.element:
                         player_2_battle_effect_image = battleeffects_frames[num]
                         player_2_battle_effect_index = 0
         
