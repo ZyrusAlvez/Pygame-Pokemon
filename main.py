@@ -18,7 +18,7 @@ player2_pokemon_frame_index = []
 original_pokemons = pokemons[:]
 
 # Array to store map information
-map_names = ["Viridale Plains", "Pyrolith Crater", "Azure Shoals"]
+map_names = ["Viridale Forest", "Dragon Dungeon", "Bamboo Bridge"]
 
 # Array to store projectile objects
 battle_effects = [fireball, waterball, grassball]
