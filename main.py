@@ -57,7 +57,7 @@ def load_images() -> list:
                 exit()
 
         # Render loading  screen
-        screen.blit(pygame.image.load("assets/Battleground/0.png"), (0,0))
+        screen.blit(pygame.image.load("./assets/Battleground/Bamboo Bridge.png"), (0,0))
         show_text("Team Rocket", 400, 300, screen)
 
         pygame.display.update()
@@ -186,10 +186,10 @@ def pokemon_selection_scene(pokemon_loaded_images: list) -> list:
         
         # show pokemon info
         screen.blit(scale(pygame.image.load(pokemons[focus].icon), 0.5), (225, 480))
-        show_text(pokemons[focus].name, 265, 485, screen, "topleft", 30, "Black")
+        show_text(pokemons[focus].name, 265, 485, screen, 30, origin = "topleft", color = "Black")
         screen.blit(scale(pygame.image.load(f"assets/type-icons/{pokemons[focus].type}.png"), 0.5), (550, 480))
-        show_text(f"Power  : {pokemons[focus].power}", 236, 530, screen, "topleft", 25, "Black")
-        show_text(f"Health : {pokemons[focus].health}", 235, 565, screen, "topleft", 25, "Black")
+        show_text(f"Power  : {pokemons[focus].power}", 236, 530, screen, 25, origin = "topleft", color = "Black")
+        show_text(f"Health : {pokemons[focus].health}", 235, 565, screen, 25, origin = "topleft", color = "Black")
 
         # Update animation frames
         for i in range(len(pokemon_frame_index)):
@@ -282,12 +282,6 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                     battle_effect.clear_residue()
                 pygame.quit()
                 exit()
-                
-    while True:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                exit()
             if event.type == pygame.KEYDOWN:
                 # Controls for Player 1
                 if event.key == pygame.K_w:
@@ -320,11 +314,11 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
         ready = False
 
         # To show what the current match number is
-        show_text(f"Match {match_number+1}", screen.get_width() // 2, 57, screen, 40)
+        show_text(f"Match {match_number+1}", screen.get_width() // 2, 57, screen, 40, color = "#4ddf6f")
 
         # To show the name of pokemon in the current match
-        show_text(player_1_pokemon.name, 55, 34, screen, 20, "midleft")
-        show_text(player_2_pokemon.name, 600, 34, screen, 20, "midleft")
+        show_text(player_1_pokemon.name, 55, 34, screen, 20, "midleft", color = "#4ddf6f")
+        show_text(player_2_pokemon.name, 600, 34, screen, 20, "midleft", color = "#4ddf6f")
 
         # Just for trying purposes
         player_1_pokemon.remaining_health = player_1_pokemon.health - 40
@@ -349,8 +343,8 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
         screen.blit(hp_bar, player2_hp_bar_rect)
 
         # To show the Health Points of the Pokemons (Text)
-        show_text(f"{player_1_pokemon.remaining_health}/{player_1_pokemon.health}", 140, 69, screen, 20, "midleft")
-        show_text(f"{player_2_pokemon.remaining_health}/{player_2_pokemon.health}", 690, 69, screen, 20, "midleft")
+        show_text(f"{player_1_pokemon.remaining_health}/{player_1_pokemon.health}", 140, 69, screen, 20, "midleft", color = "#4ddf6f")
+        show_text(f"{player_2_pokemon.remaining_health}/{player_2_pokemon.health}", 690, 69, screen, 20, "midleft", color = "#4ddf6f")
         
         # For showing player 1 and player 2 menu
         for i in range(len(menu_options)):
@@ -364,27 +358,26 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
             player1_text = option_description[player1_menu_option_index].split("\n")
             player1_text_xpos, player1_text_ypos = 95, 520
             for line in player1_text:
-                show_text(line, player1_text_xpos, player1_text_ypos, screen, 20, "center")
+                show_text(line, player1_text_xpos, player1_text_ypos, screen, 20, "center", color = "#4ddf6f")
                 player1_text_ypos += 20
-            # show_text(option_description[player1_menu_option_index], 30, 500, screen, 20, "topleft")
 
             player2_text = option_description[player2_menu_option_index].split("\n")
             player2_text_xpos, player2_text_ypos = 515, 520
             for line in player2_text:
-                show_text(line, player2_text_xpos, player2_text_ypos, screen, 20, "center")
+                show_text(line, player2_text_xpos, player2_text_ypos, screen, 20, "center", color = "#4ddf6f")
                 player2_text_ypos += 20
             if player1_menu_option_index == i:
-                show_text(menu_options[i], 210 + ((i+2)%2)*80, y, screen, 20, "midleft", True)
+                show_text(menu_options[i], 210 + ((i+2)%2)*80, y, screen, 20, "midleft", True, color = "#4ddf6f")
                 arrow_img_rect = player1_arrow_img.get_rect(midleft = (190 + ((i+2)%2)*80, y))
                 screen.blit(player1_arrow_img, arrow_img_rect)
             else:
-                show_text(menu_options[i], 210 + ((i+2)%2)*80, y, screen, 20, "midleft")
+                show_text(menu_options[i], 210 + ((i+2)%2)*80, y, screen, 20, "midleft", color = "#4ddf6f")
             if player2_menu_option_index == i:
-                show_text(menu_options[i], 630 + ((i+2)%2)*80, y, screen, 20, "midleft", True)
+                show_text(menu_options[i], 630 + ((i+2)%2)*80, y, screen, 20, "midleft", True, color = "#4ddf6f")
                 arrow_img_rect = player2_arrow_img.get_rect(midleft = (610 + ((i+2)%2)*80, y))
                 screen.blit(player2_arrow_img, arrow_img_rect)
             else:
-                show_text(menu_options[i], 630 + ((i+2)%2)*80, y, screen, 20, "midleft")
+                show_text(menu_options[i], 630 + ((i+2)%2)*80, y, screen, 20, "midleft", color = "#4ddf6f")
         if ready:
             # Get current frames, resize and rotate them 
             player_1_battle_effect_current_img = pygame.transform.scale(pygame.transform.rotate(player_1_battle_effect_image[player_1_battle_effect_index], -90), tuple([measure * 0.3 for measure in player_1_battle_effect_image[index].get_size()]))
@@ -424,6 +417,7 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
         # Used for knowing specific locations in the screen
         # mouse_pos = pygame.mouse.get_pos()
         # print(f"Position: {mouse_pos}")
+
         pygame.display.flip()
         clock.tick(40)
 
