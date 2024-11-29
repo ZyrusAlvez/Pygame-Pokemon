@@ -4,6 +4,11 @@ import random, time
 from battleeffects import *
 from utility import *
 
+# for asynchronous operation (loading screen)
+import threading
+# this solves the slowness of threading
+from concurrent.futures import ThreadPoolExecutor
+
 # Pygame setup
 pygame.init()
 screen = pygame.display.set_mode((800, 600))
@@ -17,14 +22,48 @@ type_icons = [pygame.image.load("assets/type-icons/Fire.png"), pygame.image.load
 
 # this requires a lot of time to load
 def load_images() -> list:
-    pokemon_loaded_images = []
-    for pokemon in pokemons:
-        pokemon_loaded_images.append([pygame.image.load(frame) for frame in pokemon.animation_frames()])
-    
-    battle_effects_loaded_images = []
-    for effect in battle_effects:
-        battle_effects_loaded_images.append([pygame.image.load(frame) for frame in effect.animation_frames()])
-    return pokemon_loaded_images, battle_effects_loaded_images
+    loading_complete = False
+
+    def load_images_task():
+        nonlocal loading_complete
+        global pokemon_loaded_images, battle_effects_loaded_images
+        
+        def load_pokemon_frames(pokemon):
+            return [pygame.image.load(frame) for frame in pokemon.animation_frames()]
+
+        def load_effect_frames(effect):
+            return [pygame.image.load(frame) for frame in effect.animation_frames()]
+
+        # Use ThreadPoolExecutor to load frames in parallel
+        with ThreadPoolExecutor() as executor:
+            pokemon_loaded_images = list(executor.map(load_pokemon_frames, pokemons))
+            battle_effects_loaded_images = list(executor.map(load_effect_frames, battle_effects))
+
+        loading_complete = True
+
+    # Start loading images in a thread
+    loading_thread = threading.Thread(target=load_images_task)
+    loading_thread.start()
+
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                for pokemon in original_pokemons:
+                    pokemon.animation_clean_up()
+                for battle_effect in battle_effects:
+                    battle_effect.clear_residue()
+                pygame.quit()
+                exit()
+
+        # Render loading  screen
+        screen.blit(pygame.image.load("assets/Battleground/0.png"), (0,0))
+        show_text("Team Rocket", 400, 300, screen)
+
+        pygame.display.update()
+        
+        if loading_complete:
+            return pokemon_loaded_images, battle_effects_loaded_images
+
 
 def pokemon_selection_scene(pokemon_loaded_images: list) -> list:
     # Initialization
@@ -146,7 +185,7 @@ def pokemon_selection_scene(pokemon_loaded_images: list) -> list:
         
         # show pokemon info
         screen.blit(scale(pygame.image.load(pokemons[focus].icon), 0.5), (225, 480))
-        show_text(pokemons[focus].name, 260, 485, screen, "topleft", 30, "Black")
+        show_text(pokemons[focus].name, 265, 485, screen, "topleft", 30, "Black")
         screen.blit(scale(pygame.image.load(f"assets/type-icons/{pokemons[focus].type}.png"), 0.5), (550, 480))
         show_text(f"Power  : {pokemons[focus].power}", 236, 530, screen, "topleft", 25, "Black")
         show_text(f"Health : {pokemons[focus].health}", 235, 565, screen, "topleft", 25, "Black")
