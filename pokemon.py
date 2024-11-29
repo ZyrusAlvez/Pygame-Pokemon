@@ -6,6 +6,7 @@ class Pokemon:
         self.name = name
         self.element = element
         self.health = health
+        self.remaining_health = health
         self.power = power
         self.file_path = file_path
         self.icon = icon

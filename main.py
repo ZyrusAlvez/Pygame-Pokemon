@@ -124,7 +124,7 @@ while running:
             player1_pokemon_frame_index[i] = (player1_pokemon_frame_index[i] + 1) % len(player1_loaded_images[i])
 
         
-        if len(player1_pokemons) == 3:
+        if len(player2_pokemons) == 3:
             choosing_pokemon_scene = False
             map_selection = True
             # Variables to be used for map randomizer / Next screen ( To avoid multiple declaration )
@@ -170,7 +170,7 @@ while running:
                     if battle_effects[num].element == player_1_pokemon.element:
                         player_1_battle_effect_image = battleeffects_frames[num]
                         player_1_battle_effect_index = 0
-                    elif battle_effects[num].element == player_2_pokemon.element:
+                    if battle_effects[num].element == player_2_pokemon.element:
                         player_2_battle_effect_image = battleeffects_frames[num]
                         player_2_battle_effect_index = 0
         
