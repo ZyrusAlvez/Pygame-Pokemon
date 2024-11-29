@@ -13,6 +13,7 @@ clock = pygame.time.Clock()
 pokemons = [bulbasaur, charizard, blastoise, weepinbell, arcanine, psyduck, scyther, magmar, poliwrath, farfetchd, moltres, vaporeon]
 original_pokemons = pokemons[:]
 battle_effects = [fireball, waterball, grassball]
+type_icons = [pygame.image.load("assets/type-icons/Fire.png"), pygame.image.load("assets/type-icons/Grass.png"), pygame.image.load("assets/type-icons/Water.png")]
 
 # this requires a lot of time to load
 def load_images() -> list:
@@ -88,6 +89,13 @@ def pokemon_selection_scene(pokemon_loaded_images: list) -> list:
         screen.blit(pokemon1_image_size, pokemon1_image_rect)
         screen.blit(pokemon2_image_size, pokemon2_image_rect)
         screen.blit(pokemon3_image_size, pokemon3_image_rect)
+        
+        # show pokemon info
+        screen.blit(scale(pygame.image.load(pokemons[focus].icon), 0.5), (225, 480))
+        show_text(pokemons[focus].name, 260, 485, screen, "topleft", 30, "Black")
+        screen.blit(scale(pygame.image.load(f"assets/type-icons/{pokemons[focus].type}.png"), 0.5), (550, 480))
+        show_text(f"Power  : {pokemons[focus].power}", 236, 530, screen, "topleft", 25, "Black")
+        show_text(f"Health : {pokemons[focus].health}", 235, 565, screen, "topleft", 25, "Black")
 
         # Update animation frames
         for i in range(len(pokemon_frame_index)):
@@ -159,10 +167,10 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
 
     # Load up projectiles to be used by both pokemons
     for num in range(len(battle_effects)):
-        if battle_effects[num].element == player_1_pokemon.element:
+        if battle_effects[num].type == player_1_pokemon.type:
             player_1_battle_effect_image = battleeffects_frames[num]
             player_1_battle_effect_index = 0
-        elif battle_effects[num].element == player_2_pokemon.element:
+        elif battle_effects[num].type == player_2_pokemon.type:
             player_2_battle_effect_image = battleeffects_frames[num]
             player_2_battle_effect_index = 0
     

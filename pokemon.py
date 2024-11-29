@@ -2,9 +2,9 @@ from PIL import Image
 import os
 
 class Pokemon:
-    def __init__(self, name:str, element:str, health:str, power:str, file_path:str, is_flying: bool, icon:str) -> None:
+    def __init__(self, name:str, type:str, health:str, power:str, file_path:str, is_flying: bool, icon:str) -> None:
         self.name = name
-        self.element = element
+        self.type = type
         self.health = health
         self.power = power
         self.file_path = file_path
