@@ -40,6 +40,28 @@ def pokemon_selection_scene(pokemon_loaded_images: list) -> list:
     number_of_selected = 0
     background_image = pygame.transform.scale(pygame.image.load("./assets/layout/pick-middle.png"), (800, 600))
     
+    arrow_left_state_counter = 0
+    arrow_right_state_counter = 0
+    select_button_state_counter = 0
+    
+    def select_pokemon(number_of_selected, focus):
+        if number_of_selected % 2 == 0:
+            # Save the selected Pokémon for player1
+            player1_pokemons.append(pokemons[focus])
+            player1_loaded_images.append(pokemon_loaded_images[focus])
+        else:
+            # Save the selected Pokemon for player2
+            player2_pokemons.append(pokemons[focus])
+            player2_loaded_images.append(pokemon_loaded_images[focus])
+            
+        # Remove from the selection pool
+        pokemons.pop(focus)
+        pokemon_loaded_images.pop(focus)
+        pokemon_frame_index.pop(focus)
+        focus -= 1
+        number_of_selected += 1
+        return number_of_selected, focus
+        
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -47,26 +69,29 @@ def pokemon_selection_scene(pokemon_loaded_images: list) -> list:
                 exit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
-                    if number_of_selected % 2 == 0:
-                        # Save the selected Pokémon for player1
-                        player1_pokemons.append(pokemons[focus])
-                        player1_loaded_images.append(pokemon_loaded_images[focus])
-                    else:
-                        # Save the selected Pokemon for player2
-                        player2_pokemons.append(pokemons[focus])
-                        player2_loaded_images.append(pokemon_loaded_images[focus])
-                        
-                    # Remove from the selection pool
-                    pokemons.pop(focus)
-                    pokemon_loaded_images.pop(focus)
-                    pokemon_frame_index.pop(focus)
-                    focus -= 1
-                    number_of_selected += 1
-
-                elif event.key == pygame.K_RIGHT:
+                   updated_number_of_selected, updated_focus = select_pokemon(number_of_selected, focus)
+                   focus = updated_focus
+                   number_of_selected = updated_number_of_selected
+                if event.key == pygame.K_RIGHT:
                     focus = (focus + 1) % len(pokemons)
-                elif event.key == pygame.K_LEFT:
+                if event.key == pygame.K_LEFT:
                     focus = (focus - 1) % len(pokemons)
+            
+            # Check if mouse is clicked
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                # Check if click is inside the button
+                if arrow_left_rect.collidepoint(event.pos):  
+                   focus = (focus - 1) % len(pokemons)
+                   arrow_left_state_counter = 5
+                if arrow_right_rect.collidepoint(event.pos):  
+                   focus = (focus + 1) % len(pokemons)
+                   arrow_right_state_counter = 5
+                if select_button_rect.collidepoint(event.pos):  
+                   updated_number_of_selected, updated_focus = select_pokemon(number_of_selected, focus)
+                   focus = updated_focus
+                   number_of_selected = updated_number_of_selected
+                   select_button_state_counter = 5
+                   
 
         # Update nearby pokemon index (carousel purposes)
         prev_index = (focus - 1) % len(pokemons)
@@ -76,19 +101,44 @@ def pokemon_selection_scene(pokemon_loaded_images: list) -> list:
         screen.blit(background_image, (0, 0))
 
         # Scale Pokemon images
-        pokemon1_image_size = scale(pokemon_loaded_images[prev_index][pokemon_frame_index[prev_index]], 1.1)
-        pokemon2_image_size = scale(pokemon_loaded_images[focus][pokemon_frame_index[focus]], 1.9)
-        pokemon3_image_size = scale(pokemon_loaded_images[next_index][pokemon_frame_index[next_index]], 1.1)
+        pokemon1_image = scale(pokemon_loaded_images[prev_index][pokemon_frame_index[prev_index]], 1.1)
+        pokemon2_image = scale(pokemon_loaded_images[focus][pokemon_frame_index[focus]], 1.9)
+        pokemon3_image = scale(pokemon_loaded_images[next_index][pokemon_frame_index[next_index]], 1.1)
 
         # Get positions
-        pokemon1_image_rect = pokemon1_image_size.get_rect(midbottom=(screen.get_width() // 2 - 275, screen.get_height() // 2 - 30))
-        pokemon2_image_rect = pokemon2_image_size.get_rect(midbottom=(screen.get_width() // 2, screen.get_height() // 2 + 20))
-        pokemon3_image_rect = pokemon3_image_size.get_rect(midbottom=(screen.get_width() // 2 + 275, screen.get_height() // 2 - 30))
+        pokemon1_image_rect = pokemon1_image.get_rect(midbottom=(screen.get_width() // 2 - 275, screen.get_height() // 2 - 30))
+        pokemon2_image_rect = pokemon2_image.get_rect(midbottom=(screen.get_width() // 2, screen.get_height() // 2 + 20))
+        pokemon3_image_rect = pokemon3_image.get_rect(midbottom=(screen.get_width() // 2 + 275, screen.get_height() // 2 - 30))
 
         # show images
-        screen.blit(pokemon1_image_size, pokemon1_image_rect)
-        screen.blit(pokemon2_image_size, pokemon2_image_rect)
-        screen.blit(pokemon3_image_size, pokemon3_image_rect)
+        screen.blit(pokemon1_image, pokemon1_image_rect)
+        screen.blit(pokemon2_image, pokemon2_image_rect)
+        screen.blit(pokemon3_image, pokemon3_image_rect)
+        
+        # buttons
+        if arrow_left_state_counter:
+            arrow_left = scale(pygame.image.load("assets/buttons/arrow-left-clicked.png"), 0.17)
+            arrow_left_state_counter -= 1
+        else:
+            arrow_left = scale(pygame.image.load("assets/buttons/arrow-left.png"), 0.17)
+        arrow_left_rect = arrow_left.get_rect(center=(230, 415))
+        screen.blit(arrow_left, arrow_left_rect)
+        
+        if arrow_right_state_counter:
+            arrow_right = scale(pygame.image.load("assets/buttons/arrow-right-clicked.png"), 0.17)
+            arrow_right_state_counter -= 1
+        else:
+            arrow_right = scale(pygame.image.load("assets/buttons/arrow-right.png"), 0.17)
+        arrow_right_rect = arrow_right.get_rect(center=(580, 415))
+        screen.blit(arrow_right, arrow_right_rect)
+        
+        if select_button_state_counter:
+            select_button = scale(pygame.image.load("assets/buttons/select-button-clicked.png"), 0.3)
+            select_button_state_counter -= 1
+        else:
+            select_button = scale(pygame.image.load("assets/buttons/select-button.png"), 0.3)
+        select_button_rect = select_button.get_rect(center=(400, 415))
+        screen.blit(select_button, select_button_rect)
         
         # show pokemon info
         screen.blit(scale(pygame.image.load(pokemons[focus].icon), 0.5), (225, 480))
