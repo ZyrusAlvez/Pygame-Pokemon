@@ -65,6 +65,10 @@ def pokemon_selection_scene(pokemon_loaded_images: list) -> list:
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                for pokemon in original_pokemons:
+                    pokemon.animation_clean_up()
+                for battle_effect in battle_effects:
+                    battle_effect.clear_residue()
                 pygame.quit()
                 exit()
             if event.type == pygame.KEYDOWN:
@@ -181,6 +185,10 @@ def map_randomizer() -> object:
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                for pokemon in original_pokemons:
+                    pokemon.animation_clean_up()
+                for battle_effect in battle_effects:
+                    battle_effect.clear_residue()
                 pygame.quit()
                 exit()
                 
@@ -227,6 +235,10 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                for pokemon in original_pokemons:
+                    pokemon.animation_clean_up()
+                for battle_effect in battle_effects:
+                    battle_effect.clear_residue()
                 pygame.quit()
                 exit()
                 
@@ -282,6 +294,7 @@ def main():
     pokemon_loaded_images, battle_effects_loaded_images = load_images()
     player1_pokemons, player1_loaded_images, player2_pokemons, player2_loaded_images = pokemon_selection_scene(pokemon_loaded_images)
     current_background = map_randomizer()
-    fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, player2_loaded_images, battle_effects_loaded_images, current_background)
+    fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, player2_loaded_images, battle_effects_loaded_images, current_background)    
     
+
 main()
