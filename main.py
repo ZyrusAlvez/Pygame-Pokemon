@@ -296,7 +296,7 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
     player1_confirmation_index = 0
     player2_show_confirmation = False
     player2_confirmation_index = 0
-    confirmation_messages = ["Are you sure\nyou want to\nget ready?", "Using a potion will\nheal 20 health\npoints", "Using a poison will\ndeal 20 health\npoints to the\nenemy", "Are you sure you\nwant to end now?"]
+    confirmation_messages = ["Are you sure\nyou want to\nget ready?", "Using a potion will\nheal 20 health\npoints", "Using a poison will\ndeal 20 health\npoints to enemy", "Are you sure you\nwant to end now?"]
 
     player1_failmsg = False # For Fail in Run Option
     player2_failmsg = False
@@ -492,8 +492,8 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
 
         # Display when player 1 is ready
         if player1_ready:
-            show_text("READY", 115, 510, screen, 25, color= "#4ddf6f")
-            show_text("READY", 250, 510, screen, 25, color= "#4ddf6f")
+            show_text("READY", 110, 520, screen, 35, color= "#4ddf6f")
+            show_text("READY", 260, 520, screen, 35, color= "#4ddf6f")
         # Menu when confirming an action for player 1
         elif player1_show_confirmation:
             player1_text = confirmation_messages[player1_menu_option_index].split("\n") 
@@ -555,8 +555,8 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                     show_text(menu_options[i], 210 + ((i+2)%2)*80, y, screen, 20, "midleft", color = "#4ddf6f")
 
         if player2_ready:
-            show_text("READY", 538, 510, screen, 25, color= "#4ddf6f")
-            show_text("READY", 730, 510, screen, 25, color= "#4ddf6f")
+            show_text("READY", 530, 530, screen, 35, color= "#4ddf6f")
+            show_text("READY", 700, 530, screen, 35, color= "#4ddf6f")
         # Menu when confirming an action for player 2
         elif player2_show_confirmation:
             player2_text = confirmation_messages[player2_menu_option_index].split("\n")
@@ -619,8 +619,8 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
 
         if ready:
             # Get current frames, resize and rotate them 
-            player_1_battle_effect_current_img = pygame.transform.scale(pygame.transform.rotate(player_1_battle_effect_image[player_1_battle_effect_index], -90), tuple([measure * 0.3 for measure in player_1_battle_effect_image[player_1_battle_effect_index].get_size()]))
-            player_2_battle_effect_current_img = pygame.transform.scale(pygame.transform.rotate(player_2_battle_effect_image[player_2_battle_effect_index], 90), tuple([measure * 0.3 for measure in player_2_battle_effect_image[player_2_battle_effect_index].get_size()]))
+            player_1_battle_effect_current_img = pygame.transform.scale(pygame.transform.rotate(player_1_battle_effect_image[player_1_battle_effect_index], -90), tuple([measure * 0.5 for measure in player_1_battle_effect_image[player_1_battle_effect_index].get_size()]))
+            player_2_battle_effect_current_img = pygame.transform.scale(pygame.transform.rotate(player_2_battle_effect_image[player_2_battle_effect_index], 90), tuple([measure * 0.5 for measure in player_2_battle_effect_image[player_2_battle_effect_index].get_size()]))
             # Position each
             player_1_battle_effect_current_img_rect = player_1_battle_effect_current_img.get_rect(center = ((screen.get_width() // 2 - 200 ) + x_pos, screen.get_height() // 2 + 110 ))
             player_2_battle_effect_current_img_rect = player_2_battle_effect_current_img.get_rect(center = ((screen.get_width() // 2 + 200) - x_pos, screen.get_height() // 2 + 110))
