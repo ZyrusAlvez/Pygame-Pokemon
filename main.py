@@ -19,7 +19,7 @@ pygame.init()
 screen = pygame.display.set_mode((800, 600))
 clock = pygame.time.Clock()
 pygame.display.set_caption("Team Rocket's Pokemon Game")
-pygame.display.set_icon(scale(pygame.image.load("assets/Team-Rocket-Logo/Team-Rocket-Logo.png"), 2))
+pygame.display.set_icon(scale(pygame.image.load("assets/Team-Rocket-Logo/Rocket-Logo.png"), 2))
 
 # Global initialization
 pokemons = [bulbasaur, charizard, blastoise, weepinbell, arcanine, psyduck, scyther, magmar, poliwrath, farfetchd, moltres, vaporeon]
@@ -51,7 +51,7 @@ def load_images() -> list:
     # Start loading images in a thread
     loading_thread = threading.Thread(target=load_images_task)
     loading_thread.start()
-    image = pygame.image.load("assets/Loading-Screen/Loading-Screen(v1).png")
+    image = pygame.image.load("assets/Loading-Screen/Loading-Screen(v1)(630).png")
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -59,7 +59,7 @@ def load_images() -> list:
                 exit()
 
         # Render loading  screen
-        screen.blit(image, (0,0))
+        screen.blit(image, (0,-25))
         
         pygame.display.update()
         
