@@ -4,6 +4,10 @@ import random, time
 from battleeffects import *
 from utility import *
 
+# Data Structures
+from data_structures.linked_list import *
+from data_structures.queue import *
+
 # for asynchronous operation (loading screen)
 import threading
 # this solves the slowness of threading
@@ -45,54 +49,52 @@ def load_images() -> list:
     # Start loading images in a thread
     loading_thread = threading.Thread(target=load_images_task)
     loading_thread.start()
-
+    image = pygame.image.load("assets/Loading-Screen/Team-Rocket-LoadingScreen.png")
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                for pokemon in original_pokemons:
-                    pokemon.animation_clean_up()
-                for battle_effect in battle_effects:
-                    battle_effect.clear_residue()
                 pygame.quit()
                 exit()
 
         # Render loading  screen
-        screen.blit(pygame.image.load("assets/Battleground/Bamboo Bridge.png"), (0,0))
-        show_text("Team Rocket", 400, 300, screen)
-
+        screen.blit(image, (0,0))
+        
         pygame.display.update()
         
         if loading_complete:
             return pokemon_loaded_images, battle_effects_loaded_images
 
-
 def pokemon_selection_scene(pokemon_loaded_images: list) -> list:
-    # Initialization
-    player1_pokemons = []
-    player1_loaded_images = []
-    player2_pokemons = []
-    player2_loaded_images = []
+    # Creates the linked list
+    player1_linkedlist = LinkedList()
+    player2_linkedlist = LinkedList()
     
     # Frame index to track animation progress
     pokemon_frame_index = [0 for _ in range(len(pokemons))]
     
+    # Initialization
     focus = 0
     number_of_selected = 0
     background_image = pygame.transform.scale(pygame.image.load("./assets/layout/pick-middle.png"), (800, 600))
-    
     arrow_left_state_counter = 0
     arrow_right_state_counter = 0
     select_button_state_counter = 0
+    player1_loaded_images = []
+    player2_loaded_images = []
     
     def select_pokemon(number_of_selected, focus):
         if number_of_selected % 2 == 0:
             # Save the selected Pokémon for player1
-            player1_pokemons.append(pokemons[focus])
             player1_loaded_images.append(pokemon_loaded_images[focus])
+            
+            # add the pokemon to the linked list
+            player1_linkedlist.atend(pokemons[focus])
         else:
-            # Save the selected Pokemon for player2
-            player2_pokemons.append(pokemons[focus])
+            # Save the selected Pokemon for player
             player2_loaded_images.append(pokemon_loaded_images[focus])
+            
+            # add the pokemon to the linked list
+            player2_linkedlist.atend(pokemons[focus])
             
         # Remove from the selection pool
         pokemons.pop(focus)
@@ -136,7 +138,6 @@ def pokemon_selection_scene(pokemon_loaded_images: list) -> list:
                    number_of_selected = updated_number_of_selected
                    select_button_state_counter = 5
                    
-
         # Update nearby pokemon index (carousel purposes)
         prev_index = (focus - 1) % len(pokemons)
         next_index = (focus + 1) % len(pokemons)
@@ -195,25 +196,37 @@ def pokemon_selection_scene(pokemon_loaded_images: list) -> list:
         for i in range(len(pokemon_frame_index)):
             pokemon_frame_index[i] = (pokemon_frame_index[i] + 1) % len(pokemon_loaded_images[i])
             
-        # Conditional Rendering for icons
-        if len(player1_pokemons) >= 1:
-            screen.blit(scale(pygame.image.load(player1_pokemons[0].icon), 0.5), (15, 50))
-        if len(player2_pokemons) >= 1:
-            screen.blit(scale(pygame.image.load(player2_pokemons[0].icon), 0.5), (630, 50))
-        if len(player1_pokemons) >= 2:
-            screen.blit(scale(pygame.image.load(player1_pokemons[1].icon), 0.5), (65, 50))
-        if len(player2_pokemons) >= 2:
-            screen.blit(scale(pygame.image.load(player2_pokemons[1].icon), 0.5), (680, 50))
-        if len(player1_pokemons) >= 3:
-            screen.blit(scale(pygame.image.load(player1_pokemons[2].icon), 0.5), (115, 50))
-        if len(player2_pokemons) >= 3:
-            screen.blit(scale(pygame.image.load(player2_pokemons[2].icon), 0.5), (730, 50))
+        # Conditional Rendering for icons using linked list operations
+        if player1_linkedlist.count() >= 1:
+            screen.blit(scale(pygame.image.load(player1_linkedlist.get_data_at(1).icon), 0.5), (15, 50))
+        if player2_linkedlist.count() >= 1:
+            screen.blit(scale(pygame.image.load(player2_linkedlist.get_data_at(1).icon), 0.5), (630, 50))
+        if player1_linkedlist.count() >= 2:
+            screen.blit(scale(pygame.image.load(player1_linkedlist.get_data_at(2).icon), 0.5), (65, 50))
+        if player2_linkedlist.count() >= 2:
+            screen.blit(scale(pygame.image.load(player2_linkedlist.get_data_at(2).icon), 0.5), (680, 50))
+        if player1_linkedlist.count() >= 3:
+            screen.blit(scale(pygame.image.load(player1_linkedlist.get_data_at(3).icon), 0.5), (115, 50))
+        if player2_linkedlist.count() >= 3:
+            screen.blit(scale(pygame.image.load(player2_linkedlist.get_data_at(3).icon), 0.5), (730, 50))
             
         pygame.display.flip()
         clock.tick(40)
         
         if number_of_selected == 6:
-            return player1_pokemons, player1_loaded_images, player2_pokemons, player2_loaded_images
+            
+            # Creates the Queue
+            player1_pokemons_queue = Queue()
+            player2_pokemons_queue = Queue()
+            
+            # Convert the linked list data to a Queue
+            for data in player1_linkedlist.show_data():
+                player1_pokemons_queue.enqueue(data)
+            for data in player2_linkedlist.show_data():
+                player2_pokemons_queue.enqueue(data)
+            
+            # pass the queue for the next scene    
+            return player1_pokemons_queue, player1_loaded_images, player2_pokemons_queue, player2_loaded_images
         
 def map_randomizer() -> object:
     # Variables to be used for map randomizer / Next screen ( To avoid multiple declaration )
@@ -427,5 +440,4 @@ def main():
     current_background = map_randomizer()
     fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, player2_loaded_images, battle_effects_loaded_images, current_background)    
     
-
 main()
