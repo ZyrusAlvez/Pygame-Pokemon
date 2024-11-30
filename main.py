@@ -18,6 +18,8 @@ from concurrent.futures import ThreadPoolExecutor
 pygame.init()
 screen = pygame.display.set_mode((800, 600))
 clock = pygame.time.Clock()
+pygame.display.set_caption("Team Rocket's Pokemon Game")
+pygame.display.set_icon(scale(pygame.image.load("assets/Team-Rocket-Logo/Team-Rocket-Logo.png"), 2))
 
 # Global initialization
 pokemons = [bulbasaur, charizard, blastoise, weepinbell, arcanine, psyduck, scyther, magmar, poliwrath, farfetchd, moltres, vaporeon]
