@@ -26,3 +26,5 @@ class BattleEffects:
 fireball = BattleEffects("assets/Attack_Balls/Fire.gif", "Fire")
 waterball = BattleEffects("assets/Attack_Balls/Water.gif", "Water")
 grassball = BattleEffects("assets/Attack_Balls/Grass.gif", "Grass")
+
+pokeball = BattleEffects("assets/layout/pokeball.gif", "LoadingEffect")

@@ -24,8 +24,7 @@ pygame.display.set_icon(scale(pygame.image.load("assets/Team-Rocket-Logo/Rocket-
 # Global initialization
 pokemons = [bulbasaur, charizard, blastoise, weepinbell, arcanine, psyduck, scyther, magmar, poliwrath, farfetchd, moltres, vaporeon]
 original_pokemons = pokemons[:]
-battle_effects = [fireball, waterball, grassball]
-type_icons = [pygame.image.load("assets/type-icons/Fire.png"), pygame.image.load("assets/type-icons/Grass.png"), pygame.image.load("assets/type-icons/Water.png")]
+battle_effects = [fireball, waterball, grassball, pokeball]
 
 # this requires a lot of time to load
 def load_images() -> list:
@@ -66,7 +65,7 @@ def load_images() -> list:
         if loading_complete:
             return pokemon_loaded_images, battle_effects_loaded_images
 
-def pokemon_selection_scene(pokemon_loaded_images: list) -> list:
+def pokemon_selection_scene(pokemon_loaded_images: list, battle_effect_loaded_images: list) -> list:
     # Creates the linked list
     player1_linkedlist = LinkedList()
     player2_linkedlist = LinkedList()
@@ -83,7 +82,10 @@ def pokemon_selection_scene(pokemon_loaded_images: list) -> list:
     arrow_right_state_counter = 0
     select_button_state_counter = 0
     player1_loaded_images = []
-    player2_loaded_images = []
+    player2_loaded_images = [] 
+    
+    pokeball_effect_frame_index = 0
+    
     
     def select_pokemon(number_of_selected, focus):
         if number_of_selected % 2 == 0:
@@ -146,10 +148,16 @@ def pokemon_selection_scene(pokemon_loaded_images: list) -> list:
         next_index = (focus + 1) % len(pokemons)
         
         # Draw background
+        pokeball_image = scale(battle_effect_loaded_images[3][pokeball_effect_frame_index], 0.15)
         if number_of_selected % 2 == 0:
             screen.blit(background_image_p1, (0, 0))
+            pokeball_image_rect = pokeball_image.get_rect(topleft=(70,5))
+            
         else:
             screen.blit(background_image_p2, (0, 0))
+            pokeball_image_rect = pokeball_image.get_rect(topleft=(600,5))
+        screen.blit(pokeball_image, pokeball_image_rect)
+        pokeball_effect_frame_index = (pokeball_effect_frame_index + 1) % len(battle_effect_loaded_images[3])
 
         # Scale Pokemon images
         pokemon1_image = scale(pokemon_loaded_images[prev_index][pokemon_frame_index[prev_index]], 1.1)
@@ -442,7 +450,7 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
 
 def main():
     pokemon_loaded_images, battle_effects_loaded_images = load_images()
-    player1_pokemons, player1_loaded_images, player2_pokemons, player2_loaded_images = pokemon_selection_scene(pokemon_loaded_images)
+    player1_pokemons, player1_loaded_images, player2_pokemons, player2_loaded_images = pokemon_selection_scene(pokemon_loaded_images, battle_effects_loaded_images)
     current_background = map_randomizer()
     fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, player2_loaded_images, battle_effects_loaded_images, current_background)    
     
