@@ -205,14 +205,14 @@ def pokemon_selection_scene(pokemon_loaded_images: list, battle_effect_loaded_im
         show_text(f"Power  : {pokemons[focus].power}", 236, 530, screen, 25, "topleft", color="Black")
         show_text(f"Health : {pokemons[focus].health}", 235, 565, screen, 25, "topleft", color="Black")
         if pokemons[focus].type == "Water":
-            screen.blit(scale(pygame.image.load("assets/Bar/Bar-Mid.png"), 1), (370, 535))
-            screen.blit(scale(pygame.image.load("assets/Bar/Bar-Mid.png"), 1), (370, 570))
+            screen.blit(pygame.image.load("assets/Bar/Bar-Mid.png"), (370, 535))
+            screen.blit(pygame.image.load("assets/Bar/Bar-Mid.png"), (370, 570))
         elif pokemons[focus].type == "Fire":
-            screen.blit(scale(pygame.image.load("assets/Bar/Bar-Long.png"), 1), (370, 535))
-            screen.blit(scale(pygame.image.load("assets/Bar/Bar-Short.png"), 1), (370, 570))
+            screen.blit(pygame.image.load("assets/Bar/Bar-Long.png"), (370, 535))
+            screen.blit(pygame.image.load("assets/Bar/Bar-Short.png"), (370, 570))
         elif pokemons[focus].type == "Grass":
-            screen.blit(scale(pygame.image.load("assets/Bar/Bar-Short.png"), 1), (370, 535))
-            screen.blit(scale(pygame.image.load("assets/Bar/Bar-Long.png"), 1), (370, 570))
+            screen.blit(pygame.image.load("assets/Bar/Bar-Short.png"), (370, 535))
+            screen.blit(pygame.image.load("assets/Bar/Bar-Long.png"), (370, 570))
             
         # Update animation frames
         for i in range(len(pokemon_frame_index)):
