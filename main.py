@@ -57,7 +57,7 @@ def load_images() -> list:
                 exit()
 
         # Render loading  screen
-        screen.blit(pygame.image.load("assets/Battleground/0.png"), (0,0))
+        screen.blit(pygame.image.load("assets/Battleground/Bamboo Bridge.png"), (0,0))
         show_text("Team Rocket", 400, 300, screen)
 
         pygame.display.update()
@@ -186,10 +186,10 @@ def pokemon_selection_scene(pokemon_loaded_images: list) -> list:
         
         # show pokemon info
         screen.blit(scale(pygame.image.load(pokemons[focus].icon), 0.5), (225, 480))
-        show_text(pokemons[focus].name, 265, 485, screen, "topleft", 30, "Black")
+        show_text(pokemons[focus].name, 265, 485, screen, 30, "topleft", color="Black")
         screen.blit(scale(pygame.image.load(f"assets/type-icons/{pokemons[focus].type}.png"), 0.5), (550, 480))
-        show_text(f"Power  : {pokemons[focus].power}", 236, 530, screen, "topleft", 25, "Black")
-        show_text(f"Health : {pokemons[focus].health}", 235, 565, screen, "topleft", 25, "Black")
+        show_text(f"Power  : {pokemons[focus].power}", 236, 530, screen, 25, "topleft", color="Black")
+        show_text(f"Health : {pokemons[focus].health}", 235, 565, screen, 25, "topleft", color="Black")
 
         # Update animation frames
         for i in range(len(pokemon_frame_index)):
@@ -272,7 +272,7 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
         elif battle_effects[num].type == player_2_pokemon.type:
             player_2_battle_effect_image = battleeffects_frames[num]
             player_2_battle_effect_index = 0
-    
+                
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -280,12 +280,6 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                     pokemon.animation_clean_up()
                 for battle_effect in battle_effects:
                     battle_effect.clear_residue()
-                pygame.quit()
-                exit()
-                
-    while True:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
                 pygame.quit()
                 exit()
             if event.type == pygame.KEYDOWN:
