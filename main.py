@@ -151,18 +151,17 @@ def pokemon_selection_scene(pokemon_loaded_images: list, battle_effect_loaded_im
         pokeball_image = scale(battle_effect_loaded_images[3][pokeball_effect_frame_index], 0.15)
         if number_of_selected % 2 == 0:
             screen.blit(background_image_p1, (0, 0))
-            pokeball_image_rect = pokeball_image.get_rect(topleft=(70,5))
-            
+            pokeball_image_rect = pokeball_image.get_rect(topleft=(100, -15))
         else:
             screen.blit(background_image_p2, (0, 0))
-            pokeball_image_rect = pokeball_image.get_rect(topleft=(600,5))
+            pokeball_image_rect = pokeball_image.get_rect(topleft=(570, -15))
         screen.blit(pokeball_image, pokeball_image_rect)
         pokeball_effect_frame_index = (pokeball_effect_frame_index + 1) % len(battle_effect_loaded_images[3])
 
         # Scale Pokemon images
-        pokemon1_image = scale(pokemon_loaded_images[prev_index][pokemon_frame_index[prev_index]], 1.1)
+        pokemon1_image = scale(apply_brightness(pokemon_loaded_images[prev_index][pokemon_frame_index[prev_index]]), 1.1)
         pokemon2_image = scale(pokemon_loaded_images[focus][pokemon_frame_index[focus]], 1.9)
-        pokemon3_image = scale(pokemon_loaded_images[next_index][pokemon_frame_index[next_index]], 1.1)
+        pokemon3_image = scale(apply_brightness(pokemon_loaded_images[next_index][pokemon_frame_index[next_index]]), 1.1)
 
         # Get positions
         pokemon1_image_rect = pokemon1_image.get_rect(midbottom=(screen.get_width() // 2 - 275, screen.get_height() // 2 - 30))
@@ -212,17 +211,17 @@ def pokemon_selection_scene(pokemon_loaded_images: list, battle_effect_loaded_im
             
         # Conditional Rendering for icons using linked list operations
         if player1_linkedlist.count() >= 1:
-            screen.blit(scale(pygame.image.load(player1_linkedlist.get_data_at(1).icon), 0.5), (15, 50))
+            screen.blit(scale(pygame.image.load(player1_linkedlist.get_data_at(1).icon), 0.5), (20, 55))
         if player2_linkedlist.count() >= 1:
-            screen.blit(scale(pygame.image.load(player2_linkedlist.get_data_at(1).icon), 0.5), (630, 50))
+            screen.blit(scale(pygame.image.load(player2_linkedlist.get_data_at(1).icon), 0.5), (650, 55))
         if player1_linkedlist.count() >= 2:
-            screen.blit(scale(pygame.image.load(player1_linkedlist.get_data_at(2).icon), 0.5), (65, 50))
+            screen.blit(scale(pygame.image.load(player1_linkedlist.get_data_at(2).icon), 0.5), (70, 55))
         if player2_linkedlist.count() >= 2:
-            screen.blit(scale(pygame.image.load(player2_linkedlist.get_data_at(2).icon), 0.5), (680, 50))
+            screen.blit(scale(pygame.image.load(player2_linkedlist.get_data_at(2).icon), 0.5), (700, 55))
         if player1_linkedlist.count() >= 3:
-            screen.blit(scale(pygame.image.load(player1_linkedlist.get_data_at(3).icon), 0.5), (115, 50))
+            screen.blit(scale(pygame.image.load(player1_linkedlist.get_data_at(3).icon), 0.5), (120, 55))
         if player2_linkedlist.count() >= 3:
-            screen.blit(scale(pygame.image.load(player2_linkedlist.get_data_at(3).icon), 0.5), (730, 50))
+            screen.blit(scale(pygame.image.load(player2_linkedlist.get_data_at(3).icon), 0.5), (750, 55))
             
         pygame.display.flip()
         clock.tick(40)
