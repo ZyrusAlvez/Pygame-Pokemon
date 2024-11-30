@@ -262,19 +262,20 @@ def map_randomizer() -> object:
             if event.type == pygame.QUIT:
                 pygame.quit()
                 exit()
-                
+        time.sleep(starting_show_speed)
+        unselected_maps = [name for name in map_names if name != map_index]
+        map_index = random.choice(unselected_maps) # Randomly select a map again        
         current_background = pygame.transform.scale(pygame.image.load(f"./assets/Battleground/{map_index}.png"), (800,600))
         screen.blit(current_background, (0,0))
         show_text(map_index, 400, 50, screen)
         
         if not is_map_final:
-            unselected_maps = [name for name in map_names if name != map_index]
             starting_show_speed *= 1.5
-            map_index = random.choice(unselected_maps) # Randomly select a map again
-            time.sleep(starting_show_speed)
             if starting_show_speed >= 1.2:
                 current_background = pygame.transform.scale(pygame.image.load(f"./assets/Battle_Scene/{map_index}.png"), (800,600))
+                is_map_final = True
                 return current_background
+        
         
         # Update the screen
         pygame.display.flip()
@@ -324,6 +325,21 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
 
     player1_usedpoison = False
     player2_usedpoison = False
+
+    fight_dia_timer = None
+    fight_dia_duration = 8000
+    collision = False
+    tobe_printed_msg = ""
+    msg_index = 0
+    disable_player1_proj = False
+    disable_player2_proj = False
+    player1_damage_counter = 0
+    player2_damage_counter = 0
+    deduct_player1_hp = False
+    deduct_player2_hp = False
+    dmg_interval = 500
+    player_1_dmg_time = 0
+    player_2_dmg_time = 0
     # Load up projectiles to be used by both pokemons
     for num in range(len(battle_effects)):
         if battle_effects[num].type == player_1_pokemon.type:
@@ -626,24 +642,79 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
         ready = player1_ready and player2_ready # to check if both player are ready
 
         if ready:
+            if fight_dia_timer and pygame.time.get_ticks() - fight_dia_timer < fight_dia_duration:
+                x_pos += 0
+                if pygame.time.get_ticks() - fight_dia_timer < 5000:
+                    show_text(str(random.randint(1, 150)),349, 336, screen, 30, color= "Red" if player_1_pokemon.type == "Fire" else "Blue" if player_1_pokemon.type == "Water" else "Green")
+                    show_text(str(random.randint(1, 150)),429, 336, screen, 30, color= "Red" if player_2_pokemon.type == "Fire" else "Blue" if player_2_pokemon.type == "Water" else "Green")
+                else:
+                    if msg_index < len(comparison_msg):
+                        tobe_printed_msg += comparison_msg[msg_index]
+                        msg_index = (msg_index + 1) if msg_index < len(comparison_msg) else len(comparison_msg)
+                    show_text(tobe_printed_msg, screen.get_width()//2 , 470, screen, 20, origin= "center")
+                    show_text(str(player_1_pokemon.power),349, 336, screen, 30, color= "Red" if player_1_pokemon.type == "Fire" else "Blue" if player_1_pokemon.type == "Water" else "Green")
+                    show_text(str(player_2_pokemon.power),429, 336, screen, 30, color= "Red" if player_2_pokemon.type == "Fire" else "Blue" if player_2_pokemon.type == "Water" else "Green")
+                    
+                    
+            else:
+                if collision:
+                    x_pos += 3
+                    if player_1_pokemon.power > player_2_pokemon.power:
+                        disable_player2_proj = True
+                    else:
+                        disable_player1_proj = True
+                    fight_dia_timer = None
+                # Increment x to make each image closer to middle ( 400 )
+                x_pos += 2
+                
             # Get current frames, resize and rotate them 
             player_1_battle_effect_current_img = pygame.transform.scale(pygame.transform.rotate(player_1_battle_effect_image[player_1_battle_effect_index], -90), tuple([measure * 0.5 for measure in player_1_battle_effect_image[player_1_battle_effect_index].get_size()]))
             player_2_battle_effect_current_img = pygame.transform.scale(pygame.transform.rotate(player_2_battle_effect_image[player_2_battle_effect_index], 90), tuple([measure * 0.5 for measure in player_2_battle_effect_image[player_2_battle_effect_index].get_size()]))
-            # Position each
-            player_1_battle_effect_current_img_rect = player_1_battle_effect_current_img.get_rect(center = ((screen.get_width() // 2 - 200 ) + x_pos, screen.get_height() // 2 + 110 ))
-            player_2_battle_effect_current_img_rect = player_2_battle_effect_current_img.get_rect(center = ((screen.get_width() // 2 + 200) - x_pos, screen.get_height() // 2 + 110))
-
-            # Increment x to make each image closer to middle ( 400 )
-            x_pos += 1
-            if player_1_battle_effect_current_img_rect.colliderect(player_2_battle_effect_current_img_rect):
-                show_text(f"{player_1_pokemon.name if player_1_pokemon.power > player_2_pokemon.power else player_2_pokemon.name} overwhelmes {player_2_pokemon.name if player_2_pokemon.power < player_1_pokemon.power else player_1_pokemon.name}", screen.get_width() // 2, 400, screen, 20,)
-                
+            
+        
             # Draw them each
-            screen.blit(player_1_battle_effect_current_img, player_1_battle_effect_current_img_rect)
-            screen.blit(player_2_battle_effect_current_img, player_2_battle_effect_current_img_rect)
+            if not disable_player1_proj:
+                player_1_battle_effect_current_img_rect = player_1_battle_effect_current_img.get_rect(center = ((screen.get_width() // 2 - 200 ) + x_pos, screen.get_height() // 2 + 110 ))
+                screen.blit(player_1_battle_effect_current_img, player_1_battle_effect_current_img_rect)
+            if not disable_player2_proj:
+                player_2_battle_effect_current_img_rect = player_2_battle_effect_current_img.get_rect(center = ((screen.get_width() // 2 + 200) - x_pos, screen.get_height() // 2 + 110))
+                screen.blit(player_2_battle_effect_current_img, player_2_battle_effect_current_img_rect)
             # Update each index for the battle effect frame
             player_1_battle_effect_index = (player_1_battle_effect_index + 1) % len(player_1_battle_effect_image)
             player_2_battle_effect_index = (player_2_battle_effect_index + 1) % len(player_2_battle_effect_image)
+            if player_1_battle_effect_current_img_rect.colliderect(player_2_battle_effect_current_img_rect):
+                comparison_msg = (f"{player_1_pokemon.name if player_1_pokemon.power > player_2_pokemon.power else player_2_pokemon.name} overwhelmes {player_2_pokemon.name if player_2_pokemon.power < player_1_pokemon.power else player_1_pokemon.name}")
+                if not collision:
+                    fight_dia_timer = pygame.time.get_ticks()
+                    collision = True
+            
+            if player_1_battle_effect_current_img_rect.colliderect(player_2_pokemon_rect):
+                if not deduct_player2_hp:
+                    deduct_player2_hp = True
+                    disable_player1_proj = True
+            elif player_2_battle_effect_current_img_rect.colliderect(player_1_pokemon_rect):
+                if not deduct_player1_hp:
+                    deduct_player1_hp = True
+                    disable_player2_proj = True
+
+            if deduct_player2_hp:
+                if pygame.time.get_ticks() - player_2_dmg_time >= dmg_interval :
+                    if player1_damage_counter < 10:
+                        player1_damage_counter +=1
+                        player_2_pokemon.remaining_health -= 1
+                        player_2_dmg_time = pygame.time.get_ticks()
+                if player1_damage_counter >= 10:
+                    player1_damage_counter = 10
+                    deduct_player2_hp = False
+            elif deduct_player1_hp:
+                if pygame.time.get_ticks() - player_1_dmg_time >= dmg_interval and player2_damage_counter < 10:
+                    player2_damage_counter += 1
+                    player_1_pokemon.remaining_health -= 1
+                if player2_damage_counter >= 10:
+                    player2_damage_counter = 10
+                    deduct_player1_hp = False
+
+            
 
         # Get current frame and resize it proportionally
         player_1_pokemon_image = pygame.transform.flip(pygame.transform.scale(player1_loaded_images[current_pokemon_index][player1_pokemon_frame_index[current_pokemon_index]], tuple([measure*1.5 for measure in player_1_pokemon.size])), True, False)
