@@ -51,7 +51,7 @@ def load_images() -> list:
     # Start loading images in a thread
     loading_thread = threading.Thread(target=load_images_task)
     loading_thread.start()
-    image = pygame.image.load("assets/Loading-Screen/Team-Rocket-LoadingScreen.png")
+    image = pygame.image.load("assets/Loading-Screen/Loading-Screen(v1).png")
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
