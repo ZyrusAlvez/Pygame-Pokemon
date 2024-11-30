@@ -77,7 +77,8 @@ def pokemon_selection_scene(pokemon_loaded_images: list) -> list:
     # Initialization
     focus = 0
     number_of_selected = 0
-    background_image = pygame.transform.scale(pygame.image.load("./assets/layout/pick-middle.png"), (800, 600))
+    background_image_p1 = pygame.transform.scale(pygame.image.load("assets/layout/pick-p1-highlight.png"), (800, 600))
+    background_image_p2 = pygame.transform.scale(pygame.image.load("assets/layout/pick-p2-highlight.png"), (800, 600))
     arrow_left_state_counter = 0
     arrow_right_state_counter = 0
     select_button_state_counter = 0
@@ -114,7 +115,7 @@ def pokemon_selection_scene(pokemon_loaded_images: list) -> list:
                 for battle_effect in battle_effects:
                     battle_effect.clear_residue()
                 pygame.quit()
-                exit()
+                exit()  
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
                    updated_number_of_selected, updated_focus = select_pokemon(number_of_selected, focus)
@@ -145,7 +146,10 @@ def pokemon_selection_scene(pokemon_loaded_images: list) -> list:
         next_index = (focus + 1) % len(pokemons)
         
         # Draw background
-        screen.blit(background_image, (0, 0))
+        if number_of_selected % 2 == 0:
+            screen.blit(background_image_p1, (0, 0))
+        else:
+            screen.blit(background_image_p2, (0, 0))
 
         # Scale Pokemon images
         pokemon1_image = scale(pokemon_loaded_images[prev_index][pokemon_frame_index[prev_index]], 1.1)
