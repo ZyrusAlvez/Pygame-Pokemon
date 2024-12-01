@@ -253,33 +253,28 @@ def pokemon_selection_scene(pokemon_loaded_images: list, battle_effect_loaded_im
 def map_randomizer() -> object:
     # Variables to be used for map randomizer / Next screen ( To avoid multiple declaration )
     map_names = ["Viridale Forest", "Dragon Dungeon", "Bamboo Bridge"]
-    map_buffs_nerfs = [[0.3, ]]
-    map_index = random.choice(map_names) # Random starting map
     starting_show_speed = 0.05
-    is_map_final = False
+    selected_map = random.choice(map_names)
     
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 exit()
+        time.sleep(starting_show_speed)
         
-        current_background = pygame.transform.scale(pygame.image.load(f"./assets/Battleground/{map_index}.png"), (800,600))
+        random_map = random.choice(map_names) # Randomly select a map again        
+        current_background = pygame.transform.scale(pygame.image.load(f"./assets/Battleground/{random_map}.png"), (800,600))
         screen.blit(current_background, (0,0))
-        show_text(map_index, 400, 50, screen)
-        print(f"{map_index} is currently shown")
+        show_text(random_map, 400, 50, screen)
         
+        starting_show_speed *= 1.5
+        if starting_show_speed >= 2:
+            screen.blit(pygame.transform.scale(pygame.image.load(f"./assets/Battleground/{selected_map}.png"), (800,600)), (0,0))
+            current_background = pygame.transform.scale(pygame.image.load(f"./assets/Battle_Scene/{selected_map}.png"), (800,600))
+            time.sleep(1)
+            return current_background
         
-        if is_map_final:
-            current_background = pygame.transform.scale(pygame.image.load(f"./assets/Battle_Scene/{map_index}.png"), (800,600))
-            break
-        if not is_map_final:
-            unselected_maps = [name for name in map_names if name != map_index]
-            map_index = random.choice(unselected_maps) # Randomly select a map again 
-            starting_show_speed *= 1.5
-            if starting_show_speed >= 1.2:
-                is_map_final = True
-            time.sleep(starting_show_speed)
         
         # Update the screen
         pygame.display.flip()
