@@ -3,8 +3,11 @@ import pygame
 def scale(loaded_image, multiply = 1):
     return pygame.transform.scale(loaded_image, (int(loaded_image.get_width() * multiply), int(loaded_image.get_height() * multiply)))
 
-def show_text(text, x_position, y_position, screen, font_size = 60, origin = "center", highlight = False, color = "White"):
-    pokemon_font = pygame.font.Font("./assets/font/Pokemon-Em.ttf", font_size)
+def show_text(text, x_position, y_position, screen, font_size = 60, origin = "center", highlight = False, color = "White", bold=False):
+    if bold:
+        pokemon_font = pygame.font.Font("./assets/font/Pokemon-DP-Bold.ttf", font_size)
+    else:
+        pokemon_font = pygame.font.Font("./assets/font/Pokemon-Em.ttf", font_size)
     rendered_text = pokemon_font.render(text, False, color)
     if origin == "center":
         rendered_text_rect = rendered_text.get_rect(center = (x_position, y_position))

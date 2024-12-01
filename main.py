@@ -187,7 +187,7 @@ def pokemon_selection_scene(pokemon_loaded_images: list, battle_effect_loaded_im
             arrow_right_state_counter -= 1
         else:
             arrow_right = scale(pygame.image.load("assets/buttons/arrow-right.png"), 0.17)
-        arrow_right_rect = arrow_right.get_rect(center=(580, 415))
+        arrow_right_rect = arrow_right.get_rect(center=(570, 415))
         screen.blit(arrow_right, arrow_right_rect)
         
         if select_button_state_counter:
@@ -200,7 +200,7 @@ def pokemon_selection_scene(pokemon_loaded_images: list, battle_effect_loaded_im
         
         # show pokemon info
         screen.blit(scale(pygame.image.load(pokemons[focus].icon), 0.5), (225, 480))
-        show_text(pokemons[focus].name, 265, 485, screen, 30, "topleft", color="Black")
+        show_text(pokemons[focus].name, 265, 485, screen, 30, "topleft", color="Black", bold=True)
         screen.blit(scale(pygame.image.load(f"assets/type-icons/{pokemons[focus].type}.png"), 0.5), (550, 480))
         show_text(f"Power  : {pokemons[focus].power}", 236, 530, screen, 25, "topleft", color="Black")
         show_text(f"Health : {pokemons[focus].health}", 235, 565, screen, 25, "topleft", color="Black")
