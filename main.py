@@ -7,7 +7,7 @@ from utility import *
 # Data Structures
 from data_structures.linked_list import *
 from data_structures.queue import *
-
+from data_structures.stack import *
 # for asynchronous operation (loading screen)
 import threading
 # this solves the slowness of threading
@@ -253,6 +253,7 @@ def pokemon_selection_scene(pokemon_loaded_images: list, battle_effect_loaded_im
 def map_randomizer() -> object:
     # Variables to be used for map randomizer / Next screen ( To avoid multiple declaration )
     map_names = ["Viridale Forest", "Dragon Dungeon", "Bamboo Bridge"]
+    map_buffs_nerfs = [[0.3, ]]
     map_index = random.choice(map_names) # Random starting map
     starting_show_speed = 0.05
     is_map_final = False
@@ -262,29 +263,38 @@ def map_randomizer() -> object:
             if event.type == pygame.QUIT:
                 pygame.quit()
                 exit()
-        time.sleep(starting_show_speed)
-        unselected_maps = [name for name in map_names if name != map_index]
-        map_index = random.choice(unselected_maps) # Randomly select a map again        
+        
         current_background = pygame.transform.scale(pygame.image.load(f"./assets/Battleground/{map_index}.png"), (800,600))
         screen.blit(current_background, (0,0))
         show_text(map_index, 400, 50, screen)
+        print(f"{map_index} is currently shown")
         
+        
+        if is_map_final:
+            current_background = pygame.transform.scale(pygame.image.load(f"./assets/Battle_Scene/{map_index}.png"), (800,600))
+            break
         if not is_map_final:
+            unselected_maps = [name for name in map_names if name != map_index]
+            map_index = random.choice(unselected_maps) # Randomly select a map again 
             starting_show_speed *= 1.5
             if starting_show_speed >= 1.2:
-                current_background = pygame.transform.scale(pygame.image.load(f"./assets/Battle_Scene/{map_index}.png"), (800,600))
                 is_map_final = True
-                return current_background
-        
+            time.sleep(starting_show_speed)
         
         # Update the screen
         pygame.display.flip()
         # fps
         clock.tick(60)
+    return current_background
         
 def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, player2_loaded_images, battleeffects_frames, current_background) -> None:
     # Preparation for next screen to avoid multiple declaration
-    consumables_queue = Queue()
+
+    # Queue for Executing Potion Healings and Poison Damages
+    consumables_queue = Queue() 
+    # Stack for Executing Buffs and Nerfs
+    buffs_nerfs_stack = Stack()
+    
     match_number = 0
     another_round = False
     player1_ready = False
@@ -698,11 +708,9 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                     disable_player2_proj = True
 
             if deduct_player2_hp:
-                if pygame.time.get_ticks() - player_2_dmg_time >= dmg_interval :
-                    if player1_damage_counter < 10:
-                        player1_damage_counter +=1
-                        player_2_pokemon.remaining_health -= 1
-                        player_2_dmg_time = pygame.time.get_ticks()
+                if pygame.time.get_ticks() - player_2_dmg_time >= dmg_interval and player1_damage_counter < 10 :
+                    player1_damage_counter +=1
+                    player_2_pokemon.remaining_health -= 1
                 if player1_damage_counter >= 10:
                     player1_damage_counter = 10
                     deduct_player2_hp = False
