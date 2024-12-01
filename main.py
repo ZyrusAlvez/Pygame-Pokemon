@@ -270,8 +270,12 @@ def map_randomizer() -> object:
         
         starting_show_speed *= 1.5
         if starting_show_speed >= 2:
+            
             screen.blit(pygame.transform.scale(pygame.image.load(f"./assets/Battleground/{selected_map}.png"), (800,600)), (0,0))
+            show_text(selected_map, 400, 50, screen)
+            print(f"./assets/Battleground/{selected_map}.png")
             current_background = pygame.transform.scale(pygame.image.load(f"./assets/Battle_Scene/{selected_map}.png"), (800,600))
+            pygame.display.flip()   
             time.sleep(1)
             return current_background
         
