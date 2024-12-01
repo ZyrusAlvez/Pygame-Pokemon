@@ -253,6 +253,7 @@ def pokemon_selection_scene(pokemon_loaded_images: list, battle_effect_loaded_im
 def map_randomizer() -> object:
     # Variables to be used for map randomizer / Next screen ( To avoid multiple declaration )
     map_names = ["Viridale Forest", "Dragon Dungeon", "Bamboo Bridge"]
+    map_types = ["Grass", "Fire", "Water"]
     starting_show_speed = 0.05
     selected_map = random.choice(map_names)
     
@@ -273,23 +274,21 @@ def map_randomizer() -> object:
             screen.blit(pygame.transform.scale(pygame.image.load(f"./assets/Battleground/{selected_map}.png"), (800,600)), (0,0))
             current_background = pygame.transform.scale(pygame.image.load(f"./assets/Battle_Scene/{selected_map}.png"), (800,600))
             time.sleep(1)
-            return current_background
+            return current_background, map_types[map_names.index(random_map)]
         
         
         # Update the screen
         pygame.display.flip()
         # fps
         clock.tick(60)
-    return current_background
         
-def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, player2_loaded_images, battleeffects_frames, current_background) -> None:
+def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, player2_loaded_images, battleeffects_frames, current_background, map_type) -> None:
     # Preparation for next screen to avoid multiple declaration
 
     # Queue for Executing Potion Healings and Poison Damages
     consumables_queue = Queue() 
     # Stack for Executing Buffs and Nerfs
-    buffs_nerfs_stack = Stack()
-    
+    buffs_stack = Stack()
     match_number = 0
     another_round = False
     player1_ready = False
@@ -297,6 +296,11 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
     current_pokemon_index = (match_number) % 3
     player_1_pokemon = player1_pokemons.dequeue()
     player_2_pokemon = player2_pokemons.dequeue()
+
+    if player_1_pokemon.type == map_type:
+        buffs_stack.push(1) # Number means the player number
+    if player_2_pokemon.type == map_type:
+        buffs_stack.push(2) 
     x_pos = 0
     player1_pokemon_frame_index = [0 for _ in range(player1_pokemons.size())]
     player2_pokemon_frame_index = [0 for _ in range(player1_pokemons.size())]
@@ -745,7 +749,7 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
 def main():
     pokemon_loaded_images, battle_effects_loaded_images = load_images()
     player1_pokemons, player1_loaded_images, player2_pokemons, player2_loaded_images = pokemon_selection_scene(pokemon_loaded_images, battle_effects_loaded_images)
-    current_background = map_randomizer()
-    fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, player2_loaded_images, battle_effects_loaded_images, current_background)    
+    current_background, map_type = map_randomizer()
+    fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, player2_loaded_images, battle_effects_loaded_images, current_background, map_type)    
     
 main()
