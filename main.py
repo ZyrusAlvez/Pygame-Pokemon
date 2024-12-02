@@ -345,7 +345,7 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
     player2_usedpoison = False
 
     fight_dia_timer = None
-    fight_dia_duration = 8000
+    fight_dia_duration = 10000
     collision = False
     tobe_printed_msg = ""
     msg_index = 0
@@ -826,19 +826,19 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                     disable_player2_proj = True
 
             if deduct_player2_hp:
-                if pygame.time.get_ticks() - player_2_dmg_time >= dmg_interval and player1_damage_counter < 10 :
+                if pygame.time.get_ticks() - player_2_dmg_time >= dmg_interval and player1_damage_counter < 15 :
                     player1_damage_counter +=1
                     player_2_pokemon.remaining_health -= 1
-                if player1_damage_counter >= 10:
-                    player1_damage_counter = 10
+                if player1_damage_counter >= 15:
+                    player1_damage_counter = 15
                     deduct_player2_hp = False
                     post_battle = True
             elif deduct_player1_hp:
-                if pygame.time.get_ticks() - player_1_dmg_time >= dmg_interval and player2_damage_counter < 10:
+                if pygame.time.get_ticks() - player_1_dmg_time >= dmg_interval and player2_damage_counter < 15:
                     player2_damage_counter += 1
                     player_1_pokemon.remaining_health -= 1
-                if player2_damage_counter >= 10:
-                    player2_damage_counter = 10
+                if player2_damage_counter >= 15:
+                    player2_damage_counter = 15
                     deduct_player1_hp = False
                     post_battle = True
 
