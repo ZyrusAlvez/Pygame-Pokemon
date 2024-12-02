@@ -13,6 +13,7 @@ class Pokemon:
         self.frames_number = 0
         self.is_flying = is_flying
         self.size = (0,0)
+        self.temporary_power = self.power
     
     # convert gif file to multiple images/frames
     def animation_frames(self):
