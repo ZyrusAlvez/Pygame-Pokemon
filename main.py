@@ -28,6 +28,11 @@ pokemons = [bulbasaur, charizard, blastoise, weepinbell, arcanine, psyduck, scyt
 original_pokemons = pokemons[:]
 battle_effects = [fireball, waterball, grassball, pokeball]
 
+# Global Variable
+player1_usedpotion = False
+player2_usedpotion = False
+player1_usedpoison = False
+player2_usedpoison = False
 # this requires a lot of time to load
 def load_images() -> list:
     loading_complete = False
@@ -349,11 +354,10 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
     player1timer = None # None state if timer is stopped
     player2timer = None
 
-    player1_usedpotion = False
-    player2_usedpotion = False
-
-    player1_usedpoison = False
-    player2_usedpoison = False
+    global player1_usedpotion
+    global player2_usedpotion
+    global player1_usedpoison
+    global player2_usedpoison
 
     fight_dia_timer = None
     fight_dia_duration = 10000
