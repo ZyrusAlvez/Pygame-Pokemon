@@ -839,7 +839,7 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
             player_1_battle_effect_index = (player_1_battle_effect_index + 1) % len(player_1_battle_effect_image)
             player_2_battle_effect_index = (player_2_battle_effect_index + 1) % len(player_2_battle_effect_image)
             if player_1_battle_effect_current_img_rect.colliderect(player_2_battle_effect_current_img_rect):
-                comparison_msg = (f"{player_1_pokemon.name if player_1_pokemon.temporary_power > player_2_pokemon.temporary_power else player_2_pokemon.name} overwhelmes {player_2_pokemon.name if player_2_pokemon.temporary_power < player_1_pokemon.temporary_power else player_1_pokemon.name}")
+                comparison_msg = (f"{player_1_pokemon.name if player_1_pokemon.temporary_power > player_2_pokemon.temporary_power else player_2_pokemon.name} dominates {player_2_pokemon.name if player_2_pokemon.temporary_power < player_1_pokemon.temporary_power else player_1_pokemon.name}")
                 if not collision:
                     fight_dia_timer = pygame.time.get_ticks()
                     collision = True
