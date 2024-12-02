@@ -390,6 +390,9 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
     heal_player2_hp = False
     player1_heal_counter = 0
     player2_heal_counter = 0
+    next_round = False
+    next_round_timer = False
+    node_addition = False
     # Load up projectiles to be used by both pokemons
     for num in range(len(battle_effects)):
         if battle_effects[num].type == player_1_pokemon.type:
@@ -762,33 +765,6 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                 x_pos += 2
             
             if post_battle:
-                
-                # Next Round
-                if consumables_queue.size() == 0:
-                    
-                    # record the fight in the binary tree
-                    if match_number == 0:
-                        if player_1_pokemon.temporary_power > player_2_pokemon.temporary_power:
-                            root_node = Node("Player 1")
-                        elif player_1_pokemon.temporary_power < player_2_pokemon.temporary_power:
-                            root_node = Node("Player 2")
-                        else:
-                            root_node = Node("Tie")
-                    else:
-                        if player_1_pokemon.temporary_power > player_2_pokemon.temporary_power:
-                            add_node(root_node, "Player 1", "left")
-                        elif player_1_pokemon.temporary_power < player_2_pokemon.temporary_power:
-                            add_node(root_node, "Player 2", "right")
-                        else:
-                            add_node(root_node, "Tie", "left")
-                        
-                    
-                    
-                    match_number += 1
-                    return match_number, (player_1_pokemon if player_1_pokemon.remaining_health >= 0 else False, player_2_pokemon if player_2_pokemon.remaining_health >= 0 else False), root_node
-                else:
-                    if post_battle_timer == None:
-                        post_battle_timer = pygame.time.get_ticks()
                 if post_battle_timer == False:
                     post_battle_timer = pygame.time.get_ticks()
                 if not queue_duration:
@@ -867,6 +843,29 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                             player_2_pokemon.remaining_health -= 1 if player_2_pokemon.remaining_health != 0 else 0
                         if player2_fatigue_counter >= 5:
                             player2_fatigue_counter = 5
+                            next_round = True
+            if next_round:
+                if node_addition == False:
+                    if match_number == 0:
+                        if player_1_pokemon.temporary_power > player_2_pokemon.temporary_power:
+                            root_node = Node("Player 1")
+                        elif player_1_pokemon.temporary_power < player_2_pokemon.temporary_power:
+                            root_node = Node("Player 2")
+                        else:
+                            root_node = Node("Tie")
+                    else:
+                        if player_1_pokemon.temporary_power > player_2_pokemon.temporary_power:
+                            add_node(root_node, "Player 1", "left")
+                        elif player_1_pokemon.temporary_power < player_2_pokemon.temporary_power:
+                            add_node(root_node, "Player 2", "right")
+                        else:
+                            add_node(root_node, "Tie", "left")
+                    node_addition = True
+                if next_round_timer == False:
+                    next_round_timer = pygame.time.get_ticks()
+                if pygame.time.get_ticks() - next_round_timer > 3000:
+                    next_round = False
+                    return match_number+1, (player_1_pokemon if player_1_pokemon.remaining_health >= 0 else False, player_2_pokemon if player_2_pokemon.remaining_health >= 0 else False), root_node
                                        
             # Get current frames, resize and rotate them 
             player_1_battle_effect_current_img = pygame.transform.scale(pygame.transform.rotate(player_1_battle_effect_image[player_1_battle_effect_index], -90), tuple([measure * 0.5 for measure in player_1_battle_effect_image[player_1_battle_effect_index].get_size()]))
