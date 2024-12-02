@@ -22,7 +22,7 @@ pygame.display.set_caption("Team Rocket's Pokemon Game")
 pygame.display.set_icon(scale(pygame.image.load("assets/Team-Rocket-Logo/Rocket-Logo.png"), 2))
 
 # Global initialization
-pokemons = [bulbasaur, charizard, blastoise, weepinbell, arcanine, psyduck, scyther, magmar, poliwrath, farfetchd, moltres, vaporeon]
+pokemons = [bulbasaur, charizard, blastoise, weepinbell, arcanine, psyduck, scyther, magmar, piplup, farfetchd, moltres, vaporeon]
 original_pokemons = pokemons[:]
 battle_effects = [fireball, waterball, grassball, pokeball]
 
@@ -65,6 +65,34 @@ def load_images() -> list:
         if loading_complete:
             return pokemon_loaded_images, battle_effects_loaded_images
 
+def menu() -> None:
+    background = pygame.image.load("assets/Menu-GUI/Menu.png")
+    btn_play = scale(pygame.image.load("assets/Menu-GUI/PLAY-BUTTON.png"), 0.7)
+    btn_play_rect = btn_play.get_rect(center=(600, 150))
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                for pokemon in original_pokemons:
+                    pokemon.animation_clean_up()
+                for battle_effect in battle_effects:
+                    battle_effect.clear_residue()
+                pygame.quit()
+                exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:
+                    return
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                # Check if click is inside the button
+                if btn_play_rect.collidepoint(event.pos):  
+                    return
+            
+        screen.blit(background, (0,0))
+        screen.blit(btn_play, btn_play_rect)
+        
+        pygame.display.update()
+        clock.tick(40)
+        
+    
 def pokemon_selection_scene(pokemon_loaded_images: list, battle_effect_loaded_images: list) -> list:
     # Creates the linked list
     player1_linkedlist = LinkedList()
@@ -187,7 +215,7 @@ def pokemon_selection_scene(pokemon_loaded_images: list, battle_effect_loaded_im
             arrow_right_state_counter -= 1
         else:
             arrow_right = scale(pygame.image.load("assets/buttons/arrow-right.png"), 0.17)
-        arrow_right_rect = arrow_right.get_rect(center=(580, 415))
+        arrow_right_rect = arrow_right.get_rect(center=(570, 415))
         screen.blit(arrow_right, arrow_right_rect)
         
         if select_button_state_counter:
@@ -200,7 +228,7 @@ def pokemon_selection_scene(pokemon_loaded_images: list, battle_effect_loaded_im
         
         # show pokemon info
         screen.blit(scale(pygame.image.load(pokemons[focus].icon), 0.5), (225, 480))
-        show_text(pokemons[focus].name, 265, 485, screen, 30, "topleft", color="Black")
+        show_text(pokemons[focus].name, 265, 485, screen, 30, "topleft", color="Black", bold=True)
         screen.blit(scale(pygame.image.load(f"assets/type-icons/{pokemons[focus].type}.png"), 0.5), (550, 480))
         show_text(f"Power  : {pokemons[focus].power}", 236, 530, screen, 25, "topleft", color="Black")
         show_text(f"Health : {pokemons[focus].health}", 235, 565, screen, 25, "topleft", color="Black")
@@ -869,6 +897,7 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
 
 def main():
     pokemon_loaded_images, battle_effects_loaded_images = load_images()
+    menu()
     player1_pokemons, player1_loaded_images, player2_pokemons, player2_loaded_images = pokemon_selection_scene(pokemon_loaded_images, battle_effects_loaded_images)
     current_background, map_type = map_randomizer()
     fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, player2_loaded_images, battle_effects_loaded_images, current_background, map_type)    
