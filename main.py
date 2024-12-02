@@ -310,7 +310,7 @@ def map_randomizer() -> object:
     return current_background, map_types[map_names.index(selected_map)]
         
         
-def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, player2_loaded_images, battleeffects_frames, current_background, map_type, match_number) -> None:
+def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, player2_loaded_images, battleeffects_frames, current_background, map_type, match_number, root_node) -> None:
     # Queue for Executing Potion Healings and Poison Damages
     consumables_queue = Queue() 
     # Stack for Executing Buffs and Nerfs
@@ -760,10 +760,29 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
             
             if post_battle:
                 
+                # Next Round
                 if consumables_queue.size() == 0:
-                    # Next Round
+                    
+                    # record the fight in the binary tree
+                    if match_number == 0:
+                        if player_1_pokemon.temporary_power > player_2_pokemon.temporary_power:
+                            root_node = Node("Player 1")
+                        elif player_1_pokemon.temporary_power < player_2_pokemon.temporary_power:
+                            root_node = Node("Player 2")
+                        else:
+                            root_node = Node("Tie")
+                    else:
+                        if player_1_pokemon.temporary_power > player_2_pokemon.temporary_power:
+                            add_node(root_node, "Player 1", "left")
+                        elif player_1_pokemon.temporary_power < player_2_pokemon.temporary_power:
+                            add_node(root_node, "Player 2", "right")
+                        else:
+                            add_node(root_node, "Tie", "left")
+                        
+                    
+                    
                     match_number += 1
-                    return match_number, (player_1_pokemon if player_1_pokemon.remaining_health >= 0 else False, player_2_pokemon if player_2_pokemon.remaining_health >= 0 else False)
+                    return match_number, (player_1_pokemon if player_1_pokemon.remaining_health >= 0 else False, player_2_pokemon if player_2_pokemon.remaining_health >= 0 else False), root_node
                 else:
                     if post_battle_timer == None:
                         post_battle_timer = pygame.time.get_ticks()
@@ -890,6 +909,7 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
 def main():
     match_number = 0
     fight = True
+    root_node = None
     
     pokemon_loaded_images, battle_effects_loaded_images = load_images()
     menu()
@@ -897,9 +917,13 @@ def main():
     
     while fight:
         current_background, map_type = map_randomizer()
-        new_match_number, pokemons_state= fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, player2_loaded_images, battle_effects_loaded_images, current_background, map_type, match_number)    
+        new_match_number, pokemons_state, new_root_node = fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, player2_loaded_images, battle_effects_loaded_images, current_background, map_type, match_number, root_node)    
 
         match_number = new_match_number
+        root_node = new_root_node
+        
+        print(root_node.traversePreOrder())
+        
         if pokemons_state[0]:
             player1_pokemons.enqueue(pokemons_state[0])
         if pokemons_state[1]:
