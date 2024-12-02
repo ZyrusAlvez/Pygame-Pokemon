@@ -8,6 +8,8 @@ from utility import *
 from data_structures.linked_list import *
 from data_structures.queue import *
 from data_structures.stack import *
+from data_structures.binary_tree import *
+
 # for asynchronous operation (loading screen)
 import threading
 # this solves the slowness of threading
@@ -91,8 +93,7 @@ def menu() -> None:
         
         pygame.display.update()
         clock.tick(40)
-        
-    
+         
 def pokemon_selection_scene(pokemon_loaded_images: list, battle_effect_loaded_images: list) -> list:
     # Creates the linked list
     player1_linkedlist = LinkedList()
@@ -285,42 +286,35 @@ def map_randomizer() -> object:
     starting_show_speed = 0.05
     selected_map = random.choice(map_names)
     
-    while True:
+    for i in range(30):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 exit()
-        time.sleep(starting_show_speed)
-        
-        random_map = random.choice(map_names) # Randomly select a map again        
-        current_background = pygame.transform.scale(pygame.image.load(f"./assets/Battleground/{random_map}.png"), (800,600))
+
+             
+        current_background = pygame.transform.scale(pygame.image.load(f"./assets/Battleground/{map_names[i % 3]}.png"), (800,600))
         screen.blit(current_background, (0,0))
-        show_text(random_map, 400, 50, screen)
-        
-        starting_show_speed *= 1.5
-        if starting_show_speed >= 2:
-            
-            screen.blit(pygame.transform.scale(pygame.image.load(f"./assets/Battleground/{selected_map}.png"), (800,600)), (0,0))
-            show_text(selected_map, 400, 50, screen)
-            current_background = pygame.transform.scale(pygame.image.load(f"./assets/Battle_Scene/{selected_map}.png"), (800,600))
-            pygame.display.flip()   
-            time.sleep(1)
-            return current_background, map_types[map_names.index(selected_map)]
-        
+        show_text(map_names[i % 3], 400, 50, screen)
         
         # Update the screen
         pygame.display.flip()
-        # fps
-        clock.tick(60)
+        clock.tick(10)
+            
+    screen.blit(pygame.transform.scale(pygame.image.load(f"./assets/Battleground/{selected_map}.png"), (800,600)), (0,0))
+    show_text(selected_map, 400, 50, screen)
+    current_background = pygame.transform.scale(pygame.image.load(f"./assets/Battle_Scene/{selected_map}.png"), (800,600))
+    pygame.display.flip()   
+    time.sleep(1)
+    
+    return current_background, map_types[map_names.index(selected_map)]
         
-def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, player2_loaded_images, battleeffects_frames, current_background, map_type) -> None:
-    # Preparation for next screen to avoid multiple declaration
-
+        
+def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, player2_loaded_images, battleeffects_frames, current_background, map_type, match_number) -> None:
     # Queue for Executing Potion Healings and Poison Damages
     consumables_queue = Queue() 
     # Stack for Executing Buffs and Nerfs
     buffs_stack = Stack()
-    match_number = 0
     another_round = False
     player1_ready = False
     player2_ready = False
@@ -328,19 +322,14 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
     player_1_pokemon = player1_pokemons.dequeue()
     player_2_pokemon = player2_pokemons.dequeue()
 
-    print(player_1_pokemon.type)
-    print(player_2_pokemon.type)
-    print(map_type)
     if player_1_pokemon.type == map_type:
-        print("Player 1")
         buffs_stack.push(1) # Number means the player number
     if player_2_pokemon.type == map_type:
-        print("Player 2")
         buffs_stack.push(2)
-    print(buffs_stack.show())
+        
     x_pos = 0
-    player1_pokemon_frame_index = [0 for _ in range(player1_pokemons.size())]
-    player2_pokemon_frame_index = [0 for _ in range(player1_pokemons.size())]
+    player1_pokemon_frame_index = [0 for _ in range(3)]
+    player2_pokemon_frame_index = [0 for _ in range(3)]
     menu_options = ["Ready", "Potion", "Poison", "Run"]
     option_description = ["Get ready for\n battle", "Recover Health\n Points", "Inflict Damage\n to Enemy", "Conclude the\n battle"]
     # Set up index to be used for each frame
@@ -396,6 +385,7 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
     post_battle = False
     post_battle_timer = None
     action_done = True
+    
     # Load up projectiles to be used by both pokemons
     for num in range(len(battle_effects)):
         if battle_effects[num].type == player_1_pokemon.type:
@@ -526,7 +516,6 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                         else:
                             player2_show_confirmation = True
         if another_round:
-            match_number += 1
             another_round = False
         # Used for later
         current_pokemon_index = (match_number) % 3
@@ -772,7 +761,9 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
             if post_battle:
                 
                 if consumables_queue.size() == 0:
-                    pass # Next Round
+                    # Next Round
+                    match_number += 1
+                    return match_number, (player_1_pokemon if player_1_pokemon.remaining_health >= 0 else False, player_2_pokemon if player_2_pokemon.remaining_health >= 0 else False)
                 else:
                     if post_battle_timer == None:
                         post_battle_timer = pygame.time.get_ticks()
@@ -840,6 +831,7 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
             player_2_battle_effect_index = (player_2_battle_effect_index + 1) % len(player_2_battle_effect_image)
             if player_1_battle_effect_current_img_rect.colliderect(player_2_battle_effect_current_img_rect):
                 comparison_msg = (f"{player_1_pokemon.name if player_1_pokemon.temporary_power > player_2_pokemon.temporary_power else player_2_pokemon.name} overwhelmes {player_2_pokemon.name if player_2_pokemon.temporary_power < player_1_pokemon.temporary_power else player_1_pokemon.name}")
+                    
                 if not collision:
                     fight_dia_timer = pygame.time.get_ticks()
                     collision = True
@@ -896,10 +888,23 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
         clock.tick(40)
 
 def main():
+    match_number = 0
+    fight = True
+    
     pokemon_loaded_images, battle_effects_loaded_images = load_images()
     menu()
     player1_pokemons, player1_loaded_images, player2_pokemons, player2_loaded_images = pokemon_selection_scene(pokemon_loaded_images, battle_effects_loaded_images)
-    current_background, map_type = map_randomizer()
-    fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, player2_loaded_images, battle_effects_loaded_images, current_background, map_type)    
     
+    while fight:
+        current_background, map_type = map_randomizer()
+        new_match_number, pokemons_state= fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, player2_loaded_images, battle_effects_loaded_images, current_background, map_type, match_number)    
+
+        match_number = new_match_number
+        if pokemons_state[0]:
+            player1_pokemons.enqueue(pokemons_state[0])
+        if pokemons_state[1]:
+            player2_pokemons.enqueue(pokemons_state[1])
+            
+        if player1_pokemons.size() <= 0 or player2_pokemons.size() <= 0:
+            fight = False
 main()
