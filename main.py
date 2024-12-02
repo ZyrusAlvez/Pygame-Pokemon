@@ -394,8 +394,10 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
     player2_power_buff_counter = 0
 
     post_battle = False
-    post_battle_timer = None
+    post_battle_timer = False
+    dequeue_timer = False
     action_done = True
+    queue_duration = 0
     # Load up projectiles to be used by both pokemons
     for num in range(len(battle_effects)):
         if battle_effects[num].type == player_1_pokemon.type:
@@ -758,6 +760,7 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                         show_text(str(player_2_pokemon.temporary_power),429, 336, screen, 30, color= "Red" if player_2_pokemon.type == "Fire" else "Blue" if player_2_pokemon.type == "Water" else "Green")
                     else:
                         show_text(str(player_2_pokemon.temporary_power),429, 336, screen, 30, color= "Red" if player_2_pokemon.type == "Fire" else "Blue" if player_2_pokemon.type == "Water" else "Green")
+                
             else:
                 if collision:
                     x_pos += 3
@@ -770,63 +773,71 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                 x_pos += 2
             
             if post_battle:
-                
-                if consumables_queue.size() == 0:
-                    pass # Next Round
-                else:
-                    if post_battle_timer == None:
-                        post_battle_timer = pygame.time.get_ticks()
+                if post_battle_timer == False:
+                    post_battle_timer = pygame.time.get_ticks()
+                if not queue_duration:
+                    queue_duration = consumables_queue.size() * 6000
+                    post_player1_battle_damage_counter = 0
+                    post_player2_battle_healing_counter = 0
+                    post_player2_battle_damage_counter = 0
+                    post_player1_battle_healing_counter = 0
+                if pygame.time.get_ticks() - post_battle_timer >= 0 and pygame.time.get_ticks() - post_battle_timer < 2000:
+                    pass
+                elif pygame.time.get_ticks() - post_battle_timer < queue_duration:
                     post_bat_msg_ypos = 336
-                    post_battle_damage_counter = 0
-                    post_battle_healing_counter = 0
                     if action_done:
                         action = consumables_queue.dequeue()
                         action_done = False
-                    if pygame.time.get_ticks() - post_battle_timer < 3000:
+                        print('dequeued another consumable')
+                        dequeue_timer = pygame.time.get_ticks()
+                    if pygame.time.get_ticks() - dequeue_timer < 5000:
                         if action == "Player 1 Used Potion":
                             post_battle_message = f"{player_1_pokemon.name} has\nused Potion.".split("\n")
                             post_bat_msg_xpos = 115
-                            show_text(f"+20", post_bat_msg_xpos, 80, screen, 15)
-                            if post_battle_healing_counter < 20:
-                                post_battle_healing_counter += 1
-                                player_1_pokemon.remaining_health += 1
-                            if post_battle_healing_counter >= 20:
-                                post_battle_healing_counter = 0
-                        if action == "Player 1 Used Poison":
+                            show_text(f"+20", post_bat_msg_xpos, 80, screen, 20)
+                            if post_player1_battle_healing_counter < 20:
+                                post_player1_battle_healing_counter += 1
+                                player_1_pokemon.remaining_health += 1 if player_1_pokemon.remaining_health != player_1_pokemon.health else 0
+                            if post_player1_battle_healing_counter >= 20:
+                                post_player1_battle_healing_counter = 20
+                        elif action == "Player 1 Used Poison":
                             post_battle_message = f"{player_1_pokemon.name} has\ninflicted Poison.".split("\n")
                             post_bat_msg_xpos = 600
-                            show_text(f"-20", post_bat_msg_xpos, 80, screen, 15)
-                            if post_battle_damage_counter < 20:
-                                post_battle_damage_counter += 1
-                                player_2_pokemon.remaining_health -= 1
-                            if post_battle_damage_counter >= 20:
-                                post_battle_damage_counter = 0
-                        if action == "Player 2 Used Potion":
+                            show_text(f"-20", post_bat_msg_xpos, 80, screen, 20)
+                            if post_player2_battle_damage_counter < 20:
+                                post_player2_battle_damage_counter += 1
+                                player_2_pokemon.remaining_health -= 1 if player_2_pokemon.remaining_health != 0 else 0
+                            if post_player2_battle_damage_counter >= 20:
+                                post_player2_battle_damage_counter = 20
+                        elif action == "Player 2 Used Potion":
                             post_battle_message = f"{player_2_pokemon.name} has\nused Potion.".split("\n")
                             post_bat_msg_xpos = 600
-                            show_text(f"+20", post_bat_msg_xpos, 80, screen, 15)
-                            if post_battle_healing_counter < 20:
-                                post_battle_healing_counter += 1
-                                player_2_pokemon.remaining_health += 1
-                            if post_battle_healing_counter >= 20:
-                                post_battle_healing_counter = 0
-                        if action == "Player 2 Used Poison":
+                            show_text(f"+20", post_bat_msg_xpos, 80, screen, 20)
+                            if post_player2_battle_healing_counter < 20:
+                                post_player2_battle_healing_counter += 1 
+                                player_2_pokemon.remaining_health += 1 if player_2_pokemon.remaining_health != player_2_pokemon.health else 0
+                            if post_player2_battle_healing_counter >= 20:
+                                post_player2_battle_healing_counter = 20
+                        elif action == "Player 2 Used Poison":
                             post_battle_message = f"{player_2_pokemon.name} has\ninflicted Poison.".split("\n")
                             post_bat_msg_xpos = 115
-                            show_text(f"-20", post_bat_msg_xpos, 80, screen, 15)
-                            if post_battle_damage_counter < 20:
-                                post_battle_damage_counter += 1
-                                player_1_pokemon.remaining_health -= 1
-                            if post_battle_damage_counter >= 20:
-                                post_battle_damage_counter = 0
+                            show_text(f"-20", post_bat_msg_xpos, 80, screen, 20)
+                            if post_player1_battle_damage_counter < 20:
+                                post_player1_battle_damage_counter += 1
+                                player_1_pokemon.remaining_health -= 1 if player_1_pokemon.remaining_health != 0 else 0
+                            if post_player1_battle_damage_counter >= 20:
+                                post_player1_battle_damage_counter = 20
                         for line in post_battle_message:
-                            show_text(line, post_bat_msg_xpos, post_bat_msg_ypos, screen, 15)
+                            show_text(line, post_bat_msg_xpos, post_bat_msg_ypos, screen, 20)
                     else:
                         action_done = True
+                else:
+                    post_battle = False
+                    ready = False                       
             # Get current frames, resize and rotate them 
             player_1_battle_effect_current_img = pygame.transform.scale(pygame.transform.rotate(player_1_battle_effect_image[player_1_battle_effect_index], -90), tuple([measure * 0.5 for measure in player_1_battle_effect_image[player_1_battle_effect_index].get_size()]))
             player_2_battle_effect_current_img = pygame.transform.scale(pygame.transform.rotate(player_2_battle_effect_image[player_2_battle_effect_index], 90), tuple([measure * 0.5 for measure in player_2_battle_effect_image[player_2_battle_effect_index].get_size()]))
-            
+        
         
             # Draw them each
             if not disable_player1_proj:
