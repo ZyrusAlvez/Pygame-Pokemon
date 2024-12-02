@@ -65,6 +65,34 @@ def load_images() -> list:
         if loading_complete:
             return pokemon_loaded_images, battle_effects_loaded_images
 
+def menu() -> None:
+    background = pygame.image.load("assets/Menu-GUI/Menu.png")
+    btn_play = scale(pygame.image.load("assets/Menu-GUI/PLAY-BUTTON.png"), 0.7)
+    btn_play_rect = btn_play.get_rect(center=(600, 150))
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                for pokemon in original_pokemons:
+                    pokemon.animation_clean_up()
+                for battle_effect in battle_effects:
+                    battle_effect.clear_residue()
+                pygame.quit()
+                exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:
+                    return
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                # Check if click is inside the button
+                if btn_play_rect.collidepoint(event.pos):  
+                    return
+            
+        screen.blit(background, (0,0))
+        screen.blit(btn_play, btn_play_rect)
+        
+        pygame.display.update()
+        clock.tick(40)
+        
+    
 def pokemon_selection_scene(pokemon_loaded_images: list, battle_effect_loaded_images: list) -> list:
     # Creates the linked list
     player1_linkedlist = LinkedList()
@@ -458,6 +486,7 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
 
 def main():
     pokemon_loaded_images, battle_effects_loaded_images = load_images()
+    menu()
     player1_pokemons, player1_loaded_images, player2_pokemons, player2_loaded_images = pokemon_selection_scene(pokemon_loaded_images, battle_effects_loaded_images)
     current_background = map_randomizer()
     fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, player2_loaded_images, battle_effects_loaded_images, current_background)    
