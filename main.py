@@ -56,8 +56,7 @@ def load_images() -> list:
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
-                exit()
+                quit()
 
         # Render loading  screen
         screen.blit(image, (0,-25))
@@ -69,27 +68,30 @@ def load_images() -> list:
 
 def menu() -> None:
     background = pygame.image.load("assets/Menu-GUI/Menu.png")
+    
     btn_play = scale(pygame.image.load("assets/Menu-GUI/PLAY-BUTTON.png"), 0.7)
     btn_play_rect = btn_play.get_rect(center=(600, 150))
+    
+    btn_exit = scale(pygame.image.load("assets/Menu-GUI/EXIT-BUTTON.png"), 0.7)
+    btn_exit_rect = btn_exit.get_rect(center=(600, 350))
+    
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                for pokemon in original_pokemons:
-                    pokemon.animation_clean_up()
-                for battle_effect in battle_effects:
-                    battle_effect.clear_residue()
-                pygame.quit()
-                exit()
+                quit()
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RETURN:
+                if event.key == pygame.K_RETURN or pygame.K_SPACE:
                     return
             if event.type == pygame.MOUSEBUTTONDOWN:
                 # Check if click is inside the button
                 if btn_play_rect.collidepoint(event.pos):  
                     return
+                if btn_exit_rect.collidepoint(event.pos):
+                    quit()  
             
         screen.blit(background, (0,0))
         screen.blit(btn_play, btn_play_rect)
+        screen.blit(btn_exit, btn_exit_rect)
         
         pygame.display.update()
         clock.tick(40)
@@ -141,12 +143,7 @@ def pokemon_selection_scene(pokemon_loaded_images: list, battle_effect_loaded_im
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                for pokemon in original_pokemons:
-                    pokemon.animation_clean_up()
-                for battle_effect in battle_effects:
-                    battle_effect.clear_residue()
-                pygame.quit()
-                exit()  
+                quit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
                    updated_number_of_selected, updated_focus = select_pokemon(number_of_selected, focus)
@@ -289,9 +286,7 @@ def map_randomizer() -> object:
     for i in range(30):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
-                exit()
-
+                quit()
              
         current_background = pygame.transform.scale(pygame.image.load(f"./assets/Battleground/{map_names[i % 3]}.png"), (800,600))
         screen.blit(current_background, (0,0))
@@ -308,7 +303,6 @@ def map_randomizer() -> object:
     time.sleep(1)
     
     return current_background, map_types[map_names.index(selected_map)]
-        
         
 def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, player2_loaded_images, battleeffects_frames, current_background, map_type, match_number, root_node) -> None:
     # Queue for Executing Potion Healings and Poison Damages
@@ -398,12 +392,7 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                for pokemon in original_pokemons:
-                    pokemon.animation_clean_up()
-                for battle_effect in battle_effects:
-                    battle_effect.clear_residue()
-                pygame.quit()
-                exit()
+                quit()
 
             if event.type == pygame.KEYDOWN:
                 # Controls for Player 1
@@ -905,7 +894,17 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
 
         pygame.display.flip()
         clock.tick(40)
-
+        
+def quit():
+    if original_pokemons:
+        for pokemon in original_pokemons:
+            pokemon.animation_clean_up()
+    if battle_effects:
+        for battle_effect in battle_effects:
+            battle_effect.clear_residue()
+    pygame.quit()
+    exit()
+    
 def main():
     match_number = 0
     fight = True
