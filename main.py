@@ -302,7 +302,7 @@ def map_randomizer() -> object:
         clock.tick(10)
             
     screen.blit(pygame.transform.scale(pygame.image.load(f"./assets/Battleground/{selected_map}.png"), (800,600)), (0,0))
-    show_text(selected_map, 400, 50, screen)
+    show_text(selected_map, 400, 50, screen, shadow_color="Black")
     current_background = pygame.transform.scale(pygame.image.load(f"./assets/Battle_Scene/{selected_map}.png"), (800,600))
     pygame.display.flip()   
     time.sleep(1)
@@ -531,34 +531,33 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
         ready = False
 
         # To show what the current match number is
-        show_text(f"Match {match_number+1}", screen.get_width() // 2, 57, screen, 40, color = "#4ddf6f")
+        show_text(f"Match {match_number+1}", screen.get_width() // 2, 61, screen, 40, color = "Black", bold=True)
 
         # To show the name of pokemon in the current match
-        show_text(player_1_pokemon.name, 55, 34, screen, 20, "midleft", color = "#4ddf6f")
-        show_text(player_2_pokemon.name, 600, 34, screen, 20, "midleft", color = "#4ddf6f")
+        show_text(player_1_pokemon.name, 55, 34, screen, 20, "midleft", color = "Black", bold=True)
+        show_text(player_2_pokemon.name, 600, 34, screen, 20, "midleft", color = "Black", bold=True)
 
-    
         # To show the Health Points Bar of the Pokemons
         hp_bar = scale(pygame.image.load("./assets/Battle_Scene/hp_bar.png"), .5)
         # For player 1
         player1_grn_pcnt = (player_1_pokemon.remaining_health/player_1_pokemon.health)*92
-        pygame.draw.rect(screen, "#d8483a", (117, 53, 92, 6), border_radius= 3)
-        pygame.draw.rect(screen, "#7df39d", (117, 53, player1_grn_pcnt, 6), border_radius= 3)
+        pygame.draw.rect(screen, "#d8483a", (113, 65, 92, 6), border_radius= 3)
+        pygame.draw.rect(screen, "#7df39d", (113, 65, player1_grn_pcnt, 6), border_radius= 3)
 
         # For player 2
         player2_grn_pcnt = (player_2_pokemon.remaining_health/player_2_pokemon.health)*92
-        pygame.draw.rect(screen, "#d8483a", (657, 53, 92, 6), border_radius= 3)
-        pygame.draw.rect(screen, "#7df39d", (657, 53, player2_grn_pcnt, 6), border_radius= 3)
-        
-        player1_hp_bar_rect = hp_bar.get_rect(topleft = (80, 47))
-        player2_hp_bar_rect = hp_bar.get_rect(topleft = (620, 47))
+        pygame.draw.rect(screen, "#d8483a", (657, 65, 92, 6), border_radius= 3)
+        pygame.draw.rect(screen, "#7df39d", (657, 65, player2_grn_pcnt, 6), border_radius= 3)
+
+        player1_hp_bar_rect = hp_bar.get_rect(topleft = (76, 59))
+        player2_hp_bar_rect = hp_bar.get_rect(topleft = (620, 59))
 
         screen.blit(hp_bar, player1_hp_bar_rect)
         screen.blit(hp_bar, player2_hp_bar_rect)
 
         # To show the Health Points of the Pokemons (Text)
-        show_text(f"{player_1_pokemon.remaining_health}/{player_1_pokemon.health}", 140, 69, screen, 20, "midleft", color = "#4ddf6f")
-        show_text(f"{player_2_pokemon.remaining_health}/{player_2_pokemon.health}", 690, 69, screen, 20, "midleft", color = "#4ddf6f")
+        show_text(f"{player_1_pokemon.remaining_health}/{player_1_pokemon.health}", 217, 49, screen, 20, "midright", color = "Black", shadow=False)
+        show_text(f"{player_2_pokemon.remaining_health}/{player_2_pokemon.health}", 760, 49, screen, 20, "midright", color = "Black", shadow=False)
         
         # Loading of Arrow Image
         player1_arrow_img = pygame.transform.scale(pygame.image.load("./assets/buttons/R.png"), (20,20))
@@ -566,27 +565,27 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
 
         # Display when player 1 is ready
         if player1_ready:
-            show_text("READY", 110, 520, screen, 35, color= "#4ddf6f")
-            show_text("READY", 260, 520, screen, 35, color= "#4ddf6f")
+            show_text("READY", 110, 530, screen, 35, color= "White")
+
         # Menu when confirming an action for player 1
         elif player1_show_confirmation:
             player1_text = confirmation_messages[player1_menu_option_index].split("\n") 
             player1_text_xpos, player1_text_ypos = 95, 510
             for line in player1_text:
-                show_text(line, player1_text_xpos, player1_text_ypos, screen, 20, "center", color = "#4ddf6f")
+                show_text(line, player1_text_xpos, player1_text_ypos, screen, 20, "center", color = "White")
                 player1_text_ypos += 20
             if player1_confirmation_index == 0:
-                show_text("Yes", 210, 510, screen, 20, "midleft",highlight= True, color = "#4ddf6f")
+                show_text("Yes", 210, 510, screen, 20, "midleft",highlight= True, color = "Black")
                 player1_arrow_img_rect = player1_arrow_img.get_rect(midleft = (190, 510))
                 screen.blit(player1_arrow_img, player1_arrow_img_rect)
             else:
-                show_text("Yes", 210, 510, screen, 20, "midleft", color = "#4ddf6f")
+                show_text("Yes", 210, 510, screen, 20, "midleft", color = "Black")
             if player1_confirmation_index == 1:
-                show_text("No", 280, 510, screen, 20, "midleft",highlight= True, color = "#4ddf6f")
+                show_text("No", 280, 510, screen, 20, "midleft",highlight= True, color = "Black")
                 player1_arrow_img_rect = player1_arrow_img.get_rect(midleft = (260, 510))
                 screen.blit(player1_arrow_img, player1_arrow_img_rect)
             else:
-                show_text("No", 280, 510, screen, 20, "midleft",color = "#4ddf6f")
+                show_text("No", 280, 510, screen, 20, "midleft",color = "Black")
 
          # For showing player 1 menu
         else:
@@ -616,40 +615,39 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                         player1_failpoi = False
                 else:
                     player1_text = option_description[player1_menu_option_index].split("\n")
-                player1_text_xpos, player1_text_ypos = 96, 520
+                player1_text_xpos, player1_text_ypos = 100, 520
                 for line in player1_text:
-                    show_text(line, player1_text_xpos, player1_text_ypos, screen, 20, "center", color = "#4ddf6f")
+                    show_text(line, player1_text_xpos, player1_text_ypos, screen, 20, "center", color="White", bold=True)
                     player1_text_ypos += 20
                 
                 if player1_menu_option_index == i:
-                    show_text(menu_options[i], 210 + ((i+2)%2)*80, y, screen, 20, "midleft", True, color = "#4ddf6f")
+                    show_text(menu_options[i], 210 + ((i+2)%2)*80, y, screen, 20, "midleft", True, color = "Black")
                     arrow_img_rect = player1_arrow_img.get_rect(midleft = (190 + ((i+2)%2)*80, y))
                     screen.blit(player1_arrow_img, arrow_img_rect)
                 else:
-                    show_text(menu_options[i], 210 + ((i+2)%2)*80, y, screen, 20, "midleft", color = "#4ddf6f")
+                    show_text(menu_options[i], 210 + ((i+2)%2)*80, y, screen, 20, "midleft", color = "Black")
 
         if player2_ready:
-            show_text("READY", 530, 530, screen, 35, color= "#4ddf6f")
-            show_text("READY", 700, 530, screen, 35, color= "#4ddf6f")
+            show_text("READY", 530, 530, screen, 35, color= "White")
         # Menu when confirming an action for player 2
         elif player2_show_confirmation:
             player2_text = confirmation_messages[player2_menu_option_index].split("\n")
             player2_text_xpos, player2_text_ypos = 518, 510
             for line in player2_text:
-                show_text(line, player2_text_xpos, player2_text_ypos, screen, 20, "center", color = "#4ddf6f")
+                show_text(line, player2_text_xpos, player2_text_ypos, screen, 20, "center", color = "White")
                 player2_text_ypos += 20
             if player2_confirmation_index == 0:
-                show_text("Yes", 630, 510, screen, 20, "midleft",highlight= True, color = "#4ddf6f")
+                show_text("Yes", 630, 510, screen, 20, "midleft",highlight= True, color = "Black")
                 player2_arrow_img_rect = player2_arrow_img.get_rect(midleft = (610, 510))
                 screen.blit(player2_arrow_img, player2_arrow_img_rect)
             else:
-                show_text("Yes", 630, 510, screen, 20, "midleft", color = "#4ddf6f")
+                show_text("Yes", 630, 510, screen, 20, "midleft", color = "Black")
             if player2_confirmation_index == 1:
-                show_text("No", 700, 510, screen, 20, "midleft",highlight= True, color = "#4ddf6f")
+                show_text("No", 700, 510, screen, 20, "midleft",highlight= True, color = "Black")
                 player2_arrow_img_rect = player2_arrow_img.get_rect(midleft = (780, 510))
                 screen.blit(player2_arrow_img, player2_arrow_img_rect)
             else:
-                show_text("No", 700, 510, screen, 20, "midleft",color = "#4ddf6f")
+                show_text("No", 700, 510, screen, 20, "midleft",color = "Black")
         else:
             # For showing player 2 menu
             for i in range(len(menu_options)):
@@ -678,16 +676,16 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                         player2_failpoi = False
                 else:
                     player2_text = option_description[player2_menu_option_index].split("\n")
-                player2_text_xpos, player2_text_ypos = 515, 520
+                player2_text_xpos, player2_text_ypos = 520, 520
                 for line in player2_text:
-                    show_text(line, player2_text_xpos, player2_text_ypos, screen, 20, "center", color = "#4ddf6f")
+                    show_text(line, player2_text_xpos, player2_text_ypos, screen, 20, "center", color ="White", bold=True)
                     player2_text_ypos += 20
                 if player2_menu_option_index == i:
-                    show_text(menu_options[i], 630 + ((i+2)%2)*80, y, screen, 20, "midleft", True, color = "#4ddf6f")
+                    show_text(menu_options[i], 630 + ((i+2)%2)*80, y, screen, 20, "midleft", True, color = "Black")
                     arrow_img_rect = player2_arrow_img.get_rect(midleft = (610 + ((i+2)%2)*80, y))
                     screen.blit(player2_arrow_img, arrow_img_rect)
                 else:
-                    show_text(menu_options[i], 630 + ((i+2)%2)*80, y, screen, 20, "midleft", color = "#4ddf6f")
+                    show_text(menu_options[i], 630 + ((i+2)%2)*80, y, screen, 20, "midleft", color = "Black")
 
         ready = player1_ready and player2_ready # to check if both player are ready
 
