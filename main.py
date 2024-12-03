@@ -22,6 +22,7 @@ screen = pygame.display.set_mode((800, 600))
 clock = pygame.time.Clock()
 pygame.display.set_caption("Team Rocket's Pokemon Game")
 pygame.display.set_icon(scale(pygame.image.load("assets/Team-Rocket-Logo/Rocket-Logo.png"), 2))
+pygame.mixer.init()
 
 # Global initialization
 pokemons = [bulbasaur, charizard, blastoise, weepinbell, arcanine, psyduck, scyther, magmar, piplup, farfetchd, moltres, vaporeon]
@@ -57,6 +58,11 @@ def load_images() -> list:
     # Start loading images in a thread
     loading_thread = threading.Thread(target=load_images_task)
     loading_thread.start()
+
+    pygame.mixer.music.load("assets/audio/pokemon-loadingscreen.mp3")
+    pygame.mixer.music.play(-1)
+    pygame.mixer.music.set_volume(0.5)
+
     image = pygame.image.load("assets/Loading-Screen/Loading-Screen(v1)(630).png")
     while True:
         for event in pygame.event.get():
@@ -69,9 +75,15 @@ def load_images() -> list:
         pygame.display.update()
         
         if loading_complete:
+            pygame.mixer.music.stop()
             return pokemon_loaded_images, battle_effects_loaded_images
 
 def menu() -> None:
+    pygame.mixer.init()
+    pygame.mixer.music.load("assets/audio/pokemon-menu.mp3")
+    pygame.mixer.music.set_volume(0.5)
+    pygame.mixer.music.play(-1)
+
     background = pygame.image.load("assets/Menu-GUI/Menu.png")
     
     btn_play = scale(pygame.image.load("assets/Menu-GUI/PLAY-BUTTON.png"), 0.7)
@@ -83,7 +95,15 @@ def menu() -> None:
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                pygame.mixer.music.stop()
+                for pokemon in original_pokemons:
+                    pokemon.animation_clean_up()
+                for battle_effect in battle_effects:
+                    battle_effect.clear_residue()
+                pygame.quit()
+                exit()
                 quit()
+
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN or pygame.K_SPACE:
                     return
@@ -102,6 +122,17 @@ def menu() -> None:
         clock.tick(40)
          
 def pokemon_selection_scene(pokemon_loaded_images: list, battle_effect_loaded_images: list) -> list:
+    # Initialize  music
+    pygame.mixer.init()
+    pygame.mixer.music.load("assets/audio/pokemon-selection.mp3")
+    pygame.mixer.music.set_volume(0.5)
+    pygame.mixer.music.play(-1)
+    
+    sound_arrow =  pygame.mixer.Sound("assets/audio/button-click.mp3")
+    sound_arrow.set_volume(0.8)
+    sound_select = pygame.mixer.Sound("assets/audio/select-audio.wav")
+    sound_select.set_volume(0.8)
+
     # Creates the linked list
     player1_linkedlist = LinkedList()
     player2_linkedlist = LinkedList()
@@ -124,19 +155,23 @@ def pokemon_selection_scene(pokemon_loaded_images: list, battle_effect_loaded_im
     
     
     def select_pokemon(number_of_selected, focus):
+        selected_pokemon = pokemon[focus]
+
         if number_of_selected % 2 == 0:
             # Save the selected Pokémon for player1
             player1_loaded_images.append(pokemon_loaded_images[focus])
             
             # add the pokemon to the linked list
-            player1_linkedlist.atend(pokemons[focus])
+            player1_linkedlist.atend(selected_pokemon)
         else:
             # Save the selected Pokemon for player
             player2_loaded_images.append(pokemon_loaded_images[focus])
             
             # add the pokemon to the linked list
-            player2_linkedlist.atend(pokemons[focus])
-            
+            player2_linkedlist.atend(selected_pokemon)
+        
+        selected_pokemon.play_audio()
+        
         # Remove from the selection pool
         pokemons.pop(focus)
         pokemon_loaded_images.pop(focus)
@@ -148,27 +183,40 @@ def pokemon_selection_scene(pokemon_loaded_images: list, battle_effect_loaded_im
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                pygame.mixer.music.stop()
+                for pokemon in original_pokemons:
+                    pokemon.animation_clean_up()
+                for battle_effect in battle_effects:
+                    battle_effect.clear_residue()
+                pygame.quit()
+                exit()  
                 quit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
+                   sound_select.play()
                    updated_number_of_selected, updated_focus = select_pokemon(number_of_selected, focus)
                    focus = updated_focus
                    number_of_selected = updated_number_of_selected
                 if event.key == pygame.K_RIGHT:
+                    sound_arrow.play()
                     focus = (focus + 1) % len(pokemons)
                 if event.key == pygame.K_LEFT:
+                    sound_arrow.play()
                     focus = (focus - 1) % len(pokemons)
             
             # Check if mouse is clicked
             if event.type == pygame.MOUSEBUTTONDOWN:
                 # Check if click is inside the button
                 if arrow_left_rect.collidepoint(event.pos):  
+                   sound_arrow.play()
                    focus = (focus - 1) % len(pokemons)
                    arrow_left_state_counter = 5
                 if arrow_right_rect.collidepoint(event.pos):  
+                   sound_arrow.play()
                    focus = (focus + 1) % len(pokemons)
                    arrow_right_state_counter = 5
                 if select_button_rect.collidepoint(event.pos):  
+                   sound_select.play()
                    updated_number_of_selected, updated_focus = select_pokemon(number_of_selected, focus)
                    focus = updated_focus
                    number_of_selected = updated_number_of_selected
@@ -267,6 +315,7 @@ def pokemon_selection_scene(pokemon_loaded_images: list, battle_effect_loaded_im
         clock.tick(40)
         
         if number_of_selected == 6:
+            pygame.mixer.music.stop()
             
             # Creates the Queue
             player1_pokemons_queue = Queue()
@@ -282,6 +331,10 @@ def pokemon_selection_scene(pokemon_loaded_images: list, battle_effect_loaded_im
             return player1_pokemons_queue, player1_loaded_images, player2_pokemons_queue, player2_loaded_images
         
 def map_randomizer() -> object:
+    pygame.mixer.init()
+    pygame.mixer.music.load("assets/audio/map-pick.mp3")
+    pygame.mixer.music.play(-1)
+
     # Variables to be used for map randomizer / Next screen ( To avoid multiple declaration )
     map_names = ["Viridale Forest", "Dragon Dungeon", "Bamboo Bridge"]
     map_types = ["Grass", "Fire", "Water"]
@@ -291,11 +344,34 @@ def map_randomizer() -> object:
     for i in range(30):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+
+                pygame.mixer.music.stop()
+                pygame.quit()
+                exit()
+        time.sleep(starting_show_speed)
+        
+        random_map = random.choice(map_names) # Randomly select a map again        
+        current_background = pygame.transform.scale(pygame.image.load(f"./assets/Battleground/{random_map}.png"), (800,600))
+        screen.blit(current_background, (0,0))
+        show_text(random_map, 400, 50, screen)
+        
+        starting_show_speed *= 1.5
+        if starting_show_speed >= 2:
+            
+            screen.blit(pygame.transform.scale(pygame.image.load(f"./assets/Battleground/{selected_map}.png"), (800,600)), (0,0))
+            show_text(selected_map, 400, 50, screen)
+            current_background = pygame.transform.scale(pygame.image.load(f"./assets/Battle_Scene/{selected_map}.png"), (800,600))
+            pygame.display.flip()   
+            time.sleep(1)
+            pygame.mixer.music.stop()
+            return current_background, map_types[map_names.index(selected_map)]
+        
                 quit()
              
         current_background = pygame.transform.scale(pygame.image.load(f"./assets/Battleground/{map_names[i % 3]}.png"), (800,600))
         screen.blit(current_background, (0,0))
         show_text(map_names[i % 3], 400, 50, screen)
+
         
         # Update the screen
         pygame.display.flip()
