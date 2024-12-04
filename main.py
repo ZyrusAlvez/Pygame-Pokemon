@@ -59,6 +59,8 @@ def load_images() -> list:
     loading_thread = threading.Thread(target=load_images_task)
     loading_thread.start()
     image = pygame.image.load("assets/Loading-Screen/Loading-Screen(v1)(630).png")
+    
+    loading_text = "Loading"
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -66,8 +68,13 @@ def load_images() -> list:
 
         # Render loading  screen
         screen.blit(image, (0,-25))
+        show_text(loading_text, 300, 480, screen, origin="topleft")
+        loading_text += "."
+        if loading_text == "Loading.....":
+            loading_text = "Loading"
         
         pygame.display.update()
+        clock.tick(3)
         
         if loading_complete:
             return pokemon_loaded_images, battle_effects_loaded_images
