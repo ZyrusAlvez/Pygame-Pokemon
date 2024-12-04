@@ -33,6 +33,7 @@ player1_usedpotion = False
 player2_usedpotion = False
 player1_usedpoison = False
 player2_usedpoison = False
+
 # this requires a lot of time to load
 def load_images() -> list:
     loading_complete = False
@@ -397,6 +398,10 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
     next_round = False
     next_round_timer = False
     node_addition = False
+    
+    player_1_pokemon_posx = 0
+    player_2_pokemon_posx = 800
+    
     # Load up projectiles to be used by both pokemons
     for num in range(len(battle_effects)):
         if battle_effects[num].type == player_1_pokemon.type:
@@ -534,8 +539,12 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
         show_text(f"Match {match_number+1}", screen.get_width() // 2, 61, screen, 40, color = "Black", bold=True)
 
         # To show the name of pokemon in the current match
-        show_text(player_1_pokemon.name, 55, 34, screen, 20, "midleft", color = "Black", bold=True)
-        show_text(player_2_pokemon.name, 600, 34, screen, 20, "midleft", color = "Black", bold=True)
+        show_text(player_1_pokemon.name, 50, 34, screen, 20, "midleft", color = "Black", bold=True)
+        show_text(player_2_pokemon.name, 595, 34, screen, 20, "midleft", color = "Black", bold=True)
+        
+        # show pokemon type-icon
+        screen.blit(scale(pygame.image.load(f"./assets/type-icons/{player_1_pokemon.type}.png"), 0.4), (46, 50))
+        screen.blit(scale(pygame.image.load(f"./assets/type-icons/{player_2_pokemon.type}.png"), 0.4), (591, 50))
 
         # To show the Health Points Bar of the Pokemons
         hp_bar = scale(pygame.image.load("./assets/Battle_Scene/hp_bar.png"), .5)
@@ -881,6 +890,7 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
             if not disable_player2_proj:
                 player_2_battle_effect_current_img_rect = player_2_battle_effect_current_img.get_rect(center = ((screen.get_width() // 2 + 200) - x_pos, screen.get_height() // 2 + 110))
                 screen.blit(player_2_battle_effect_current_img, player_2_battle_effect_current_img_rect)
+                
             # Update each index for the battle effect frame
             player_1_battle_effect_index = (player_1_battle_effect_index + 1) % len(player_1_battle_effect_image)
             player_2_battle_effect_index = (player_2_battle_effect_index + 1) % len(player_2_battle_effect_image)
@@ -956,8 +966,12 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
         player_2_pokemon_image = pygame.transform.scale(player2_loaded_images[current_pokemon_index][player2_pokemon_frame_index[current_pokemon_index]], tuple([measure*1.5 for measure in player_2_pokemon.size]))
 
         # Position them in the screen properly and on the same footing to show difference in size
-        player_1_pokemon_rect = player_1_pokemon_image.get_rect(midbottom = (screen.get_width() // 4, screen.get_height() // 2 + 150))
-        player_2_pokemon_rect = player_2_pokemon_image.get_rect(midbottom = (screen.get_width() // 2 + 200, screen.get_height() // 2 + 150))
+        while player_1_pokemon_posx < 200 and player_2_pokemon_posx > 600:
+            player_1_pokemon_posx += 20
+            player_2_pokemon_posx -= 20
+            break
+        player_1_pokemon_rect = player_1_pokemon_image.get_rect(midbottom = (player_1_pokemon_posx, screen.get_height() // 2 + 150))
+        player_2_pokemon_rect = player_2_pokemon_image.get_rect(midbottom = (player_2_pokemon_posx, screen.get_height() // 2 + 150))
 
         # Put them on the screen
         screen.blit(player_1_pokemon_image, player_1_pokemon_rect)
@@ -968,12 +982,13 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
         player2_pokemon_frame_index[current_pokemon_index] = (player2_pokemon_frame_index[current_pokemon_index] + 1) % len(player2_loaded_images[current_pokemon_index])
 
         # Used for knowing specific locations in the screen
-        # mouse_pos = pygame.mouse.get_pos()
-        # print(f"Position: {mouse_pos}")
+        mouse_pos = pygame.mouse.get_pos()
+        print(f"Position: {mouse_pos}")
 
         pygame.display.flip()
         clock.tick(40)
-        
+
+# utility scene        
 def quit():
     if original_pokemons:
         for pokemon in original_pokemons:
@@ -1009,4 +1024,5 @@ def main():
             
         if player1_pokemons.size() <= 0 or player2_pokemons.size() <= 0:
             fight = False
+
 main()
