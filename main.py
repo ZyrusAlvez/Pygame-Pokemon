@@ -33,6 +33,8 @@ player1_usedpotion = False
 player2_usedpotion = False
 player1_usedpoison = False
 player2_usedpoison = False
+player1_default_pokemom_names = []
+player2_default_pokemom_names = []
 
 # this requires a lot of time to load
 def load_images() -> list:
@@ -325,7 +327,13 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
     another_round = False
     player1_ready = False
     player2_ready = False
-    current_pokemon_index = (match_number) % 3
+    
+    global player1_default_pokemon_names
+    global player2_default_pokemon_names
+    if match_number == 0:
+        player1_default_pokemon_names = [i.name for i in player1_pokemons.queue]
+        player2_default_pokemon_names = [i.name for i in player2_pokemons.queue]
+    
     player_1_pokemon = player1_pokemons.dequeue()
     player_2_pokemon = player2_pokemons.dequeue()
 
@@ -367,6 +375,9 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
     global player1_usedpoison
     global player2_usedpoison
 
+    p1_current_pokemon_index = player1_default_pokemon_names.index(player_1_pokemon.name)
+    p2_current_pokemon_index = player2_default_pokemon_names.index(player_2_pokemon.name)
+    
     fight_dia_timer = None
     fight_dia_duration = 10000
     collision = False
@@ -535,8 +546,6 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                             player2_show_confirmation = True
         if another_round:
             another_round = False
-        # Used for later
-        current_pokemon_index = (match_number) % 3
 
         # Display chosen background
         screen.blit(current_background, (0,0))
@@ -969,8 +978,8 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
             
 
         # Get current frame and resize it proportionally
-        player_1_pokemon_image = pygame.transform.flip(pygame.transform.scale(player1_loaded_images[current_pokemon_index][player1_pokemon_frame_index[current_pokemon_index]], tuple([measure*1.5 for measure in player_1_pokemon.size])), True, False)
-        player_2_pokemon_image = pygame.transform.scale(player2_loaded_images[current_pokemon_index][player2_pokemon_frame_index[current_pokemon_index]], tuple([measure*1.5 for measure in player_2_pokemon.size]))
+        player_1_pokemon_image = pygame.transform.flip(pygame.transform.scale(player1_loaded_images[p1_current_pokemon_index][player1_pokemon_frame_index[p1_current_pokemon_index]], tuple([measure*1.5 for measure in player_1_pokemon.size])), True, False)
+        player_2_pokemon_image = pygame.transform.scale(player2_loaded_images[p2_current_pokemon_index][player2_pokemon_frame_index[p2_current_pokemon_index]], tuple([measure*1.5 for measure in player_2_pokemon.size]))
 
         # Position them in the screen properly and on the same footing to show difference in size
         while player_1_pokemon_posx < 200 and player_2_pokemon_posx > 600:
@@ -985,8 +994,8 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
         screen.blit(player_2_pokemon_image, player_2_pokemon_rect)
 
         # Update frame index
-        player1_pokemon_frame_index[current_pokemon_index] = (player1_pokemon_frame_index[current_pokemon_index] + 1) % len(player1_loaded_images[current_pokemon_index])
-        player2_pokemon_frame_index[current_pokemon_index] = (player2_pokemon_frame_index[current_pokemon_index] + 1) % len(player2_loaded_images[current_pokemon_index])
+        player1_pokemon_frame_index[p1_current_pokemon_index] = (player1_pokemon_frame_index[p1_current_pokemon_index] + 1) % len(player1_loaded_images[p1_current_pokemon_index])
+        player2_pokemon_frame_index[p2_current_pokemon_index] = (player2_pokemon_frame_index[p2_current_pokemon_index] + 1) % len(player2_loaded_images[p2_current_pokemon_index])
 
         # Used for knowing specific locations in the screen
         # mouse_pos = pygame.mouse.get_pos()

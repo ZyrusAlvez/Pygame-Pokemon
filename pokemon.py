@@ -33,7 +33,7 @@ class Pokemon:
         for frame in range(self.frames_number):
             os.remove(f"./bin/{self.name}frame_{frame}.png")
             
-bulbasaur = Pokemon("Bulbasaur", "Grass", 100, 30, "./assets/pokemon/bulbasaur.gif", False, "./assets/pokemon-icons/bulbasaur-icon.png")  
+bulbasaur = Pokemon("Bulbasaur", "Grass", 10, 30, "./assets/pokemon/bulbasaur.gif", False, "./assets/pokemon-icons/bulbasaur-icon.png")  
 charizard = Pokemon("Charizard", "Fire", 30, 100, "./assets/pokemon/charizard.gif", False, "./assets/pokemon-icons/charizard-icon.png")
 blastoise = Pokemon("Blastoise", "Water", 50, 50, "./assets/pokemon/blastoise.gif", False, "./assets/pokemon-icons/blastoise-icon.png")
 weepinbell = Pokemon("Weepinbell", "Grass", 90, 40, "./assets/pokemon/weepinbell.gif", False, "./assets/pokemon-icons/weepinbell-icon.png")
