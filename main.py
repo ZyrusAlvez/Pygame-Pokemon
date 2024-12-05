@@ -883,7 +883,7 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                     next_round_timer = pygame.time.get_ticks()
                 if pygame.time.get_ticks() - next_round_timer > 3000:
                     next_round = False
-                    return match_number+1, (player_1_pokemon if player_1_pokemon.remaining_health >= 0 else False, player_2_pokemon if player_2_pokemon.remaining_health >= 0 else False), root_node
+                    return match_number+1, (player_1_pokemon, player_2_pokemon), root_node
                                        
             # Get current frames, resize and rotate them 
             player_1_battle_effect_current_img = pygame.transform.scale(pygame.transform.rotate(player_1_battle_effect_image[player_1_battle_effect_index], -90), tuple([measure * 0.5 for measure in player_1_battle_effect_image[player_1_battle_effect_index].get_size()]))
@@ -989,8 +989,8 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
         player2_pokemon_frame_index[current_pokemon_index] = (player2_pokemon_frame_index[current_pokemon_index] + 1) % len(player2_loaded_images[current_pokemon_index])
 
         # Used for knowing specific locations in the screen
-        mouse_pos = pygame.mouse.get_pos()
-        print(f"Position: {mouse_pos}")
+        # mouse_pos = pygame.mouse.get_pos()
+        # print(f"Position: {mouse_pos}")
 
         pygame.display.flip()
         clock.tick(40)
@@ -1017,17 +1017,17 @@ def main():
     
     while fight:
         current_background, map_type = map_randomizer()
-        new_match_number, pokemons_state, new_root_node = fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, player2_loaded_images, battle_effects_loaded_images, current_background, map_type, match_number, root_node)    
+        new_match_number, dequeued_pokemon, new_root_node = fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, player2_loaded_images, battle_effects_loaded_images, current_background, map_type, match_number, root_node)    
 
         match_number = new_match_number
         root_node = new_root_node
         
         print(root_node.traversePreOrder())
         
-        if pokemons_state[0]:
-            player1_pokemons.enqueue(pokemons_state[0])
-        if pokemons_state[1]:
-            player2_pokemons.enqueue(pokemons_state[1])
+        if dequeued_pokemon[0].remaining_health > 0:
+            player1_pokemons.enqueue(dequeued_pokemon[0])
+        if dequeued_pokemon[1].remaining_health > 0:
+            player2_pokemons.enqueue(dequeued_pokemon[1])
             
         if player1_pokemons.size() <= 0 or player2_pokemons.size() <= 0:
             fight = False
