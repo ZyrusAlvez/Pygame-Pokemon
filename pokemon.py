@@ -46,7 +46,7 @@ class Pokemon:
         pokemon_audio.play(sound, loops= 0)
             
 # Example Pokémon objects
-bulbasaur = Pokemon("Bulbasaur", "Grass", 10, 30, "./assets/pokemon/bulbasaur.gif", False, "./assets/pokemon-icons/bulbasaur-icon.png", "./assets/audio/bulbasaur-sound.mp3")
+bulbasaur = Pokemon("Bulbasaur", "Grass", 100, 30, "./assets/pokemon/bulbasaur.gif", False, "./assets/pokemon-icons/bulbasaur-icon.png", "./assets/audio/bulbasaur-sound.mp3")
 charizard = Pokemon("Charizard", "Fire", 30, 100, "./assets/pokemon/charizard.gif", False, "./assets/pokemon-icons/charizard-icon.png", "./assets/audio/charizard-sound.mp3")
 blastoise = Pokemon("Blastoise", "Water", 50, 50, "./assets/pokemon/blastoise.gif", False, "./assets/pokemon-icons/blastoise-icon.png", "./assets/audio/blastoise-sound.mp3")
 weepinbell = Pokemon("Weepinbell", "Grass", 90, 40, "./assets/pokemon/weepinbell.gif", False, "./assets/pokemon-icons/weepinbell-icon.png", "./assets/audio/weepinbell-sound.mp3")
@@ -57,4 +57,4 @@ magmar = Pokemon("Magmar", "Fire", 30, 110, "./assets/pokemon/magmar.gif", False
 piplup = Pokemon("Piplup", "Water", 55, 50, "./assets/pokemon/piplup.gif", False, "./assets/pokemon-icons/piplup-icon.png", "./assets/audio/piplup-sound.mp3")
 farfetchd = Pokemon("Farfetchd", "Grass", 100, 35, "./assets/pokemon/farfetchd.gif", False, "./assets/pokemon-icons/farfetchd-icon.png", "./assets/audio/farfetchd-sound.mp3")
 moltres = Pokemon("Moltres", "Fire", 35, 100, "./assets/pokemon/moltres.gif", False, "./assets/pokemon-icons/moltres-icon.png", "./assets/audio/moltres-sound.mp3")
-vaporeon = Pokemon("Vaporeon", "Water", 50, 55, "./assets/pokemon/vaporeon.gif", False, "./assets/pokemon-icons/vaporeon-icon.png", "./assets/audio/vaporeon-sound.mp3")
+vaporeon = Pokemon("Vaporeon", "Water", 50, 60, "./assets/pokemon/vaporeon.gif", False, "./assets/pokemon-icons/vaporeon-icon.png", "./assets/audio/vaporeon-sound.mp3")
