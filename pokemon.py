@@ -38,11 +38,12 @@ class Pokemon:
             os.remove(f"./bin/{self.name}frame_{frame}.png")
 
     def play_audio(self):
-        if os.path.exists(self.audio_path):
-            sound = pygame.mixer.Sound(self.audio_path)
-            sound.play()
-        else:
-            print(f"Audio file not found for {self.name}")
+        pygame.mixer.init()
+        pokemon_audio = pygame.mixer.Channel(1)
+        sound = pygame.mixer.Sound(self.audio_path)
+        if pokemon_audio.get_busy():
+            pokemon_audio.stop()
+        pokemon_audio.play(sound, loops= 0)
             
 # Example Pokémon objects
 bulbasaur = Pokemon("Bulbasaur", "Grass", 100, 30, "./assets/pokemon/bulbasaur.gif", False, "./assets/pokemon-icons/bulbasaur-icon.png", "./assets/audio/bulbasaur-sound.mp3")

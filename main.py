@@ -34,6 +34,9 @@ player1_usedpotion = False
 player2_usedpotion = False
 player1_usedpoison = False
 player2_usedpoison = False
+player1_default_pokemom_names = []
+player2_default_pokemom_names = []
+
 # this requires a lot of time to load
 def load_images() -> list:
     loading_complete = False
@@ -64,6 +67,8 @@ def load_images() -> list:
     pygame.mixer.music.set_volume(0.5)
 
     image = pygame.image.load("assets/Loading-Screen/Loading-Screen(v1)(630).png")
+    
+    loading_text = "Loading"
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -71,8 +76,13 @@ def load_images() -> list:
 
         # Render loading  screen
         screen.blit(image, (0,-25))
+        show_text(loading_text, 300, 480, screen, origin="topleft")
+        loading_text += "."
+        if loading_text == "Loading.....":
+            loading_text = "Loading"
         
         pygame.display.update()
+        clock.tick(3)
         
         if loading_complete:
             pygame.mixer.music.stop()
@@ -152,10 +162,11 @@ def pokemon_selection_scene(pokemon_loaded_images: list, battle_effect_loaded_im
     player2_loaded_images = [] 
     
     pokeball_effect_frame_index = 0
+
     
     
     def select_pokemon(number_of_selected, focus):
-        selected_pokemon = pokemon[focus]
+        selected_pokemon = pokemons[focus]
 
         if number_of_selected % 2 == 0:
             # Save the selected Pokémon for player1
@@ -203,6 +214,7 @@ def pokemon_selection_scene(pokemon_loaded_images: list, battle_effect_loaded_im
                 if event.key == pygame.K_LEFT:
                     sound_arrow.play()
                     focus = (focus - 1) % len(pokemons)
+            pokemons[focus].play_audio()
             
             # Check if mouse is clicked
             if event.type == pygame.MOUSEBUTTONDOWN:
@@ -283,6 +295,7 @@ def pokemon_selection_scene(pokemon_loaded_images: list, battle_effect_loaded_im
         screen.blit(scale(pygame.image.load(f"assets/type-icons/{pokemons[focus].type}.png"), 0.5), (550, 480))
         show_text(f"Power  : {pokemons[focus].power}", 236, 530, screen, 25, "topleft", color="Black")
         show_text(f"Health : {pokemons[focus].health}", 235, 565, screen, 25, "topleft", color="Black")
+        
         if pokemons[focus].type == "Water":
             screen.blit(pygame.image.load("assets/Bar/Bar-Mid.png"), (370, 535))
             screen.blit(pygame.image.load("assets/Bar/Bar-Mid.png"), (370, 570))
@@ -366,7 +379,7 @@ def map_randomizer() -> object:
             pygame.mixer.music.stop()
             return current_background, map_types[map_names.index(selected_map)]
         
-                quit()
+            # quit()
              
         current_background = pygame.transform.scale(pygame.image.load(f"./assets/Battleground/{map_names[i % 3]}.png"), (800,600))
         screen.blit(current_background, (0,0))
@@ -393,7 +406,13 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
     another_round = False
     player1_ready = False
     player2_ready = False
-    current_pokemon_index = (match_number) % 3
+    
+    global player1_default_pokemon_names
+    global player2_default_pokemon_names
+    if match_number == 0:
+        player1_default_pokemon_names = [i.name for i in player1_pokemons.queue]
+        player2_default_pokemon_names = [i.name for i in player2_pokemons.queue]
+    
     player_1_pokemon = player1_pokemons.dequeue()
     player_2_pokemon = player2_pokemons.dequeue()
 
@@ -435,6 +454,9 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
     global player1_usedpoison
     global player2_usedpoison
 
+    p1_current_pokemon_index = player1_default_pokemon_names.index(player_1_pokemon.name)
+    p2_current_pokemon_index = player2_default_pokemon_names.index(player_2_pokemon.name)
+    
     fight_dia_timer = None
     fight_dia_duration = 10000
     collision = False
@@ -473,6 +495,10 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
     next_round = False
     next_round_timer = False
     node_addition = False
+    
+    player_1_pokemon_posx = 0
+    player_2_pokemon_posx = 800
+    
     # Load up projectiles to be used by both pokemons
     for num in range(len(battle_effects)):
         if battle_effects[num].type == player_1_pokemon.type:
@@ -599,8 +625,6 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                             player2_show_confirmation = True
         if another_round:
             another_round = False
-        # Used for later
-        current_pokemon_index = (match_number) % 3
 
         # Display chosen background
         screen.blit(current_background, (0,0))
@@ -610,8 +634,12 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
         show_text(f"Match {match_number+1}", screen.get_width() // 2, 61, screen, 40, color = "Black", bold=True)
 
         # To show the name of pokemon in the current match
-        show_text(player_1_pokemon.name, 55, 34, screen, 20, "midleft", color = "Black", bold=True)
-        show_text(player_2_pokemon.name, 600, 34, screen, 20, "midleft", color = "Black", bold=True)
+        show_text(player_1_pokemon.name, 50, 34, screen, 20, "midleft", color = "Black", bold=True)
+        show_text(player_2_pokemon.name, 595, 34, screen, 20, "midleft", color = "Black", bold=True)
+        
+        # show pokemon type-icon
+        screen.blit(scale(pygame.image.load(f"./assets/type-icons/{player_1_pokemon.type}.png"), 0.4), (46, 50))
+        screen.blit(scale(pygame.image.load(f"./assets/type-icons/{player_2_pokemon.type}.png"), 0.4), (591, 50))
 
         # To show the Health Points Bar of the Pokemons
         hp_bar = scale(pygame.image.load("./assets/Battle_Scene/hp_bar.png"), .5)
@@ -943,7 +971,7 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                     next_round_timer = pygame.time.get_ticks()
                 if pygame.time.get_ticks() - next_round_timer > 3000:
                     next_round = False
-                    return match_number+1, (player_1_pokemon if player_1_pokemon.remaining_health >= 0 else False, player_2_pokemon if player_2_pokemon.remaining_health >= 0 else False), root_node
+                    return match_number+1, (player_1_pokemon, player_2_pokemon), root_node
                                        
             # Get current frames, resize and rotate them 
             player_1_battle_effect_current_img = pygame.transform.scale(pygame.transform.rotate(player_1_battle_effect_image[player_1_battle_effect_index], -90), tuple([measure * 0.5 for measure in player_1_battle_effect_image[player_1_battle_effect_index].get_size()]))
@@ -957,6 +985,7 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
             if not disable_player2_proj:
                 player_2_battle_effect_current_img_rect = player_2_battle_effect_current_img.get_rect(center = ((screen.get_width() // 2 + 200) - x_pos, screen.get_height() // 2 + 110))
                 screen.blit(player_2_battle_effect_current_img, player_2_battle_effect_current_img_rect)
+                
             # Update each index for the battle effect frame
             player_1_battle_effect_index = (player_1_battle_effect_index + 1) % len(player_1_battle_effect_image)
             player_2_battle_effect_index = (player_2_battle_effect_index + 1) % len(player_2_battle_effect_image)
@@ -1028,20 +1057,24 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
             
 
         # Get current frame and resize it proportionally
-        player_1_pokemon_image = pygame.transform.flip(pygame.transform.scale(player1_loaded_images[current_pokemon_index][player1_pokemon_frame_index[current_pokemon_index]], tuple([measure*1.5 for measure in player_1_pokemon.size])), True, False)
-        player_2_pokemon_image = pygame.transform.scale(player2_loaded_images[current_pokemon_index][player2_pokemon_frame_index[current_pokemon_index]], tuple([measure*1.5 for measure in player_2_pokemon.size]))
+        player_1_pokemon_image = pygame.transform.flip(pygame.transform.scale(player1_loaded_images[p1_current_pokemon_index][player1_pokemon_frame_index[p1_current_pokemon_index]], tuple([measure*1.5 for measure in player_1_pokemon.size])), True, False)
+        player_2_pokemon_image = pygame.transform.scale(player2_loaded_images[p2_current_pokemon_index][player2_pokemon_frame_index[p2_current_pokemon_index]], tuple([measure*1.5 for measure in player_2_pokemon.size]))
 
         # Position them in the screen properly and on the same footing to show difference in size
-        player_1_pokemon_rect = player_1_pokemon_image.get_rect(midbottom = (screen.get_width() // 4, screen.get_height() // 2 + 150))
-        player_2_pokemon_rect = player_2_pokemon_image.get_rect(midbottom = (screen.get_width() // 2 + 200, screen.get_height() // 2 + 150))
+        while player_1_pokemon_posx < 200 and player_2_pokemon_posx > 600:
+            player_1_pokemon_posx += 20
+            player_2_pokemon_posx -= 20
+            break
+        player_1_pokemon_rect = player_1_pokemon_image.get_rect(midbottom = (player_1_pokemon_posx, screen.get_height() // 2 + 150))
+        player_2_pokemon_rect = player_2_pokemon_image.get_rect(midbottom = (player_2_pokemon_posx, screen.get_height() // 2 + 150))
 
         # Put them on the screen
         screen.blit(player_1_pokemon_image, player_1_pokemon_rect)
         screen.blit(player_2_pokemon_image, player_2_pokemon_rect)
 
         # Update frame index
-        player1_pokemon_frame_index[current_pokemon_index] = (player1_pokemon_frame_index[current_pokemon_index] + 1) % len(player1_loaded_images[current_pokemon_index])
-        player2_pokemon_frame_index[current_pokemon_index] = (player2_pokemon_frame_index[current_pokemon_index] + 1) % len(player2_loaded_images[current_pokemon_index])
+        player1_pokemon_frame_index[p1_current_pokemon_index] = (player1_pokemon_frame_index[p1_current_pokemon_index] + 1) % len(player1_loaded_images[p1_current_pokemon_index])
+        player2_pokemon_frame_index[p2_current_pokemon_index] = (player2_pokemon_frame_index[p2_current_pokemon_index] + 1) % len(player2_loaded_images[p2_current_pokemon_index])
 
         # Used for knowing specific locations in the screen
         # mouse_pos = pygame.mouse.get_pos()
@@ -1049,7 +1082,8 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
 
         pygame.display.flip()
         clock.tick(40)
-        
+
+# utility scene        
 def quit():
     if original_pokemons:
         for pokemon in original_pokemons:
@@ -1071,18 +1105,19 @@ def main():
     
     while fight:
         current_background, map_type = map_randomizer()
-        new_match_number, pokemons_state, new_root_node = fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, player2_loaded_images, battle_effects_loaded_images, current_background, map_type, match_number, root_node)    
+        new_match_number, dequeued_pokemon, new_root_node = fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, player2_loaded_images, battle_effects_loaded_images, current_background, map_type, match_number, root_node)    
 
         match_number = new_match_number
         root_node = new_root_node
         
         print(root_node.traversePreOrder())
         
-        if pokemons_state[0]:
-            player1_pokemons.enqueue(pokemons_state[0])
-        if pokemons_state[1]:
-            player2_pokemons.enqueue(pokemons_state[1])
+        if dequeued_pokemon[0].remaining_health > 0:
+            player1_pokemons.enqueue(dequeued_pokemon[0])
+        if dequeued_pokemon[1].remaining_health > 0:
+            player2_pokemons.enqueue(dequeued_pokemon[1])
             
         if player1_pokemons.size() <= 0 or player2_pokemons.size() <= 0:
             fight = False
+
 main()
