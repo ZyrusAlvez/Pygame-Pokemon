@@ -897,11 +897,12 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                 if pygame.time.get_ticks() - post_battle_timer >= 0 and pygame.time.get_ticks() - post_battle_timer < 2000:
                     pass
                 elif pygame.time.get_ticks() - post_battle_timer < queue_duration:
-                    post_bat_msg_ypos = 336
+                    post_bat_msg_ypos = 306
                     if action_done:
                         action = consumables_queue.dequeue()
                         action_done = False
                         dequeue_timer = pygame.time.get_ticks()
+                        post_battle_message = ""
                     if pygame.time.get_ticks() - dequeue_timer < 5000:
                         if action == "Player 1 Used Potion":
                             post_battle_message = f"{player_1_pokemon.name} has\nused Potion.".split("\n")
@@ -941,6 +942,7 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                                 post_player1_battle_damage_counter = 20
                         for line in post_battle_message:
                             show_text(line, post_bat_msg_xpos, post_bat_msg_ypos, screen, 20)
+                            post_bat_msg_ypos += 20
                     else:
                         action_done = True
                 else:
