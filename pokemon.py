@@ -46,7 +46,7 @@ class Pokemon:
         pokemon_audio.play(sound, loops= 0)
             
 # Example Pokémon objects
-bulbasaur = Pokemon("Bulbasaur", "Grass", 100, 30, "./assets/pokemon/bulbasaur.gif", False, "./assets/pokemon-icons/bulbasaur-icon.png", "./assets/audio/bulbasaur-sound.mp3")
+bulbasaur = Pokemon("Bulbasaur", "Grass", 10, 30, "./assets/pokemon/bulbasaur.gif", False, "./assets/pokemon-icons/bulbasaur-icon.png", "./assets/audio/bulbasaur-sound.mp3")
 charizard = Pokemon("Charizard", "Fire", 30, 100, "./assets/pokemon/charizard.gif", False, "./assets/pokemon-icons/charizard-icon.png", "./assets/audio/charizard-sound.mp3")
 blastoise = Pokemon("Blastoise", "Water", 50, 50, "./assets/pokemon/blastoise.gif", False, "./assets/pokemon-icons/blastoise-icon.png", "./assets/audio/blastoise-sound.mp3")
 weepinbell = Pokemon("Weepinbell", "Grass", 90, 40, "./assets/pokemon/weepinbell.gif", False, "./assets/pokemon-icons/weepinbell-icon.png", "./assets/audio/weepinbell-sound.mp3")
