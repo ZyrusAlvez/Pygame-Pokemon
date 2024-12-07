@@ -458,6 +458,7 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
     global player2_usedpotion
     global player1_usedpoison
     global player2_usedpoison
+    global impact_effects
 
     p1_current_pokemon_index = player1_default_pokemon_names.index(player_1_pokemon.name)
     p2_current_pokemon_index = player2_default_pokemon_names.index(player_2_pokemon.name)
@@ -522,11 +523,13 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
             player_1_battle_effect_index = 0
             player_1_impact_effect_image = impacteffect_frames[num]
             player_1_impact_effect_index = 0
+            player_1_impact_effect = impact_effects[num]
         if battle_effects[num].type == player_2_pokemon.type:
             player_2_battle_effect_image = battleeffects_frames[num]
             player_2_battle_effect_index = 0
             player_2_impact_effect_image = impacteffect_frames[num]
             player_2_impact_effect_index = 0
+            player_2_impact_effect = impact_effects[num]
                 
     while True:
         for event in pygame.event.get():
@@ -1075,6 +1078,7 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
             if player2_proj_hit:
                 if player2_atk_effect_timer == False:
                     player2_atk_effect_timer = pygame.time.get_ticks()
+                    player_2_impact_effect.play_audio()
                 if pygame.time.get_ticks() - player2_atk_effect_timer <= 2000:
                     player_2_impact_effect_current_img = pygame.transform.scale(pygame.transform.rotate(player_2_impact_effect_image[player_2_impact_effect_index], 90), player_2_impact_effect_image[player_2_impact_effect_index].get_size())
                     player_2_impact_effect_rect = player_2_impact_effect_current_img.get_rect(center = (player_1_pokemon_posx - 50, screen.get_height() // 2 + 150))
@@ -1090,6 +1094,7 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
             if player1_proj_hit:
                 if player1_atk_effect_timer == False:
                     player1_atk_effect_timer = pygame.time.get_ticks()
+                    player_1_impact_effect.play_audio()
                 if pygame.time.get_ticks() - player1_atk_effect_timer <= 2000:
                     player_1_impact_effect_current_img = pygame.transform.scale(pygame.transform.rotate(player_1_impact_effect_image[player_1_impact_effect_index], 90), player_1_impact_effect_image[player_1_impact_effect_index].get_size())
                     player_1_impact_effect_rect = player_1_impact_effect_current_img.get_rect(center = (player_2_pokemon_posx + 50, screen.get_height() // 2 + 150))
