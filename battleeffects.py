@@ -38,3 +38,5 @@ firefx = BattleEffects("assets/Attack_Impact/Fire.gif", "Fire", "assets/audio/fi
 waterfx = BattleEffects("assets/Attack_Impact/Water.gif", "Water", "assets/audio/water-splash.mp3")
 grassfx = BattleEffects("assets/Attack_Impact/Grass.gif", "Grass", "assets/audio/grass-sfx.wav")
 pokeball = BattleEffects("assets/layout/pokeball.gif", "LoadingEffect")
+potion = BattleEffects("assets/Poison & Potion/Heal.gif", "Potion", "assets/audio/heal-sfx.wav")
+poison = BattleEffects("assets/Poison & Potion/Poison.gif", "Poison", "assets/audio/heal-sfx.wav")
