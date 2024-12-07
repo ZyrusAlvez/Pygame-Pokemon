@@ -28,6 +28,7 @@ pygame.mixer.init()
 pokemons = [bulbasaur, charizard, blastoise, weepinbell, arcanine, psyduck, scyther, magmar, piplup, farfetchd, moltres, vaporeon]
 original_pokemons = pokemons[:]
 battle_effects = [fireball, waterball, grassball, pokeball]
+impact_effects = [firefx, waterfx, grassfx]
 
 # Global Variable
 player1_usedpotion = False
@@ -43,18 +44,22 @@ def load_images() -> list:
 
     def load_images_task():
         nonlocal loading_complete
-        global pokemon_loaded_images, battle_effects_loaded_images
+        global pokemon_loaded_images, battle_effects_loaded_images, impact_effects_loaded_images
         
         def load_pokemon_frames(pokemon):
             return [pygame.image.load(frame) for frame in pokemon.animation_frames()]
 
         def load_effect_frames(effect):
             return [pygame.image.load(frame) for frame in effect.animation_frames()]
+        
+        def load_impact_frames(impact):
+            return [pygame.image.load(frame) for frame in impact.animation_frames()]
 
         # Use ThreadPoolExecutor to load frames in parallel
         with ThreadPoolExecutor() as executor:
             pokemon_loaded_images = list(executor.map(load_pokemon_frames, pokemons))
             battle_effects_loaded_images = list(executor.map(load_effect_frames, battle_effects))
+            impact_effects_loaded_images = list(executor.map(load_impact_frames, impact_effects))
 
         loading_complete = True
 
@@ -86,7 +91,7 @@ def load_images() -> list:
         
         if loading_complete:
             pygame.mixer.music.stop()
-            return pokemon_loaded_images, battle_effects_loaded_images
+            return pokemon_loaded_images, battle_effects_loaded_images, impact_effects_loaded_images
 
 def menu() -> None:
     pygame.mixer.init()
@@ -398,7 +403,7 @@ def map_randomizer() -> object:
     
     return current_background, map_types[map_names.index(selected_map)]
         
-def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, player2_loaded_images, battleeffects_frames, current_background, map_type, match_number, root_node) -> None:
+def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, player2_loaded_images, battleeffects_frames, impacteffect_frames, current_background, map_type, match_number, root_node) -> None:
     # Queue for Executing Potion Healings and Poison Damages
     consumables_queue = Queue() 
     # Stack for Executing Buffs and Nerfs
@@ -406,7 +411,7 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
     another_round = False
     player1_ready = False
     player2_ready = False
-    
+    print(len(battleeffects_frames))
     global player1_default_pokemon_names
     global player2_default_pokemon_names
     if match_number == 0:
@@ -502,14 +507,26 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
 
     comparison_dia_timer = False
     comparison_msg = ""
+
+    player1_atk_effect_timer = False
+    player2_atk_effect_timer = False
+
+    player1_proj_hit = False
+    player2_proj_hit = False
+    show_player1_impact = True
+    show_player2_impact = True
     # Load up projectiles to be used by both pokemons
     for num in range(len(battle_effects)):
         if battle_effects[num].type == player_1_pokemon.type:
             player_1_battle_effect_image = battleeffects_frames[num]
             player_1_battle_effect_index = 0
+            player_1_impact_effect_image = impacteffect_frames[num]
+            player_1_impact_effect_index = 0
         if battle_effects[num].type == player_2_pokemon.type:
             player_2_battle_effect_image = battleeffects_frames[num]
             player_2_battle_effect_index = 0
+            player_2_impact_effect_image = impacteffect_frames[num]
+            player_2_impact_effect_index = 0
                 
     while True:
         for event in pygame.event.get():
@@ -794,6 +811,28 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                 else:
                     show_text(menu_options[i], 630 + ((i+2)%2)*80, y, screen, 20, "midleft", color = "Black")
 
+              
+
+        # Get current frame and resize it proportionally
+        player_1_pokemon_image = pygame.transform.flip(pygame.transform.scale(player1_loaded_images[p1_current_pokemon_index][player1_pokemon_frame_index[p1_current_pokemon_index]], tuple([measure*1.5 for measure in player_1_pokemon.size])), True, False)
+        player_2_pokemon_image = pygame.transform.scale(player2_loaded_images[p2_current_pokemon_index][player2_pokemon_frame_index[p2_current_pokemon_index]], tuple([measure*1.5 for measure in player_2_pokemon.size]))
+
+        # Position them in the screen properly and on the same footing to show difference in size
+        while player_1_pokemon_posx < 200 and player_2_pokemon_posx > 600:
+            player_1_pokemon_posx += 20
+            player_2_pokemon_posx -= 20
+            break
+        player_1_pokemon_rect = player_1_pokemon_image.get_rect(midbottom = (player_1_pokemon_posx, screen.get_height() // 2 + 150))
+        player_2_pokemon_rect = player_2_pokemon_image.get_rect(midbottom = (player_2_pokemon_posx, screen.get_height() // 2 + 150))
+
+        # Put them on the screen
+        screen.blit(player_1_pokemon_image, player_1_pokemon_rect)
+        screen.blit(player_2_pokemon_image, player_2_pokemon_rect)
+
+        # Update frame index
+        player1_pokemon_frame_index[p1_current_pokemon_index] = (player1_pokemon_frame_index[p1_current_pokemon_index] + 1) % len(player1_loaded_images[p1_current_pokemon_index])
+        player2_pokemon_frame_index[p2_current_pokemon_index] = (player2_pokemon_frame_index[p2_current_pokemon_index] + 1) % len(player2_loaded_images[p2_current_pokemon_index])
+
         ready = player1_ready and player2_ready # to check if both player are ready
 
         if ready:
@@ -999,6 +1038,8 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
             # Get current frames, resize and rotate them 
             player_1_battle_effect_current_img = pygame.transform.scale(pygame.transform.rotate(player_1_battle_effect_image[player_1_battle_effect_index], -90), tuple([measure * 0.5 for measure in player_1_battle_effect_image[player_1_battle_effect_index].get_size()]))
             player_2_battle_effect_current_img = pygame.transform.scale(pygame.transform.rotate(player_2_battle_effect_image[player_2_battle_effect_index], 90), tuple([measure * 0.5 for measure in player_2_battle_effect_image[player_2_battle_effect_index].get_size()]))
+            
+            
         
         
             # Draw them each
@@ -1012,19 +1053,55 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
             # Update each index for the battle effect frame
             player_1_battle_effect_index = (player_1_battle_effect_index + 1) % len(player_1_battle_effect_image)
             player_2_battle_effect_index = (player_2_battle_effect_index + 1) % len(player_2_battle_effect_image)
+            
             if player_1_battle_effect_current_img_rect.colliderect(player_2_battle_effect_current_img_rect):
                 if not collision:
                     fight_dia_timer = pygame.time.get_ticks()
                     collision = True
             
+            # If projectiles pokemon
+            # If Player1 projectile hits Player 2
             if player_1_battle_effect_current_img_rect.colliderect(player_2_pokemon_rect):
-                if not deduct_player2_hp:
-                    deduct_player2_hp = True
-                    disable_player1_proj = True
+                if not player1_proj_hit:
+                    player1_proj_hit = True
+                disable_player1_proj = True
+                
+            # If player2 projectile hits Player 1
             elif player_2_battle_effect_current_img_rect.colliderect(player_1_pokemon_rect):
-                if not deduct_player1_hp:
-                    deduct_player1_hp = True
+                if not player2_proj_hit:
+                    player2_proj_hit = True
                     disable_player2_proj = True
+
+            if player2_proj_hit:
+                if player2_atk_effect_timer == False:
+                    player2_atk_effect_timer = pygame.time.get_ticks()
+                if pygame.time.get_ticks() - player2_atk_effect_timer <= 2000:
+                    player_2_impact_effect_current_img = pygame.transform.scale(pygame.transform.rotate(player_2_impact_effect_image[player_2_impact_effect_index], 90), player_2_impact_effect_image[player_2_impact_effect_index].get_size())
+                    player_2_impact_effect_rect = player_2_impact_effect_current_img.get_rect(center = (player_1_pokemon_posx - 50, screen.get_height() // 2 + 150))
+                    if show_player2_impact:
+                        screen.blit(player_2_impact_effect_current_img, player_2_impact_effect_rect)
+                    player_2_impact_effect_index += 1 if player_2_impact_effect_index < len(player_2_impact_effect_image)-1 else 0
+                    if player_2_impact_effect_index == len(player_2_impact_effect_image)-1:
+                        show_player2_impact = False
+                else:
+                    if not deduct_player1_hp:
+                        deduct_player1_hp = True
+                    
+            if player1_proj_hit:
+                if player1_atk_effect_timer == False:
+                    player1_atk_effect_timer = pygame.time.get_ticks()
+                if pygame.time.get_ticks() - player1_atk_effect_timer <= 2000:
+                    player_1_impact_effect_current_img = pygame.transform.scale(pygame.transform.rotate(player_1_impact_effect_image[player_1_impact_effect_index], 90), player_1_impact_effect_image[player_1_impact_effect_index].get_size())
+                    player_1_impact_effect_rect = player_1_impact_effect_current_img.get_rect(center = (player_2_pokemon_posx + 50, screen.get_height() // 2 + 150))
+                    if show_player1_impact:
+                        screen.blit(player_1_impact_effect_current_img, player_1_impact_effect_rect)
+                    player_1_impact_effect_index += 1 if player_1_impact_effect_index < len(player_1_impact_effect_image)-1 else 0
+                    if player_1_impact_effect_index == len(player_1_impact_effect_image)-1:
+                        show_player1_impact = False
+                else:
+                    if not deduct_player2_hp:
+                        deduct_player2_hp = True
+                        
 
             if deduct_player2_hp:
                 if pygame.time.get_ticks() - player_2_dmg_time >= dmg_interval and player1_damage_counter < 15 :
@@ -1073,28 +1150,7 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                 
                     
 
-            
-
-        # Get current frame and resize it proportionally
-        player_1_pokemon_image = pygame.transform.flip(pygame.transform.scale(player1_loaded_images[p1_current_pokemon_index][player1_pokemon_frame_index[p1_current_pokemon_index]], tuple([measure*1.5 for measure in player_1_pokemon.size])), True, False)
-        player_2_pokemon_image = pygame.transform.scale(player2_loaded_images[p2_current_pokemon_index][player2_pokemon_frame_index[p2_current_pokemon_index]], tuple([measure*1.5 for measure in player_2_pokemon.size]))
-
-        # Position them in the screen properly and on the same footing to show difference in size
-        while player_1_pokemon_posx < 200 and player_2_pokemon_posx > 600:
-            player_1_pokemon_posx += 20
-            player_2_pokemon_posx -= 20
-            break
-        player_1_pokemon_rect = player_1_pokemon_image.get_rect(midbottom = (player_1_pokemon_posx, screen.get_height() // 2 + 150))
-        player_2_pokemon_rect = player_2_pokemon_image.get_rect(midbottom = (player_2_pokemon_posx, screen.get_height() // 2 + 150))
-
-        # Put them on the screen
-        screen.blit(player_1_pokemon_image, player_1_pokemon_rect)
-        screen.blit(player_2_pokemon_image, player_2_pokemon_rect)
-
-        # Update frame index
-        player1_pokemon_frame_index[p1_current_pokemon_index] = (player1_pokemon_frame_index[p1_current_pokemon_index] + 1) % len(player1_loaded_images[p1_current_pokemon_index])
-        player2_pokemon_frame_index[p2_current_pokemon_index] = (player2_pokemon_frame_index[p2_current_pokemon_index] + 1) % len(player2_loaded_images[p2_current_pokemon_index])
-
+      
         # Used for knowing specific locations in the screen
         # mouse_pos = pygame.mouse.get_pos()
         # print(f"Position: {mouse_pos}")
@@ -1118,13 +1174,13 @@ def main():
     fight = True
     root_node = None
     
-    pokemon_loaded_images, battle_effects_loaded_images = load_images()
+    pokemon_loaded_images, battle_effects_loaded_images, impact_effects_loaded_images = load_images()
     menu()
     player1_pokemons, player1_loaded_images, player2_pokemons, player2_loaded_images = pokemon_selection_scene(pokemon_loaded_images, battle_effects_loaded_images)
     
     while fight:
         current_background, map_type = map_randomizer()
-        new_match_number, dequeued_pokemon, new_root_node = fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, player2_loaded_images, battle_effects_loaded_images, current_background, map_type, match_number, root_node)    
+        new_match_number, dequeued_pokemon, new_root_node = fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, player2_loaded_images, battle_effects_loaded_images, impact_effects_loaded_images, current_background, map_type, match_number, root_node)    
 
         match_number = new_match_number
         root_node = new_root_node
