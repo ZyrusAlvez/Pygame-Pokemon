@@ -28,6 +28,8 @@ pygame.mixer.init()
 pokemons = [bulbasaur, charizard, blastoise, weepinbell, arcanine, psyduck, scyther, magmar, piplup, farfetchd, moltres, vaporeon]
 original_pokemons = pokemons[:]
 battle_effects = [fireball, waterball, grassball, pokeball]
+impact_effects = [firefx, waterfx, grassfx]
+potion_poison_effects = [potion, poison]
 
 # Global Variable
 player1_usedpotion = False
@@ -43,18 +45,26 @@ def load_images() -> list:
 
     def load_images_task():
         nonlocal loading_complete
-        global pokemon_loaded_images, battle_effects_loaded_images
+        global pokemon_loaded_images, battle_effects_loaded_images, impact_effects_loaded_images, potion_poison_effects_loaded_images
         
         def load_pokemon_frames(pokemon):
             return [pygame.image.load(frame) for frame in pokemon.animation_frames()]
 
         def load_effect_frames(effect):
             return [pygame.image.load(frame) for frame in effect.animation_frames()]
+        
+        def load_impact_frames(impact):
+            return [pygame.image.load(frame) for frame in impact.animation_frames()]
+
+        def load_potion_poison_frames(potion_poison):
+            return [pygame.image.load(frame) for frame in potion_poison.animation_frames()]
 
         # Use ThreadPoolExecutor to load frames in parallel
         with ThreadPoolExecutor() as executor:
             pokemon_loaded_images = list(executor.map(load_pokemon_frames, pokemons))
             battle_effects_loaded_images = list(executor.map(load_effect_frames, battle_effects))
+            impact_effects_loaded_images = list(executor.map(load_impact_frames, impact_effects))
+            potion_poison_effects_loaded_images = list(executor.map(load_potion_poison_frames, potion_poison_effects))
 
         loading_complete = True
 
@@ -86,7 +96,7 @@ def load_images() -> list:
         
         if loading_complete:
             pygame.mixer.music.stop()
-            return pokemon_loaded_images, battle_effects_loaded_images
+            return pokemon_loaded_images, battle_effects_loaded_images, impact_effects_loaded_images, potion_poison_effects_loaded_images
 
 def menu() -> None:
     pygame.mixer.init()
@@ -398,7 +408,7 @@ def map_randomizer() -> object:
     
     return current_background, map_types[map_names.index(selected_map)]
         
-def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, player2_loaded_images, battleeffects_frames, current_background, map_type, match_number, root_node) -> None:
+def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, player2_loaded_images, battleeffects_frames, impacteffect_frames,potionpoison_frames, current_background, map_type, match_number, root_node) -> None:
     # Queue for Executing Potion Healings and Poison Damages
     consumables_queue = Queue() 
     # Stack for Executing Buffs and Nerfs
@@ -406,7 +416,7 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
     another_round = False
     player1_ready = False
     player2_ready = False
-    
+    print(len(battleeffects_frames))
     global player1_default_pokemon_names
     global player2_default_pokemon_names
     if match_number == 0:
@@ -453,6 +463,8 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
     global player2_usedpotion
     global player1_usedpoison
     global player2_usedpoison
+    global impact_effects
+    global potion_poison_effects
 
     p1_current_pokemon_index = player1_default_pokemon_names.index(player_1_pokemon.name)
     p2_current_pokemon_index = player2_default_pokemon_names.index(player_2_pokemon.name)
@@ -492,21 +504,45 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
     heal_player2_hp = False
     player1_heal_counter = 0
     player2_heal_counter = 0
+    fatigue = False
     next_round = False
     next_round_timer = False
     node_addition = False
     
     player_1_pokemon_posx = 0
     player_2_pokemon_posx = 800
-    
+
+    comparison_dia_timer = False
+    comparison_msg = ""
+
+    player1_atk_effect_timer = False
+    player2_atk_effect_timer = False
+
+    player1_proj_hit = False
+    player2_proj_hit = False
+    show_player1_impact = True
+    show_player2_impact = True
     # Load up projectiles to be used by both pokemons
     for num in range(len(battle_effects)):
         if battle_effects[num].type == player_1_pokemon.type:
             player_1_battle_effect_image = battleeffects_frames[num]
             player_1_battle_effect_index = 0
+            player_1_impact_effect_image = impacteffect_frames[num]
+            player_1_impact_effect_index = 0
+            player_1_impact_effect = impact_effects[num]
         if battle_effects[num].type == player_2_pokemon.type:
             player_2_battle_effect_image = battleeffects_frames[num]
             player_2_battle_effect_index = 0
+            player_2_impact_effect_image = impacteffect_frames[num]
+            player_2_impact_effect_index = 0
+            player_2_impact_effect = impact_effects[num]
+    
+    potion_frames = potionpoison_frames[0]
+    player_1_potion_frame_index = 0
+    player_2_potion_frame_index = 0
+    poison_frames = potionpoison_frames[1]
+    player_1_poison_frame_index = 0
+    player_2_poison_frame_index = 0
                 
     while True:
         for event in pygame.event.get():
@@ -791,12 +827,33 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                 else:
                     show_text(menu_options[i], 630 + ((i+2)%2)*80, y, screen, 20, "midleft", color = "Black")
 
+              
+
+        # Get current frame and resize it proportionally
+        player_1_pokemon_image = pygame.transform.flip(pygame.transform.scale(player1_loaded_images[p1_current_pokemon_index][player1_pokemon_frame_index[p1_current_pokemon_index]], tuple([measure*1.5 for measure in player_1_pokemon.size])), True, False)
+        player_2_pokemon_image = pygame.transform.scale(player2_loaded_images[p2_current_pokemon_index][player2_pokemon_frame_index[p2_current_pokemon_index]], tuple([measure*1.5 for measure in player_2_pokemon.size]))
+
+        # Position them in the screen properly and on the same footing to show difference in size
+        while player_1_pokemon_posx < 200 and player_2_pokemon_posx > 600:
+            player_1_pokemon_posx += 20
+            player_2_pokemon_posx -= 20
+            break
+        player_1_pokemon_rect = player_1_pokemon_image.get_rect(midbottom = (player_1_pokemon_posx, screen.get_height() // 2 + 150))
+        player_2_pokemon_rect = player_2_pokemon_image.get_rect(midbottom = (player_2_pokemon_posx, screen.get_height() // 2 + 150))
+
+        # Put them on the screen
+        screen.blit(player_1_pokemon_image, player_1_pokemon_rect)
+        screen.blit(player_2_pokemon_image, player_2_pokemon_rect)
+
+        # Update frame index
+        player1_pokemon_frame_index[p1_current_pokemon_index] = (player1_pokemon_frame_index[p1_current_pokemon_index] + 1) % len(player1_loaded_images[p1_current_pokemon_index])
+        player2_pokemon_frame_index[p2_current_pokemon_index] = (player2_pokemon_frame_index[p2_current_pokemon_index] + 1) % len(player2_loaded_images[p2_current_pokemon_index])
+
         ready = player1_ready and player2_ready # to check if both player are ready
 
         if ready:
-            
             if not buffs_stack.empty():
-                fight_dia_duration = 15000
+                fight_dia_duration = 12000
                 for _ in range(len(buffs_stack.stack)):
                         player_buff = buffs_stack.pop()
                         if player_buff == 1:
@@ -809,7 +866,7 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                     show_text(str(random.randint(1, 150)),349, 336, screen, 30, color= "Red" if player_1_pokemon.type == "Fire" else "Blue" if player_1_pokemon.type == "Water" else "Green")
                     show_text(str(random.randint(1, 150)),429, 336, screen, 30, color= "Red" if player_2_pokemon.type == "Fire" else "Blue" if player_2_pokemon.type == "Water" else "Green")
 
-                elif (player1_buff or player2_buff) and (pygame.time.get_ticks() - fight_dia_timer > 5000 and pygame.time.get_ticks() - fight_dia_timer <= 10000):
+                elif (player1_buff or player2_buff) and (pygame.time.get_ticks() - fight_dia_timer > 5000 and pygame.time.get_ticks() - fight_dia_timer <= 8000):
                     if player1_buff:
                         player1_buff_msg = f"{player_1_pokemon.name} receives\nboost from the battlefield".split("\n")
                         player1_buff_ypos = 306
@@ -828,18 +885,8 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                     # To show the numbers
                     show_text(str(player_1_pokemon.temporary_power),349, 336, screen, 30, color= "Red" if player_1_pokemon.type == "Fire" else "Blue" if player_1_pokemon.type == "Water" else "Green")
                     show_text(str(player_2_pokemon.temporary_power),429, 336, screen, 30, color= "Red" if player_2_pokemon.type == "Fire" else "Blue" if player_2_pokemon.type == "Water" else "Green")
-                else:
-                    if player_1_pokemon.temporary_power == player_2_pokemon.temporary_power:
-                        comparison_msg = "Both pokemons stand at equal power"
-                    else:
-                        comparison_msg = (f"{player_1_pokemon.name if player_1_pokemon.temporary_power > player_2_pokemon.temporary_power else player_2_pokemon.name} dominates {player_2_pokemon.name if player_2_pokemon.temporary_power < player_1_pokemon.temporary_power else player_1_pokemon.name}")
-
-                    if msg_index < len(comparison_msg):
-                        tobe_printed_msg += comparison_msg[msg_index]
-                        msg_index = (msg_index + 1) if msg_index < len(comparison_msg) else len(comparison_msg)
-                    show_text(tobe_printed_msg, screen.get_width()//2 , 470, screen, 20, origin= "center")
+                elif (player1_buff or player2_buff) and (pygame.time.get_ticks() - fight_dia_timer > 8000 and pygame.time.get_ticks() - fight_dia_timer <= 10000):
                     if player1_buff:
-                       
                         if player1_power_buff_counter < int(player_1_pokemon.health * 0.2):
                             player_1_pokemon.temporary_power += 1
                             player1_power_buff_counter += 1
@@ -850,16 +897,32 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                     else:
                         show_text(str(player_1_pokemon.temporary_power),349, 336, screen, 30, color= "Red" if player_1_pokemon.type == "Fire" else "Blue" if player_1_pokemon.type == "Water" else "Green")
                     if player2_buff:
-                       
                         if player2_power_buff_counter < int(player_2_pokemon.health * 0.2):
                             player_2_pokemon.temporary_power += 1
                             player2_power_buff_counter += 1
                         else:
                             player2_power_buff_counter = int(player_2_pokemon.health * 0.2)
-                            
                         show_text(str(player_2_pokemon.temporary_power),429, 336, screen, 30, color= "Red" if player_2_pokemon.type == "Fire" else "Blue" if player_2_pokemon.type == "Water" else "Green")
                     else:
                         show_text(str(player_2_pokemon.temporary_power),429, 336, screen, 30, color= "Red" if player_2_pokemon.type == "Fire" else "Blue" if player_2_pokemon.type == "Water" else "Green")
+                else:
+                    if comparison_dia_timer == False:
+                        comparison_dia_timer = pygame.time.get_ticks()
+                    if comparison_msg == "":
+                        if player_1_pokemon.temporary_power == player_2_pokemon.temporary_power:
+                            comparison_msg = "Both pokemons stand at equal power"
+                        else:
+                            comparison_msg = (f"{player_1_pokemon.name if player_1_pokemon.temporary_power > player_2_pokemon.temporary_power else player_2_pokemon.name} dominates {player_2_pokemon.name if player_2_pokemon.temporary_power < player_1_pokemon.temporary_power else player_1_pokemon.name}")
+                    if pygame.time.get_ticks() - comparison_dia_timer <= 2000:
+                        if msg_index < len(comparison_msg):
+                            tobe_printed_msg += comparison_msg[msg_index]
+                            msg_index = (msg_index + 1) if msg_index < len(comparison_msg) else len(comparison_msg)
+                        show_text(tobe_printed_msg, screen.get_width()//2 , 470, screen, 20, origin= "center")
+
+                    # To show the numbers
+                    show_text(str(player_1_pokemon.temporary_power),349, 336, screen, 30, color= "Red" if player_1_pokemon.type == "Fire" else "Blue" if player_1_pokemon.type == "Water" else "Green")
+                    show_text(str(player_2_pokemon.temporary_power),429, 336, screen, 30, color= "Red" if player_2_pokemon.type == "Fire" else "Blue" if player_2_pokemon.type == "Water" else "Green")
+                    
                 
             else:
                 if collision:
@@ -871,6 +934,8 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                     else:
                         disable_player1_proj = True
                         disable_player2_proj = True
+                        # Edit back to fatigue = True if tie causes bug
+                        post_battle = True
                     fight_dia_timer = None
                 # Increment x to make each image closer to middle ( 400 )
                 x_pos += 2
@@ -885,18 +950,34 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                     post_player2_battle_healing_counter = 0
                     post_player2_battle_damage_counter = 0
                     post_player1_battle_healing_counter = 0
+                    
                 if pygame.time.get_ticks() - post_battle_timer >= 0 and pygame.time.get_ticks() - post_battle_timer < 2000:
                     pass
                 elif pygame.time.get_ticks() - post_battle_timer < queue_duration:
-                    post_bat_msg_ypos = 336
+                    post_bat_msg_ypos = 306
                     if action_done:
                         action = consumables_queue.dequeue()
                         action_done = False
                         dequeue_timer = pygame.time.get_ticks()
+                        post_battle_message = ""
+                        if action == None:
+                            action = ""
+                        if "Potion" in action:
+                            queue_effect_frames = potion_frames
+                            potion_poison_effects[0].play_audio()
+                        elif "Poison" in action:
+                            queue_effect_frames = poison_frames
+                            potion_poison_effects[1].play_audio()
+                        queue_effect_frames_index = 0
+                        if action == "":
+                            show_effect = False
+                        else:
+                            show_effect = True
+
                     if pygame.time.get_ticks() - dequeue_timer < 5000:
                         if action == "Player 1 Used Potion":
                             post_battle_message = f"{player_1_pokemon.name} has\nused Potion.".split("\n")
-                            post_bat_msg_xpos = 115
+                            post_bat_msg_xpos = player_1_pokemon_posx
                             show_text(f"+20", post_bat_msg_xpos, 80, screen, 20)
                             if post_player1_battle_healing_counter < 20:
                                 post_player1_battle_healing_counter += 1
@@ -905,7 +986,7 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                                 post_player1_battle_healing_counter = 20
                         elif action == "Player 1 Used Poison":
                             post_battle_message = f"{player_1_pokemon.name} has\ninflicted Poison.".split("\n")
-                            post_bat_msg_xpos = 600
+                            post_bat_msg_xpos = player_2_pokemon_posx
                             show_text(f"-20", post_bat_msg_xpos, 80, screen, 20)
                             if post_player2_battle_damage_counter < 20:
                                 post_player2_battle_damage_counter += 1
@@ -914,7 +995,7 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                                 post_player2_battle_damage_counter = 20
                         elif action == "Player 2 Used Potion":
                             post_battle_message = f"{player_2_pokemon.name} has\nused Potion.".split("\n")
-                            post_bat_msg_xpos = 600
+                            post_bat_msg_xpos = player_2_pokemon_posx
                             show_text(f"+20", post_bat_msg_xpos, 80, screen, 20)
                             if post_player2_battle_healing_counter < 20:
                                 post_player2_battle_healing_counter += 1 
@@ -923,38 +1004,66 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                                 post_player2_battle_healing_counter = 20
                         elif action == "Player 2 Used Poison":
                             post_battle_message = f"{player_2_pokemon.name} has\ninflicted Poison.".split("\n")
-                            post_bat_msg_xpos = 115
+                            post_bat_msg_xpos = player_1_pokemon_posx
                             show_text(f"-20", post_bat_msg_xpos, 80, screen, 20)
                             if post_player1_battle_damage_counter < 20:
                                 post_player1_battle_damage_counter += 1
                                 player_1_pokemon.remaining_health -= 1 if player_1_pokemon.remaining_health != 0 else 0
                             if post_player1_battle_damage_counter >= 20:
                                 post_player1_battle_damage_counter = 20
+                        # Showing of Effect
+                        # Compute for Ratio ( Bigger Animation Frame for Bigger Pokemons )
+                        # 0.7 is best for standard sized pokemons
+                        if post_bat_msg_xpos == player_1_pokemon_posx:
+                            if player_1_pokemon_image.get_width() < 160:
+                                pokemon_ratio = 0.7
+                            else:
+                                pokemon_ratio = 1
+                        elif post_bat_msg_xpos == player_2_pokemon_posx:
+                            if player_1_pokemon_image.get_width() < 160:
+                                pokemon_ratio = 0.7
+                            else:
+                                pokemon_ratio = 1
+                           
+                        effect_current_img = pygame.transform.scale(queue_effect_frames[queue_effect_frames_index], tuple([measure * pokemon_ratio for measure in queue_effect_frames[queue_effect_frames_index].get_size()]))
+                        effect_current_img_rect = effect_current_img.get_rect(center = (post_bat_msg_xpos, post_bat_msg_ypos + 100))
+                        if show_effect == True:
+                            screen.blit(effect_current_img, effect_current_img_rect)
+                        queue_effect_frames_index += 1 if queue_effect_frames_index < len(queue_effect_frames) - 1 else 0
+                        if queue_effect_frames_index == len(queue_effect_frames) - 1:
+                            show_effect = False
                         for line in post_battle_message:
                             show_text(line, post_bat_msg_xpos, post_bat_msg_ypos, screen, 20)
+                            post_bat_msg_ypos += 20
+                        
                     else:
                         action_done = True
                 else:
-                    fatigue_msg_ypos = screen.get_width() // 2
-                    if fatigue_timer == False:
-                        fatigue_timer = pygame.time.get_ticks()
-                    if pygame.time.get_ticks() - fatigue_timer < 4000:
-                        fatigue_msg = "Due to fatigue, both pokemon\nwill lose 5 health points".split("\n")
-                        for line in fatigue_msg:
-                            show_text(line, screen.get_width()//2, fatigue_msg_ypos, screen, 30)
-                            fatigue_msg_ypos += 30
-                    elif pygame.time.get_ticks() - fatigue_timer >= 4000 and pygame.time.get_ticks() - fatigue_timer <= 5000:
-                        if player1_fatigue_counter < 5:
-                            player1_fatigue_counter += 1
-                            player_1_pokemon.remaining_health -= 1 if player_1_pokemon.remaining_health != 0 else 0
-                        if player1_fatigue_counter >= 5:
-                            player1_fatigue_counter = 5
-                        if player2_fatigue_counter < 5:
-                            player2_fatigue_counter += 1
-                            player_2_pokemon.remaining_health -= 1 if player_2_pokemon.remaining_health != 0 else 0
-                        if player2_fatigue_counter >= 5:
-                            player2_fatigue_counter = 5
-                            next_round = True
+                    fatigue = True
+                    action_done = False
+                    post_battle = False     
+                    
+            if fatigue:   
+                fatigue_msg_ypos = screen.get_width() // 2
+                if fatigue_timer == False:
+                    fatigue_timer = pygame.time.get_ticks()
+                if pygame.time.get_ticks() - fatigue_timer < 4000:
+                    fatigue_msg = "Due to fatigue, both pokemon\nwill lose 5 health points".split("\n")
+                    for line in fatigue_msg:
+                        show_text(line, screen.get_width()//2, fatigue_msg_ypos, screen, 30)
+                        fatigue_msg_ypos += 30
+                elif pygame.time.get_ticks() - fatigue_timer >= 4000 and pygame.time.get_ticks() - fatigue_timer <= 5000:
+                    if player1_fatigue_counter < 5:
+                        player1_fatigue_counter += 1
+                        player_1_pokemon.remaining_health -= 1 if player_1_pokemon.remaining_health != 0 else 0
+                    if player1_fatigue_counter >= 5:
+                        player1_fatigue_counter = 5
+                    if player2_fatigue_counter < 5:
+                        player2_fatigue_counter += 1
+                        player_2_pokemon.remaining_health -= 1 if player_2_pokemon.remaining_health != 0 else 0
+                    if player2_fatigue_counter >= 5:
+                        player2_fatigue_counter = 5
+                        next_round = True
             if next_round:
                 if node_addition == False:
                     if match_number == 0:
@@ -983,6 +1092,8 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
             # Get current frames, resize and rotate them 
             player_1_battle_effect_current_img = pygame.transform.scale(pygame.transform.rotate(player_1_battle_effect_image[player_1_battle_effect_index], -90), tuple([measure * 0.5 for measure in player_1_battle_effect_image[player_1_battle_effect_index].get_size()]))
             player_2_battle_effect_current_img = pygame.transform.scale(pygame.transform.rotate(player_2_battle_effect_image[player_2_battle_effect_index], 90), tuple([measure * 0.5 for measure in player_2_battle_effect_image[player_2_battle_effect_index].get_size()]))
+            
+            
         
         
             # Draw them each
@@ -996,19 +1107,57 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
             # Update each index for the battle effect frame
             player_1_battle_effect_index = (player_1_battle_effect_index + 1) % len(player_1_battle_effect_image)
             player_2_battle_effect_index = (player_2_battle_effect_index + 1) % len(player_2_battle_effect_image)
+            
             if player_1_battle_effect_current_img_rect.colliderect(player_2_battle_effect_current_img_rect):
                 if not collision:
                     fight_dia_timer = pygame.time.get_ticks()
                     collision = True
             
+            # If projectiles pokemon
+            # If Player1 projectile hits Player 2
             if player_1_battle_effect_current_img_rect.colliderect(player_2_pokemon_rect):
-                if not deduct_player2_hp:
-                    deduct_player2_hp = True
-                    disable_player1_proj = True
+                if not player1_proj_hit:
+                    player1_proj_hit = True
+                disable_player1_proj = True
+                
+            # If player2 projectile hits Player 1
             elif player_2_battle_effect_current_img_rect.colliderect(player_1_pokemon_rect):
-                if not deduct_player1_hp:
-                    deduct_player1_hp = True
+                if not player2_proj_hit:
+                    player2_proj_hit = True
                     disable_player2_proj = True
+
+            if player2_proj_hit:
+                if player2_atk_effect_timer == False:
+                    player2_atk_effect_timer = pygame.time.get_ticks()
+                    player_2_impact_effect.play_audio()
+                if pygame.time.get_ticks() - player2_atk_effect_timer <= 2000:
+                    player_2_impact_effect_current_img = pygame.transform.scale(pygame.transform.rotate(player_2_impact_effect_image[player_2_impact_effect_index], 90), player_2_impact_effect_image[player_2_impact_effect_index].get_size())
+                    player_2_impact_effect_rect = player_2_impact_effect_current_img.get_rect(center = (player_1_pokemon_posx - 50, screen.get_height() // 2 + 150))
+                    if show_player2_impact:
+                        screen.blit(player_2_impact_effect_current_img, player_2_impact_effect_rect)
+                    player_2_impact_effect_index += 1 if player_2_impact_effect_index < len(player_2_impact_effect_image)-1 else 0
+                    if player_2_impact_effect_index == len(player_2_impact_effect_image)-1:
+                        show_player2_impact = False
+                else:
+                    if not deduct_player1_hp:
+                        deduct_player1_hp = True
+                    
+            if player1_proj_hit:
+                if player1_atk_effect_timer == False:
+                    player1_atk_effect_timer = pygame.time.get_ticks()
+                    player_1_impact_effect.play_audio()
+                if pygame.time.get_ticks() - player1_atk_effect_timer <= 2000:
+                    player_1_impact_effect_current_img = pygame.transform.scale(pygame.transform.rotate(player_1_impact_effect_image[player_1_impact_effect_index], 90), player_1_impact_effect_image[player_1_impact_effect_index].get_size())
+                    player_1_impact_effect_rect = player_1_impact_effect_current_img.get_rect(center = (player_2_pokemon_posx + 50, screen.get_height() // 2 + 150))
+                    if show_player1_impact:
+                        screen.blit(player_1_impact_effect_current_img, player_1_impact_effect_rect)
+                    player_1_impact_effect_index += 1 if player_1_impact_effect_index < len(player_1_impact_effect_image)-1 else 0
+                    if player_1_impact_effect_index == len(player_1_impact_effect_image)-1:
+                        show_player1_impact = False
+                else:
+                    if not deduct_player2_hp:
+                        deduct_player2_hp = True
+                        
 
             if deduct_player2_hp:
                 if pygame.time.get_ticks() - player_2_dmg_time >= dmg_interval and player1_damage_counter < 15 :
@@ -1031,54 +1180,39 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
             if heal_player1_hp:
                 if player1_heal_time == False:
                     player1_heal_time = pygame.time.get_ticks()
-                if pygame.time.get_ticks() - player1_heal_time <= 2000 and pygame.time.get_ticks() - player1_heal_time > 0:
+                if pygame.time.get_ticks() - player1_heal_time <= 2000 :
                     if player1_heal_counter < 10:
                         player1_heal_counter += 1
                         player_1_pokemon.remaining_health += 1 if  player_1_pokemon.remaining_health !=  player_1_pokemon.health else 0
-                        show_text(f"Adding 10 hp to {player_1_pokemon.name}", screen.get_width() // 2, screen.get_height() // 2, screen, 30 )
+                        
                     if player1_heal_counter >= 10:
                         player1_heal_counter = 10
                         heal_player1_hp = False
-                        post_battle = True
+                    
+                    show_text(f"Adding 10 hp to {player_1_pokemon.name}", screen.get_width() // 2, screen.get_height() // 2, screen, 30 )
+                else:
+                    post_battle = True
+                
                     
             
             if heal_player2_hp:
                 if player2_heal_time == False:
                     player2_heal_time = pygame.time.get_ticks()
-                if pygame.time.get_ticks() - player2_heal_time <= 3000 and pygame.time.get_ticks() - player2_heal_time > 0:
+                if pygame.time.get_ticks() - player2_heal_time <= 2000:
                     if player2_heal_counter < 10:
                         player2_heal_counter += 1
                         player_2_pokemon.remaining_health += 1 if  player_2_pokemon.remaining_health !=  player_2_pokemon.health else 0
-                        show_text(f"Adding 10 hp to {player_2_pokemon.name}", screen.get_width() // 2, screen.get_height() // 2, screen, 30 )
                     if player2_heal_counter >= 10:
                         player2_heal_counter = 10
                         heal_player1_hp = False
-                        post_battle = True
+                    show_text(f"Adding 10 hp to {player_2_pokemon.name}", screen.get_width() // 2, screen.get_height() // 2, screen, 30 )
+                else:
+                    post_battle = True
+                
                 
                     
 
-            
-
-        # Get current frame and resize it proportionally
-        player_1_pokemon_image = pygame.transform.flip(pygame.transform.scale(player1_loaded_images[p1_current_pokemon_index][player1_pokemon_frame_index[p1_current_pokemon_index]], tuple([measure*1.5 for measure in player_1_pokemon.size])), True, False)
-        player_2_pokemon_image = pygame.transform.scale(player2_loaded_images[p2_current_pokemon_index][player2_pokemon_frame_index[p2_current_pokemon_index]], tuple([measure*1.5 for measure in player_2_pokemon.size]))
-
-        # Position them in the screen properly and on the same footing to show difference in size
-        while player_1_pokemon_posx < 200 and player_2_pokemon_posx > 600:
-            player_1_pokemon_posx += 20
-            player_2_pokemon_posx -= 20
-            break
-        player_1_pokemon_rect = player_1_pokemon_image.get_rect(midbottom = (player_1_pokemon_posx, screen.get_height() // 2 + 150))
-        player_2_pokemon_rect = player_2_pokemon_image.get_rect(midbottom = (player_2_pokemon_posx, screen.get_height() // 2 + 150))
-
-        # Put them on the screen
-        screen.blit(player_1_pokemon_image, player_1_pokemon_rect)
-        screen.blit(player_2_pokemon_image, player_2_pokemon_rect)
-
-        # Update frame index
-        player1_pokemon_frame_index[p1_current_pokemon_index] = (player1_pokemon_frame_index[p1_current_pokemon_index] + 1) % len(player1_loaded_images[p1_current_pokemon_index])
-        player2_pokemon_frame_index[p2_current_pokemon_index] = (player2_pokemon_frame_index[p2_current_pokemon_index] + 1) % len(player2_loaded_images[p2_current_pokemon_index])
-
+      
         # Used for knowing specific locations in the screen
         # mouse_pos = pygame.mouse.get_pos()
         # print(f"Position: {mouse_pos}")
@@ -1102,13 +1236,13 @@ def main():
     fight = True
     root_node = None
     
-    pokemon_loaded_images, battle_effects_loaded_images = load_images()
+    pokemon_loaded_images, battle_effects_loaded_images, impact_effects_loaded_images, potion_poison_effects_loaded_images = load_images()
     menu()
     player1_pokemons, player1_loaded_images, player2_pokemons, player2_loaded_images = pokemon_selection_scene(pokemon_loaded_images, battle_effects_loaded_images)
     
     while fight:
         current_background, map_type = map_randomizer()
-        new_match_number, dequeued_pokemon, new_root_node = fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, player2_loaded_images, battle_effects_loaded_images, current_background, map_type, match_number, root_node)    
+        new_match_number, dequeued_pokemon, new_root_node = fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, player2_loaded_images, battle_effects_loaded_images, impact_effects_loaded_images,potion_poison_effects_loaded_images, current_background, map_type, match_number, root_node)    
 
         match_number = new_match_number
         root_node = new_root_node
