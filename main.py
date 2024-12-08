@@ -559,6 +559,8 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
     player2_proj_hit = False
     show_player1_impact = True
     show_player2_impact = True
+    transition_timer = pygame.time.get_ticks()
+    transition_frame_index = 0
     # Load up projectiles to be used by both pokemons
     for num in range(len(battle_effects)):
         if battle_effects[num].type == player_1_pokemon.type:
@@ -1242,8 +1244,12 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                 else:
                     post_battle = True
                 
-                
-                    
+        if pygame.time.get_ticks() - transition_timer <= 2000:
+            transition_current_img = transitions_loaded_images[0][transition_frame_index]
+            transition_current_img_rect = transition_current_img.get_rect(topleft = (0,0))
+            if transition_frame_index < len(transitions_loaded_images[0])-1:
+                screen.blit(transition_current_img, transition_current_img_rect)
+                transition_frame_index += 1
 
       
         # Used for knowing specific locations in the screen
