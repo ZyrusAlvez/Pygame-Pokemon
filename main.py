@@ -364,49 +364,68 @@ def map_randomizer() -> object:
     starting_show_speed = 0.05
     selected_map = random.choice(map_names)
     
-    for i in range(30):
+    randomization_time = pygame.time.get_ticks()
+    transition_time = None
+    randomize_map = True
+    new_map_names = map_names
+    while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
 
                 pygame.mixer.music.stop()
                 pygame.quit()
                 exit()
-        time.sleep(starting_show_speed)
-        
-        random_map = random.choice(map_names) # Randomly select a map again        
-        current_background = pygame.transform.scale(pygame.image.load(f"./assets/Battleground/{random_map}.png"), (800,600))
-        screen.blit(current_background, (0,0))
-        show_text(random_map, 400, 50, screen)
-        
-        starting_show_speed *= 1.5
-        if starting_show_speed >= 2:
-            
-            screen.blit(pygame.transform.scale(pygame.image.load(f"./assets/Battleground/{selected_map}.png"), (800,600)), (0,0))
-            show_text(selected_map, 400, 50, screen)
-            current_background = pygame.transform.scale(pygame.image.load(f"./assets/Battle_Scene/{selected_map}.png"), (800,600))
-            pygame.display.flip()   
-            time.sleep(1)
-            pygame.mixer.music.stop()
-            return current_background, map_types[map_names.index(selected_map)]
+        # equivalent of time.sleep(starting_show_speed)
+        if pygame.time.get_ticks() - randomization_time <= starting_show_speed * 1000:
+            pass
+        else:
+            if randomize_map:
+                
+                random_map = random.choice(new_map_names) # Randomly select a map again  
+                new_map_names = [name for name in map_names if name != random_map]      
+                current_background = pygame.transform.scale(pygame.image.load(f"./assets/Battleground/{random_map}.png"), (800,600))
+                screen.blit(current_background, (0,0))
+                show_text(random_map, 400, 50, screen)
+                starting_show_speed *= 1.23
+                print(starting_show_speed)
+                randomize_map = False
+            if starting_show_speed >= 1:
+                screen.blit(pygame.transform.scale(pygame.image.load(f"./assets/Battleground/{selected_map}.png"), (800,600)), (0,0))
+                show_text(selected_map, 400, 50, screen)
+                current_background = pygame.transform.scale(pygame.image.load(f"./assets/Battle_Scene/{selected_map}.png"), (800,600))
+                pygame.display.flip()
+                if transition_time == None:
+                    transition_time = pygame.time.get_ticks()
+                # Equivalent of time.sleep(1)
+                if pygame.time.get_ticks() - transition_time <= 1000:
+                    pass
+                else:
+                    pygame.mixer.music.stop()
+                    return current_background, map_types[map_names.index(selected_map)]
+            else:
+                randomize_map = True
+                randomization_time = pygame.time.get_ticks()
+                
+
         
             # quit()
              
-        current_background = pygame.transform.scale(pygame.image.load(f"./assets/Battleground/{map_names[i % 3]}.png"), (800,600))
-        screen.blit(current_background, (0,0))
-        show_text(map_names[i % 3], 400, 50, screen)
+        # current_background = pygame.transform.scale(pygame.image.load(f"./assets/Battleground/{map_names[i % 3]}.png"), (800,600))
+        # screen.blit(current_background, (0,0))
+        # show_text(map_names[i % 3], 400, 50, screen)
 
         
         # Update the screen
         pygame.display.flip()
         clock.tick(10)
             
-    screen.blit(pygame.transform.scale(pygame.image.load(f"./assets/Battleground/{selected_map}.png"), (800,600)), (0,0))
-    show_text(selected_map, 400, 50, screen, shadow_color="Black")
-    current_background = pygame.transform.scale(pygame.image.load(f"./assets/Battle_Scene/{selected_map}.png"), (800,600))
-    pygame.display.flip()   
-    time.sleep(1)
+    # screen.blit(pygame.transform.scale(pygame.image.load(f"./assets/Battleground/{selected_map}.png"), (800,600)), (0,0))
+    # show_text(selected_map, 400, 50, screen, shadow_color="Black")
+    # current_background = pygame.transform.scale(pygame.image.load(f"./assets/Battle_Scene/{selected_map}.png"), (800,600))
+    # pygame.display.flip()   
+    # time.sleep(1)
     
-    return current_background, map_types[map_names.index(selected_map)]
+    # return current_background, map_types[map_names.index(selected_map)]
         
 def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, player2_loaded_images, battleeffects_frames, impacteffect_frames,potionpoison_frames, current_background, map_type, match_number, root_node) -> None:
     # Queue for Executing Potion Healings and Poison Damages
