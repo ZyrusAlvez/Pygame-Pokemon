@@ -27,7 +27,7 @@ pygame.mixer.init()
 # Global initialization
 pokemons = [bulbasaur, charizard, blastoise, weepinbell, arcanine, psyduck, scyther, magmar, piplup, farfetchd, moltres, vaporeon]
 original_pokemons = pokemons[:]
-battle_effects = [fireball, waterball, grassball, pokeball, fainted]
+battle_effects = [fireball, waterball, grassball, pokeball, fainted, heal_player]
 impact_effects = [firefx, waterfx, grassfx]
 potion_poison_effects = [potion, poison]
 transitions = [opening, closing]
@@ -399,7 +399,6 @@ def map_randomizer(transition_frames) -> object:
                 screen.blit(pygame.transform.scale(pygame.image.load(f"./assets/Battleground/{selected_map}.png"), (800,600)), (0,0))
                 show_text(selected_map, 400, 50, screen)
                 current_background = pygame.transform.scale(pygame.image.load(f"./assets/Battle_Scene/{selected_map}.png"), (800,600))
-                pygame.display.flip()
                 if transition_time == None:
                     transition_time = pygame.time.get_ticks()
                 # Equivalent of time.sleep(1)
@@ -410,7 +409,7 @@ def map_randomizer(transition_frames) -> object:
                     if transition_anim_timer == None:
                         transition_anim_timer = pygame.time.get_ticks()
                     if pygame.time.get_ticks() - transition_anim_timer <= 3000:
-                        transition_current_img = transitions_loaded_images[1][transition_frame_index]
+                        transition_current_img = pygame.transform.scale(transitions_loaded_images[1][transition_frame_index], (800,600))
                         transition_current_img_rect = transition_current_img.get_rect(topleft = (0,0))
                         if transition_frame_index < len(transitions_loaded_images[1])-3:
                             screen.blit(transition_current_img, transition_current_img_rect)
@@ -1263,7 +1262,16 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
             if heal_player1_hp:
                 if player1_heal_time == False:
                     player1_heal_time = pygame.time.get_ticks()
+                    player1_heal_frame_index = 0
+                    potion_poison_effects[0].play_audio()
                 if pygame.time.get_ticks() - player1_heal_time <= 2000 :
+                    player1_heal_current_img = pygame.transform.scale(battle_effects_loaded_images[5][player1_heal_frame_index], tuple([measure * 2.5 for measure in battle_effects_loaded_images[5][player1_heal_frame_index].get_size()]))
+                    player1_heal_current_img_rect = player1_heal_current_img.get_rect(midbottom = (player_1_pokemon_posx, screen.get_height() // 2 + 150))
+                    if player1_heal_frame_index < len(battle_effects_loaded_images[5])-1:
+                        screen.blit(player1_heal_current_img, player1_heal_current_img_rect)
+                        player1_heal_frame_index += 1
+                    show_text(f"Adding 10 hp to {player_1_pokemon.name}", screen.get_width() // 2, screen.get_height() // 2, screen, 30 )
+                elif pygame.time.get_ticks() - player1_heal_time <= 4000 and pygame.time.get_ticks() - player1_heal_time > 2000:
                     if player1_heal_counter < 10:
                         player1_heal_counter += 1
                         player_1_pokemon.remaining_health += 1 if  player_1_pokemon.remaining_health !=  player_1_pokemon.health else 0
@@ -1272,27 +1280,38 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                         player1_heal_counter = 10
                         heal_player1_hp = False
                     
-                    show_text(f"Adding 10 hp to {player_1_pokemon.name}", screen.get_width() // 2, screen.get_height() // 2, screen, 30 )
+                    
                 else:
                     post_battle = True
                 
             if heal_player2_hp:
                 if player2_heal_time == False:
                     player2_heal_time = pygame.time.get_ticks()
+                    player2_heal_frame_index = 0
+                    potion_poison_effects[0].play_audio()
                 if pygame.time.get_ticks() - player2_heal_time <= 2000:
+                    player2_heal_current_img = pygame.transform.scale(battle_effects_loaded_images[5][player2_heal_frame_index], tuple([measure * 2.5 for measure in battle_effects_loaded_images[5][player2_heal_frame_index].get_size()]))
+                    player2_heal_current_img_rect = player2_heal_current_img.get_rect(midbottom = (player_2_pokemon_posx, screen.get_height() // 2 + 150))
+                    if player2_heal_frame_index < len(battle_effects_loaded_images[5])-1:
+                        screen.blit(player2_heal_current_img, player2_heal_current_img_rect)
+                        player2_heal_frame_index += 1
+                    show_text(f"Adding 10 hp to {player_2_pokemon.name}", screen.get_width() // 2, screen.get_height() // 2, screen, 30 )
+                elif pygame.time.get_ticks() - player2_heal_time <= 4000 and pygame.time.get_ticks() - player2_heal_time > 2000 :
                     if player2_heal_counter < 10:
                         player2_heal_counter += 1
                         player_2_pokemon.remaining_health += 1 if  player_2_pokemon.remaining_health !=  player_2_pokemon.health else 0
                     if player2_heal_counter >= 10:
                         player2_heal_counter = 10
                         heal_player1_hp = False
-                    show_text(f"Adding 10 hp to {player_2_pokemon.name}", screen.get_width() // 2, screen.get_height() // 2, screen, 30 )
+                    
                 else:
                     post_battle = True
         
         # Showing of Transition for the first 2 seconds
         if pygame.time.get_ticks() - transition_timer <= 2000:
-            transition_current_img = transitions_loaded_images[0][transition_frame_index]
+            screen.fill((0,0,0))
+        if pygame.time.get_ticks() - transition_timer <= 4000 and pygame.time.get_ticks() - transition_timer > 2000:
+            transition_current_img = pygame.transform.scale(transitions_loaded_images[0][transition_frame_index],(800,600))
             transition_current_img_rect = transition_current_img.get_rect(topleft = (0,0))
             if transition_frame_index < len(transitions_loaded_images[0])-1:
                 screen.blit(transition_current_img, transition_current_img_rect)
