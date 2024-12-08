@@ -27,7 +27,7 @@ pygame.mixer.init()
 # Global initialization
 pokemons = [bulbasaur, charizard, blastoise, weepinbell, arcanine, psyduck, scyther, magmar, piplup, farfetchd, moltres, vaporeon]
 original_pokemons = pokemons[:]
-battle_effects = [fireball, waterball, grassball, pokeball]
+battle_effects = [fireball, waterball, grassball, pokeball, fainted]
 impact_effects = [firefx, waterfx, grassfx]
 potion_poison_effects = [potion, poison]
 transitions = [opening, closing]
@@ -561,6 +561,11 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
     show_player2_impact = True
     transition_timer = pygame.time.get_ticks()
     transition_frame_index = 0
+
+    player1_faint_timer = None
+    player1_faint_index = 0
+    player2_faint_timer = None
+    player2_faint_index = 0
     # Load up projectiles to be used by both pokemons
     for num in range(len(battle_effects)):
         if battle_effects[num].type == player_1_pokemon.type:
@@ -1098,6 +1103,44 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                         player_2_pokemon.remaining_health -= 1 if player_2_pokemon.remaining_health != 0 else 0
                     if player2_fatigue_counter >= 5:
                         player2_fatigue_counter = 5
+                else:
+                    if player_1_pokemon.remaining_health == 0 or player_2_pokemon.remaining_health == 0:
+                        if player_1_pokemon.remaining_health == 0:
+                            if player1_faint_timer == None:
+                                player1_faint_timer = pygame.time.get_ticks()
+                                player1_faint_animation_interval = pygame.time.get_ticks()
+                            if pygame.time.get_ticks() - player1_faint_timer <= 5000:
+                                if pygame.time.get_ticks() - player1_faint_animation_interval > 500:
+                                    player1_faint_index = (player1_faint_index + 1) % len(battle_effects_loaded_images[4])
+                                    player1_faint_animation_interval = pygame.time.get_ticks()
+                                player1_faint_current_img = pygame.transform.scale(battle_effects_loaded_images[4][player1_faint_index], tuple([measure * 0.18 for measure in battle_effects_loaded_images[4][player1_faint_index].get_size()]))
+                                player1_faint_current_img_rect = player1_faint_current_img.get_rect(center = (player_1_pokemon_posx, 300))
+                                screen.blit(player1_faint_current_img, player1_faint_current_img_rect)
+                                player1_faint_msg = f"{player_1_pokemon.name} fainted due to exhaustion.\n{player_1_pokemon.name} will be removed from future\nmatch-ups".split("\n")
+                                player1_faint_msg_ypos = 150
+                                for line in player1_faint_msg:
+                                    show_text(line, player_1_pokemon_posx, player1_faint_msg_ypos, screen, 20)
+                                    player1_faint_msg_ypos += 20
+                        if player_2_pokemon.remaining_health == 0:
+                            if player2_faint_timer == None:
+                                player2_faint_timer = pygame.time.get_ticks()
+                                player2_faint_animation_interval = pygame.time.get_ticks()
+                            if pygame.time.get_ticks() - player2_faint_timer <= 5000:
+                                if pygame.time.get_ticks() - player2_faint_animation_interval > 500:
+                                    player2_faint_index = (player2_faint_index + 1) % len(battle_effects_loaded_images[4])
+                                    player2_faint_animation_interval = pygame.time.get_ticks()
+                                player2_faint_current_img = pygame.transform.scale(battle_effects_loaded_images[4][player1_faint_index], tuple([measure * 0.18 for measure in battle_effects_loaded_images[4][player1_faint_index].get_size()]))
+                                player2_faint_current_img_rect = player2_faint_current_img.get_rect(center = (player_2_pokemon_posx, 300))
+                                screen.blit(player2_faint_current_img, player2_faint_current_img_rect)
+                                player2_faint_msg = f"{player_2_pokemon.name} fainted due to exhaustion.\n{player_2_pokemon.name} will be removed from future\nmatch-ups".split("\n")
+                                player2_faint_msg_ypos = 150
+                                for line in player2_faint_msg:
+                                    show_text(line, player_2_pokemon_posx, player2_faint_msg_ypos, screen, 20)
+                                    player2_faint_msg_ypos += 20
+                            else:
+                                next_round = True
+
+                    else:
                         next_round = True
             if next_round:
                 if node_addition == False:
@@ -1173,9 +1216,11 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                     player_2_impact_effect_index += 1 if player_2_impact_effect_index < len(player_2_impact_effect_image)-1 else 0
                     if player_2_impact_effect_index == len(player_2_impact_effect_image)-1:
                         show_player2_impact = False
+                    show_text(f"-15", player_1_pokemon_posx, 80, screen, 20)
                 else:
                     if not deduct_player1_hp:
                         deduct_player1_hp = True
+                
                     
             if player1_proj_hit:
                 if player1_atk_effect_timer == False:
@@ -1189,10 +1234,11 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                     player_1_impact_effect_index += 1 if player_1_impact_effect_index < len(player_1_impact_effect_image)-1 else 0
                     if player_1_impact_effect_index == len(player_1_impact_effect_image)-1:
                         show_player1_impact = False
+                    show_text(f"-15", player_2_pokemon_posx, 80, screen, 20)
                 else:
                     if not deduct_player2_hp:
                         deduct_player2_hp = True
-                        
+                
 
             if deduct_player2_hp:
                 if pygame.time.get_ticks() - player_2_dmg_time >= dmg_interval and player1_damage_counter < 15 :
@@ -1228,8 +1274,6 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                 else:
                     post_battle = True
                 
-                    
-            
             if heal_player2_hp:
                 if player2_heal_time == False:
                     player2_heal_time = pygame.time.get_ticks()
@@ -1243,7 +1287,8 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                     show_text(f"Adding 10 hp to {player_2_pokemon.name}", screen.get_width() // 2, screen.get_height() // 2, screen, 30 )
                 else:
                     post_battle = True
-                
+        
+        # Showing of Transition for the first 2 seconds
         if pygame.time.get_ticks() - transition_timer <= 2000:
             transition_current_img = transitions_loaded_images[0][transition_frame_index]
             transition_current_img_rect = transition_current_img.get_rect(topleft = (0,0))

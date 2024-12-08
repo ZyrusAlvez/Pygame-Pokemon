@@ -42,3 +42,4 @@ potion = BattleEffects("assets/Poison & Potion/Heal.gif", "Potion", "assets/audi
 poison = BattleEffects("assets/Poison & Potion/Poison.gif", "Poison", "assets/audio/heal-sfx.wav")
 opening = BattleEffects("assets/Transition/Opening Transition.gif", "Opening")
 closing = BattleEffects("assets/Transition/Closing Transition.gif", "Closing")
+fainted = BattleEffects("assets/Status Icon/fainted.gif", "Fainted")
