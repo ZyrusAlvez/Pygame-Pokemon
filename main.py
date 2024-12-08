@@ -1121,6 +1121,8 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                                 for line in player1_faint_msg:
                                     show_text(line, player_1_pokemon_posx, player1_faint_msg_ypos, screen, 20)
                                     player1_faint_msg_ypos += 20
+                            else:
+                                next_round = True
                         if player_2_pokemon.remaining_health == 0:
                             if player2_faint_timer == None:
                                 player2_faint_timer = pygame.time.get_ticks()
