@@ -40,3 +40,5 @@ grassfx = BattleEffects("assets/Attack_Impact/Grass.gif", "Grass", "assets/audio
 pokeball = BattleEffects("assets/layout/pokeball.gif", "LoadingEffect")
 potion = BattleEffects("assets/Poison & Potion/Heal.gif", "Potion", "assets/audio/heal-sfx.wav")
 poison = BattleEffects("assets/Poison & Potion/Poison.gif", "Poison", "assets/audio/heal-sfx.wav")
+opening = BattleEffects("assets/Transition/Opening Transition.gif", "Opening")
+closing = BattleEffects("assets/Transition/Closing Transition.gif", "Closing")

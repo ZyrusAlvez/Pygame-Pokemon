@@ -30,7 +30,7 @@ original_pokemons = pokemons[:]
 battle_effects = [fireball, waterball, grassball, pokeball]
 impact_effects = [firefx, waterfx, grassfx]
 potion_poison_effects = [potion, poison]
-
+transitions = [opening, closing]
 # Global Variable
 player1_usedpotion = False
 player2_usedpotion = False
@@ -45,7 +45,7 @@ def load_images() -> list:
 
     def load_images_task():
         nonlocal loading_complete
-        global pokemon_loaded_images, battle_effects_loaded_images, impact_effects_loaded_images, potion_poison_effects_loaded_images
+        global pokemon_loaded_images, battle_effects_loaded_images, impact_effects_loaded_images, potion_poison_effects_loaded_images, transitions_loaded_images
         
         def load_pokemon_frames(pokemon):
             return [pygame.image.load(frame) for frame in pokemon.animation_frames()]
@@ -58,6 +58,9 @@ def load_images() -> list:
 
         def load_potion_poison_frames(potion_poison):
             return [pygame.image.load(frame) for frame in potion_poison.animation_frames()]
+        
+        def load_transition_frames(transitions):
+            return [pygame.image.load(frame) for frame in transitions.animation_frames()]
 
         # Use ThreadPoolExecutor to load frames in parallel
         with ThreadPoolExecutor() as executor:
@@ -65,7 +68,7 @@ def load_images() -> list:
             battle_effects_loaded_images = list(executor.map(load_effect_frames, battle_effects))
             impact_effects_loaded_images = list(executor.map(load_impact_frames, impact_effects))
             potion_poison_effects_loaded_images = list(executor.map(load_potion_poison_frames, potion_poison_effects))
-
+            transitions_loaded_images = list(executor.map(load_transition_frames, transitions))
         loading_complete = True
 
     # Start loading images in a thread
@@ -96,7 +99,7 @@ def load_images() -> list:
         
         if loading_complete:
             pygame.mixer.music.stop()
-            return pokemon_loaded_images, battle_effects_loaded_images, impact_effects_loaded_images, potion_poison_effects_loaded_images
+            return pokemon_loaded_images, battle_effects_loaded_images, impact_effects_loaded_images, potion_poison_effects_loaded_images, transitions_loaded_images
 
 def menu() -> None:
     pygame.mixer.init()
@@ -353,7 +356,7 @@ def pokemon_selection_scene(pokemon_loaded_images: list, battle_effect_loaded_im
             # pass the queue for the next scene    
             return player1_pokemons_queue, player1_loaded_images, player2_pokemons_queue, player2_loaded_images
         
-def map_randomizer() -> object:
+def map_randomizer(transition_frames) -> object:
     pygame.mixer.init()
     pygame.mixer.music.load("assets/audio/map-pick.mp3")
     pygame.mixer.music.play(-1)
@@ -367,7 +370,11 @@ def map_randomizer() -> object:
     randomization_time = pygame.time.get_ticks()
     transition_time = None
     randomize_map = True
+    transition_anim_timer = None
+    transition_frame_index = 0
     new_map_names = map_names
+    black_surface = pygame.Surface(screen.get_size())
+    black_surface.fill((0,0,0))
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -380,7 +387,6 @@ def map_randomizer() -> object:
             pass
         else:
             if randomize_map:
-                
                 random_map = random.choice(new_map_names) # Randomly select a map again  
                 new_map_names = [name for name in map_names if name != random_map]      
                 current_background = pygame.transform.scale(pygame.image.load(f"./assets/Battleground/{random_map}.png"), (800,600))
@@ -401,7 +407,19 @@ def map_randomizer() -> object:
                     pass
                 else:
                     pygame.mixer.music.stop()
-                    return current_background, map_types[map_names.index(selected_map)]
+                    if transition_anim_timer == None:
+                        transition_anim_timer = pygame.time.get_ticks()
+                    if pygame.time.get_ticks() - transition_anim_timer <= 3000:
+                        transition_current_img = transitions_loaded_images[1][transition_frame_index]
+                        transition_current_img_rect = transition_current_img.get_rect(topleft = (0,0))
+                        if transition_frame_index < len(transitions_loaded_images[1])-3:
+                            screen.blit(transition_current_img, transition_current_img_rect)
+                            transition_frame_index += 1
+                        else:
+                            screen.blit(black_surface, (0,0))
+                    else:
+                        screen.blit(black_surface, (0,0))
+                        return current_background, map_types[map_names.index(selected_map)]
             else:
                 randomize_map = True
                 randomization_time = pygame.time.get_ticks()
@@ -427,7 +445,7 @@ def map_randomizer() -> object:
     
     # return current_background, map_types[map_names.index(selected_map)]
         
-def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, player2_loaded_images, battleeffects_frames, impacteffect_frames,potionpoison_frames, current_background, map_type, match_number, root_node) -> None:
+def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, player2_loaded_images, battleeffects_frames, impacteffect_frames,potionpoison_frames,transition_frames, current_background, map_type, match_number, root_node) -> None:
     # Queue for Executing Potion Healings and Poison Damages
     consumables_queue = Queue() 
     # Stack for Executing Buffs and Nerfs
@@ -557,11 +575,7 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
             player_2_impact_effect = impact_effects[num]
     
     potion_frames = potionpoison_frames[0]
-    player_1_potion_frame_index = 0
-    player_2_potion_frame_index = 0
     poison_frames = potionpoison_frames[1]
-    player_1_poison_frame_index = 0
-    player_2_poison_frame_index = 0
                 
     while True:
         for event in pygame.event.get():
@@ -1255,13 +1269,13 @@ def main():
     fight = True
     root_node = None
     
-    pokemon_loaded_images, battle_effects_loaded_images, impact_effects_loaded_images, potion_poison_effects_loaded_images = load_images()
+    pokemon_loaded_images, battle_effects_loaded_images, impact_effects_loaded_images, potion_poison_effects_loaded_images, transitions_loaded_images = load_images()
     menu()
     player1_pokemons, player1_loaded_images, player2_pokemons, player2_loaded_images = pokemon_selection_scene(pokemon_loaded_images, battle_effects_loaded_images)
     
     while fight:
-        current_background, map_type = map_randomizer()
-        new_match_number, dequeued_pokemon, new_root_node = fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, player2_loaded_images, battle_effects_loaded_images, impact_effects_loaded_images,potion_poison_effects_loaded_images, current_background, map_type, match_number, root_node)    
+        current_background, map_type = map_randomizer(transitions_loaded_images)
+        new_match_number, dequeued_pokemon, new_root_node = fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, player2_loaded_images, battle_effects_loaded_images, impact_effects_loaded_images,potion_poison_effects_loaded_images, transitions_loaded_images, current_background, map_type, match_number, root_node)    
 
         match_number = new_match_number
         root_node = new_root_node
