@@ -147,7 +147,7 @@ def menu() -> None:
 def pokemon_selection_scene(pokemon_loaded_images: list, battle_effect_loaded_images: list) -> list:
     # Initialize  music
     pygame.mixer.init()
-    pygame.mixer.music.load("assets/audio/pokemon-selection.mp3")
+    pygame.mixer.music.load("assets/audio/pokemon-picking.mp3")
     pygame.mixer.music.set_volume(0.5)
     pygame.mixer.music.play(-1)
     
@@ -446,6 +446,12 @@ def map_randomizer(transition_frames) -> object:
         
 def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, player2_loaded_images, battleeffects_frames, impacteffect_frames,potionpoison_frames,transition_frames, current_background, map_type, match_number, root_node) -> None:
     # Queue for Executing Potion Healings and Poison Damages
+
+    pygame.mixer.init()
+    pygame.mixer.music.load("assets/audio/pokemon-battle.mp3")
+    pygame.mixer.music.play(-1)
+    pygame.mixer.music.set_volume(0.5)
+
     consumables_queue = Queue() 
     # Stack for Executing Buffs and Nerfs
     buffs_stack = Stack()
@@ -1342,7 +1348,7 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
 
         pygame.display.flip()
         clock.tick(40)
-
+        
 # utility scene        
 def quit():
     if original_pokemons:
