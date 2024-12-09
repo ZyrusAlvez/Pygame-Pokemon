@@ -565,6 +565,9 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
     player1_faint_index = 0
     player2_faint_timer = None
     player2_faint_index = 0
+
+    deduct_player2hp_time = None
+    deduct_player1hp_time = None
     # Load up projectiles to be used by both pokemons
     for num in range(len(battle_effects)):
         if battle_effects[num].type == player_1_pokemon.type:
@@ -1218,6 +1221,11 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                     if player_2_impact_effect_index == len(player_2_impact_effect_image)-1:
                         show_player2_impact = False
                     show_text(f"-15", player_1_pokemon_posx, 80, screen, 20)
+                    heal_msg = f"{player_1_pokemon.name} will receive 15 points\n of damage".split("\n")
+                    heal_msg_ypos = 180
+                    for line in heal_msg:
+                        show_text(line, screen.get_width() //2, heal_msg_ypos, screen, 20 )
+                        heal_msg_ypos += 20
                 else:
                     if not deduct_player1_hp:
                         deduct_player1_hp = True
@@ -1236,19 +1244,29 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                     if player_1_impact_effect_index == len(player_1_impact_effect_image)-1:
                         show_player1_impact = False
                     show_text(f"-15", player_2_pokemon_posx, 80, screen, 20)
+                    heal_msg = f"{player_2_pokemon.name} will receive 15 points\n of damage".split("\n")
+                    heal_msg_ypos = 180
+                    for line in heal_msg:
+                        show_text(line, screen.get_width() //2, heal_msg_ypos, screen, 20 )
+                        heal_msg_ypos += 20
+
                 else:
                     if not deduct_player2_hp:
                         deduct_player2_hp = True
                 
 
             if deduct_player2_hp:
-                if pygame.time.get_ticks() - player_2_dmg_time >= dmg_interval and player1_damage_counter < 15 :
-                    player1_damage_counter +=1
-                    player_2_pokemon.remaining_health -= 1 if player_2_pokemon.remaining_health > 0 else 0
-                if player1_damage_counter >= 15:
-                    player1_damage_counter = 15
-                    deduct_player2_hp = False
-                    heal_player1_hp = True
+                if deduct_player2hp_time == None:
+                    deduct_player2hp_time = pygame.time.get_ticks()
+                if pygame.time.get_ticks() - deduct_player2hp_time <= 2000:
+                    if pygame.time.get_ticks() - player_2_dmg_time >= dmg_interval and player1_damage_counter < 15 :
+                        player1_damage_counter +=1
+                        player_2_pokemon.remaining_health -= 1 if player_2_pokemon.remaining_health > 0 else 0
+                    if player1_damage_counter >= 15:
+                        player1_damage_counter = 15
+                        deduct_player2_hp = False
+                        heal_player1_hp = True
+                    
                 
             elif deduct_player1_hp:
                 if pygame.time.get_ticks() - player_1_dmg_time >= dmg_interval and player2_damage_counter < 15:
@@ -1265,7 +1283,7 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                     player1_heal_frame_index = 0
                     potion_poison_effects[0].play_audio()
                 if pygame.time.get_ticks() - player1_heal_time <= 2000 :
-                    player1_heal_current_img = pygame.transform.scale(battle_effects_loaded_images[5][player1_heal_frame_index], tuple([measure * 2.5 for measure in battle_effects_loaded_images[5][player1_heal_frame_index].get_size()]))
+                    player1_heal_current_img = pygame.transform.scale(battle_effects_loaded_images[5][player1_heal_frame_index], tuple([measure * 0.7 for measure in battle_effects_loaded_images[5][player1_heal_frame_index].get_size()]))
                     player1_heal_current_img_rect = player1_heal_current_img.get_rect(midbottom = (player_1_pokemon_posx, screen.get_height() // 2 + 150))
                     if player1_heal_frame_index < len(battle_effects_loaded_images[5])-1:
                         screen.blit(player1_heal_current_img, player1_heal_current_img_rect)
@@ -1290,7 +1308,7 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                     player2_heal_frame_index = 0
                     potion_poison_effects[0].play_audio()
                 if pygame.time.get_ticks() - player2_heal_time <= 2000:
-                    player2_heal_current_img = pygame.transform.scale(battle_effects_loaded_images[5][player2_heal_frame_index], tuple([measure * 2.5 for measure in battle_effects_loaded_images[5][player2_heal_frame_index].get_size()]))
+                    player2_heal_current_img = pygame.transform.scale(battle_effects_loaded_images[5][player2_heal_frame_index], tuple([measure * 0.7 for measure in battle_effects_loaded_images[5][player2_heal_frame_index].get_size()]))
                     player2_heal_current_img_rect = player2_heal_current_img.get_rect(midbottom = (player_2_pokemon_posx, screen.get_height() // 2 + 150))
                     if player2_heal_frame_index < len(battle_effects_loaded_images[5])-1:
                         screen.blit(player2_heal_current_img, player2_heal_current_img_rect)
