@@ -227,7 +227,7 @@ def pokemon_selection_scene(pokemon_loaded_images: list, battle_effect_loaded_im
                 if event.key == pygame.K_LEFT:
                     sound_arrow.play()
                     focus = (focus - 1) % len(pokemons)
-            pokemons[focus].play_audio()
+                pokemons[focus].play_audio()
             
             # Check if mouse is clicked
             if event.type == pygame.MOUSEBUTTONDOWN:
@@ -358,8 +358,14 @@ def pokemon_selection_scene(pokemon_loaded_images: list, battle_effect_loaded_im
         
 def map_randomizer(transition_frames) -> object:
     pygame.mixer.init()
-    pygame.mixer.music.load("assets/audio/map-pick.mp3")
-    pygame.mixer.music.play(-1)
+    fighting_scene_audio_channel = pygame.mixer.Channel(5)
+    fighting_scene_audio = pygame.mixer.Sound("assets/audio/pokemon-battle.mp3")
+    fighting_scene_audio.set_volume(0.5)
+    map_picking_audio_channel = pygame.mixer.Channel(6)
+    map_picking_audio = pygame.mixer.Sound("assets/audio/map-pick.mp3")
+    if fighting_scene_audio_channel.get_busy():
+        fighting_scene_audio_channel.stop()
+    map_picking_audio_channel.play(map_picking_audio, loops= -1)
 
     # Variables to be used for map randomizer / Next screen ( To avoid multiple declaration )
     map_names = ["Viridale Forest", "Dragon Dungeon", "Bamboo Bridge"]
@@ -375,11 +381,12 @@ def map_randomizer(transition_frames) -> object:
     new_map_names = map_names
     black_surface = pygame.Surface(screen.get_size())
     black_surface.fill((0,0,0))
+    pygame.mixer.init()
+    
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-
-                pygame.mixer.music.stop()
+                map_picking_audio_channel.stop()
                 pygame.quit()
                 exit()
         # equivalent of time.sleep(starting_show_speed)
@@ -393,7 +400,6 @@ def map_randomizer(transition_frames) -> object:
                 screen.blit(current_background, (0,0))
                 show_text(random_map, 400, 50, screen)
                 starting_show_speed *= 1.23
-                print(starting_show_speed)
                 randomize_map = False
             if starting_show_speed >= 1:
                 screen.blit(pygame.transform.scale(pygame.image.load(f"./assets/Battleground/{selected_map}.png"), (800,600)), (0,0))
@@ -405,10 +411,13 @@ def map_randomizer(transition_frames) -> object:
                 if pygame.time.get_ticks() - transition_time <= 1000:
                     pass
                 else:
-                    pygame.mixer.music.stop()
+                    map_picking_audio_channel.stop()
                     if transition_anim_timer == None:
                         transition_anim_timer = pygame.time.get_ticks()
-                    if pygame.time.get_ticks() - transition_anim_timer <= 3000:
+                        fighting_scene_audio_channel.play(fighting_scene_audio, loops= -1)
+                    if pygame.time.get_ticks() - transition_anim_timer <= 500:
+                        pass
+                    elif pygame.time.get_ticks() - transition_anim_timer <= 4000 and pygame.time.get_ticks() - transition_anim_timer > 500:
                         transition_current_img = pygame.transform.scale(transitions_loaded_images[1][transition_frame_index], (800,600))
                         transition_current_img_rect = transition_current_img.get_rect(topleft = (0,0))
                         if transition_frame_index < len(transitions_loaded_images[1])-3:
@@ -447,10 +456,7 @@ def map_randomizer(transition_frames) -> object:
 def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, player2_loaded_images, battleeffects_frames, impacteffect_frames,potionpoison_frames,transition_frames, current_background, map_type, match_number, root_node) -> None:
     # Queue for Executing Potion Healings and Poison Damages
 
-    pygame.mixer.init()
-    pygame.mixer.music.load("assets/audio/pokemon-battle.mp3")
-    pygame.mixer.music.play(-1)
-    pygame.mixer.music.set_volume(0.5)
+   
 
     consumables_queue = Queue() 
     # Stack for Executing Buffs and Nerfs
@@ -1171,7 +1177,7 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                     node_addition = True
                 if next_round_timer == False:
                     next_round_timer = pygame.time.get_ticks()
-                if pygame.time.get_ticks() - next_round_timer > 3000:
+                if pygame.time.get_ticks() - next_round_timer > 1500:
                     next_round = False
                     player_1_pokemon.temporary_power = player_1_pokemon.power
                     player_2_pokemon.temporary_power = player_2_pokemon.power
@@ -1262,16 +1268,13 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                 
 
             if deduct_player2_hp:
-                if deduct_player2hp_time == None:
-                    deduct_player2hp_time = pygame.time.get_ticks()
-                if pygame.time.get_ticks() - deduct_player2hp_time <= 2000:
-                    if pygame.time.get_ticks() - player_2_dmg_time >= dmg_interval and player1_damage_counter < 15 :
-                        player1_damage_counter +=1
-                        player_2_pokemon.remaining_health -= 1 if player_2_pokemon.remaining_health > 0 else 0
-                    if player1_damage_counter >= 15:
-                        player1_damage_counter = 15
-                        deduct_player2_hp = False
-                        heal_player1_hp = True
+                if pygame.time.get_ticks() - player_2_dmg_time >= dmg_interval and player1_damage_counter < 15 :
+                    player1_damage_counter +=1
+                    player_2_pokemon.remaining_health -= 1 if player_2_pokemon.remaining_health > 0 else 0
+                if player1_damage_counter >= 15:
+                    player1_damage_counter = 15
+                    deduct_player2_hp = False
+                    heal_player1_hp = True
                     
                 
             elif deduct_player1_hp:
