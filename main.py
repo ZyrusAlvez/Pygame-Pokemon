@@ -1,4 +1,5 @@
 import pygame # type: ignore
+from termcolor import colored # type: ignore
 from pokemon import *
 import random, time
 from battleeffects import *
@@ -23,6 +24,7 @@ clock = pygame.time.Clock()
 pygame.display.set_caption("Team Rocket's Pokemon Game")
 pygame.display.set_icon(scale(pygame.image.load("assets/Team-Rocket-Logo/Rocket-Logo.png"), 2))
 pygame.mixer.init()
+print("\n\n\n")
 
 # Array for each pokemon objects
 pokemons = [bulbasaur, charizard, blastoise, weepinbell, arcanine, psyduck, scyther, magmar, piplup, farfetchd, moltres, vaporeon]
@@ -177,21 +179,25 @@ def pokemon_selection_scene(pokemon_loaded_images: list, battle_effect_loaded_im
             
             # add the pokemon to the linked list
             player1_linkedlist.atend(selected_pokemon)
-            print(f"{selected_pokemon.name} is added to player 1's linked list of pokemons")
-            print(f"new linked list is: {' <- '.join([p.name for p in player1_linkedlist.show_data()])}\n")
+            print(colored(f"{selected_pokemon.name} is added to player 1's linked list of pokemons", 'yellow', attrs=['bold']))
+            print(f"Player 1's linked list: {' <- '.join([p.name for p in player1_linkedlist.show_data()])}\n")
         else:
             # Save the selected Pokemon for player
             player2_loaded_images.append(pokemon_loaded_images[focus])
             
             # add the pokemon to the linked list
             player2_linkedlist.atend(selected_pokemon)
-            print(f"{selected_pokemon.name} is added to player 2's linked list of pokemons")
-            print(f"new linked list is: {' <- '.join([p.name for p in player2_linkedlist.show_data()])}\n")
+            print(colored(f"{selected_pokemon.name} is added to player 2's linked list of pokemons", 'yellow', attrs=['bold']))
+            print(f"Player 2's linked list: {' <- '.join([p.name for p in player2_linkedlist.show_data()])}\n")
+        
         
         selected_pokemon.play_audio()
         
         # Remove from the selection pool
         pokemons.pop(focus)
+        print(colored(f"{selected_pokemon.name} was removed from the pokemon array", 'yellow', attrs=['bold']))
+        print(f"new array: {[pokemon.name for pokemon in pokemons]}\n")
+        print(colored("_______________________________________________________________________________________________________________________________", "blue", attrs=["bold"]))
         pokemon_loaded_images.pop(focus)
         pokemon_frame_index.pop(focus)
         focus -= 1
@@ -337,15 +343,25 @@ def pokemon_selection_scene(pokemon_loaded_images: list, battle_effect_loaded_im
         if number_of_selected == 6:
             pygame.mixer.music.stop()
             
+            print(colored("Player 1 and Player 2's linked list will be converted to queue\n", "yellow", attrs=["bold"]))
             # Creates the Queue
             player1_pokemons_queue = Queue()
             player2_pokemons_queue = Queue()
+            print(f"Player 1's Queue : {player1_pokemons_queue.queue}")
+            print(f"Player 2's Queue : {player2_pokemons_queue.queue}\n")
             
             # Convert the linked list data to a Queue
             for data in player1_linkedlist.show_data():
                 player1_pokemons_queue.enqueue(data)
+                print(f"{data.name} from the Player 1's linked list is enqueue to Player 1's Queue")
+            print("")
             for data in player2_linkedlist.show_data():
                 player2_pokemons_queue.enqueue(data)
+                print(f"{data.name} from the Player 2's linked list is enqueue to Player 2's Queue")
+                
+            print(f"\nPlayer 1's Queue : {[pokemon.name for pokemon in player1_pokemons_queue.queue]}")
+            print(f"Player 2's Queue : {[pokemon.name for pokemon in player2_pokemons_queue.queue]}")
+            print(colored("_______________________________________________________________________________________________________________________________", "blue", attrs=["bold"]))
             
             # pass the queue for the next scene    
             return player1_pokemons_queue, player1_loaded_images, player2_pokemons_queue, player2_loaded_images
