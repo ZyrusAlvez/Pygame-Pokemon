@@ -1335,9 +1335,7 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                     post_battle = True
         
         # Showing of Transition for the first 2 seconds
-        if pygame.time.get_ticks() - transition_timer <= 2000:
-            screen.fill((0,0,0))
-        if pygame.time.get_ticks() - transition_timer <= 4000 and pygame.time.get_ticks() - transition_timer > 2000:
+        if pygame.time.get_ticks() - transition_timer <= 500 :
             transition_current_img = pygame.transform.scale(transitions_loaded_images[0][transition_frame_index],(800,600))
             transition_current_img_rect = transition_current_img.get_rect(topleft = (0,0))
             if transition_frame_index < len(transitions_loaded_images[0])-1:
