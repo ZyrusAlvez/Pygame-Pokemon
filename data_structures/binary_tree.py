@@ -1,37 +1,36 @@
-class Node:
-    def __init__(self, key):
+class BinaryTreeNode:
+    def __init__(self, data):
         self.left = None
         self.right = None
-        self.val = key
+        self.data = data
 
-    # Preorder Traversal
-    def traversePreOrder(self):
-        results = [self.val]  # Start with the current node's value
-        if self.left:  # Traverse left subtree
-            results += self.left.traversePreOrder()
-        if self.right:  # Traverse right subtree
-            results += self.right.traversePreOrder()
-        return results
-
-def add_node(root, value, direction):
-    """
-    Add a node dynamically to the left or right of the tree.
-    It will traverse until it finds an empty position.
-    """
-    current = root
-    while True:
-        if direction == "left":  # Add to left
-            if not current.left:
-                current.left = Node(value)  # Place the new node
-                print(f"Node with value {value} added to the left of {current.val}")
-                break
-            current = current.left  # Traverse further down the left subtree
-        elif direction == "right":  # Add to right
-            if not current.right:
-                current.right = Node(value)  # Place the new node
-                print(f"Node with value {value} added to the right of {current.val}")
-                break
-            current = current.right  # Traverse further down the right subtree
+    def insert(self, data, direction):
+        """
+        Insert a new node explicitly in the specified direction.
+        """
+        if direction == "left":
+            if self.left is None:
+                self.left = BinaryTreeNode(data)
+                print(f"Node with value \"{data}\" added to the left of \"{self.data}\"")
+            else:
+                self.left.insert(data, direction)
+        elif direction == "right":
+            if self.right is None:
+                self.right = BinaryTreeNode(data)
+                print(f"Node with value \"{data}\" added to the right of \"{self.data}\"")
+            else:
+                self.right.insert(data, direction)
         else:
-            print("Invalid direction! Use 'L' for left and 'R' for right.")
-            break
+            print("Invalid direction! Use 'left' or 'right'.")
+
+    def PrintTree(self):
+        """
+        Print the tree in a preorder traversal.
+        """
+        print("Binary Tree")
+        print(self.data, end=" <- ")  # Visit the root first
+        if self.left:              # Traverse the left subtree
+            self.left.PrintTree()
+        if self.right:             # Traverse the right subtree
+            self.right.PrintTree()
+        print("")
