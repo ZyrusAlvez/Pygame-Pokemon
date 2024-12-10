@@ -927,35 +927,35 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                         for line in player1_buff_msg:
                             show_text(line, 115, player1_buff_ypos, screen, 20) 
                             player1_buff_ypos += 20
-                        show_text(f"+{int(player_1_pokemon.health * 0.2)}", 260, 336, screen, 30)
+                        show_text(f"+{int(player_1_pokemon.health * 0.5)}", 260, 336, screen, 30)
                     if player2_buff:
                         player2_buff_msg = f"{player_2_pokemon.name}receives\nboost from the battlefield".split("\n")
                         player2_buff_ypos = 306
                         for line in player2_buff_msg:
                             show_text(line, 600, player2_buff_ypos, screen, 20)
                             player2_buff_ypos += 20
-                        show_text(f"+{int(player_2_pokemon.health * 0.2)}", 470, 336, screen, 30)
+                        show_text(f"+{int(player_2_pokemon.health * 0.5)}", 470, 336, screen, 30)
 
                     # To show the numbers
                     show_text(str(player_1_pokemon.temporary_power),349, 336, screen, 30, color= "Red" if player_1_pokemon.type == "Fire" else "Blue" if player_1_pokemon.type == "Water" else "Green")
                     show_text(str(player_2_pokemon.temporary_power),429, 336, screen, 30, color= "Red" if player_2_pokemon.type == "Fire" else "Blue" if player_2_pokemon.type == "Water" else "Green")
                 elif (player1_buff or player2_buff) and (pygame.time.get_ticks() - fight_dia_timer > 8000 and pygame.time.get_ticks() - fight_dia_timer <= 10000):
                     if player1_buff:
-                        if player1_power_buff_counter < int(player_1_pokemon.health * 0.2):
+                        if player1_power_buff_counter < int(player_1_pokemon.health * 0.5):
                             player_1_pokemon.temporary_power += 1
                             player1_power_buff_counter += 1
                         else:
-                            player1_power_buff_counter = int(player_1_pokemon.health * 0.2)
+                            player1_power_buff_counter = int(player_1_pokemon.health * 0.5)
                             
                         show_text(str(player_1_pokemon.temporary_power),349, 336, screen, 30, color= "Red" if player_1_pokemon.type == "Fire" else "Blue" if player_1_pokemon.type == "Water" else "Green")
                     else:
                         show_text(str(player_1_pokemon.temporary_power),349, 336, screen, 30, color= "Red" if player_1_pokemon.type == "Fire" else "Blue" if player_1_pokemon.type == "Water" else "Green")
                     if player2_buff:
-                        if player2_power_buff_counter < int(player_2_pokemon.health * 0.2):
+                        if player2_power_buff_counter < int(player_2_pokemon.health * 0.5):
                             player_2_pokemon.temporary_power += 1
                             player2_power_buff_counter += 1
                         else:
-                            player2_power_buff_counter = int(player_2_pokemon.health * 0.2)
+                            player2_power_buff_counter = int(player_2_pokemon.health * 0.5)
                         show_text(str(player_2_pokemon.temporary_power),429, 336, screen, 30, color= "Red" if player_2_pokemon.type == "Fire" else "Blue" if player_2_pokemon.type == "Water" else "Green")
                     else:
                         show_text(str(player_2_pokemon.temporary_power),429, 336, screen, 30, color= "Red" if player_2_pokemon.type == "Fire" else "Blue" if player_2_pokemon.type == "Water" else "Green")
