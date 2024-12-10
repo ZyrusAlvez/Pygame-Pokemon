@@ -1,4 +1,4 @@
-import pygame
+import pygame # type: ignore
 from pokemon import *
 import random, time
 from battleeffects import *
@@ -24,7 +24,7 @@ pygame.display.set_caption("Team Rocket's Pokemon Game")
 pygame.display.set_icon(scale(pygame.image.load("assets/Team-Rocket-Logo/Rocket-Logo.png"), 2))
 pygame.mixer.init()
 
-# Global initialization
+# Array for each pokemon objects
 pokemons = [bulbasaur, charizard, blastoise, weepinbell, arcanine, psyduck, scyther, magmar, piplup, farfetchd, moltres, vaporeon]
 original_pokemons = pokemons[:]
 battle_effects = [fireball, waterball, grassball, pokeball]
@@ -166,6 +166,9 @@ def pokemon_selection_scene(pokemon_loaded_images: list, battle_effect_loaded_im
     
     
     def select_pokemon(number_of_selected, focus):
+        if number_of_selected >= 6:
+            return
+        
         selected_pokemon = pokemons[focus]
 
         if number_of_selected % 2 == 0:
@@ -174,12 +177,16 @@ def pokemon_selection_scene(pokemon_loaded_images: list, battle_effect_loaded_im
             
             # add the pokemon to the linked list
             player1_linkedlist.atend(selected_pokemon)
+            print(f"{selected_pokemon.name} is added to player 1's linked list of pokemons")
+            print(f"new linked list is: {' <- '.join([p.name for p in player1_linkedlist.show_data()])}\n")
         else:
             # Save the selected Pokemon for player
             player2_loaded_images.append(pokemon_loaded_images[focus])
             
             # add the pokemon to the linked list
             player2_linkedlist.atend(selected_pokemon)
+            print(f"{selected_pokemon.name} is added to player 2's linked list of pokemons")
+            print(f"new linked list is: {' <- '.join([p.name for p in player2_linkedlist.show_data()])}\n")
         
         selected_pokemon.play_audio()
         
