@@ -518,7 +518,7 @@ def tutorial_popup():
         pygame.display.flip()
         clock.tick(15)
         
-def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, player2_loaded_images, battleeffects_frames, impacteffect_frames,potionpoison_frames,transition_frames, current_background, map_type, match_number, root_node) -> None:
+def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, player2_loaded_images, battleeffects_frames, impacteffect_frames,potionpoison_frames,transition_frames, current_background, map_type, match_number, binary_tree) -> None:
     # Queue for Executing Potion Healings and Poison Damages
 
    
