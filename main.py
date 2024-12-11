@@ -736,7 +736,6 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                                 player1_usedpoison = True
                             elif player1_menu_option_index == 3:
                                 player1_run_chance = random.randint(1,10)
-                                player1_run_chance = 2
                                 if player1_run_chance <= 3:
                                     player1_end_by_run = True
                                     player1_show_confirmation = False
