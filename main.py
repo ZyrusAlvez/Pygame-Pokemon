@@ -133,7 +133,7 @@ def menu() -> None:
                 quit()
 
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RETURN or pygame.K_SPACE:
+                if event.key == pygame.K_RETURN or event.key == pygame.K_SPACE:
                     return
             if event.type == pygame.MOUSEBUTTONDOWN:
                 # Check if click is inside the button
@@ -398,7 +398,7 @@ def map_randomizer(transition_frames) -> object:
     map_types = ["Grass", "Fire", "Water"]
     starting_show_speed = 0.05
     selected_map = random.choice(map_names)
-    # selected_map = "Bamboo Bridge"
+    selected_map = "Viridale Forest"
     
     randomization_time = pygame.time.get_ticks()
     transition_time = None
@@ -1066,7 +1066,7 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
 
         if ready:
             if not buffs_stack.empty():
-                fight_dia_duration = 12000
+                fight_dia_duration = 15000
                 for _ in range(len(buffs_stack.stack)):
                         player_buff = buffs_stack.pop()
                         print(colored(f"\"{player_buff}\" is pop from the stack", 'yellow', attrs=['bold']))
@@ -1101,7 +1101,7 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                     # To show the numbers
                     show_text(str(player_1_pokemon.temporary_power),349, 336, screen, 30, color= "Red" if player_1_pokemon.type == "Fire" else "Blue" if player_1_pokemon.type == "Water" else "Green")
                     show_text(str(player_2_pokemon.temporary_power),429, 336, screen, 30, color= "Red" if player_2_pokemon.type == "Fire" else "Blue" if player_2_pokemon.type == "Water" else "Green")
-                elif (player1_buff or player2_buff) and (pygame.time.get_ticks() - fight_dia_timer > 8000 and pygame.time.get_ticks() - fight_dia_timer <= 10000):
+                elif (player1_buff or player2_buff) and (pygame.time.get_ticks() - fight_dia_timer > 8000 and pygame.time.get_ticks() - fight_dia_timer <= 10500):
                     if player1_buff:
                         if player1_power_buff_counter < int(player_1_pokemon.health * 0.5):
                             player_1_pokemon.temporary_power += 1
@@ -1124,12 +1124,13 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                 else:
                     if comparison_dia_timer == False:
                         comparison_dia_timer = pygame.time.get_ticks()
-                    if comparison_msg == "":
-                        if player_1_pokemon.temporary_power == player_2_pokemon.temporary_power:
-                            comparison_msg = "Both pokemons stand at equal power"
-                        else:
-                            comparison_msg = (f"{player_1_pokemon.name if player_1_pokemon.temporary_power > player_2_pokemon.temporary_power else player_2_pokemon.name} dominates {player_2_pokemon.name if player_2_pokemon.temporary_power < player_1_pokemon.temporary_power else player_1_pokemon.name}")
-                    if pygame.time.get_ticks() - comparison_dia_timer <= 2000:
+                    if pygame.time.get_ticks() - comparison_dia_timer <= 500:
+                        if comparison_msg == "":
+                            if player_1_pokemon.temporary_power == player_2_pokemon.temporary_power:
+                                comparison_msg = "Both pokemons have equal power"
+                            else:
+                                comparison_msg = (f"{player_1_pokemon.name if player_1_pokemon.temporary_power > player_2_pokemon.temporary_power else player_2_pokemon.name} dominates {player_2_pokemon.name if player_2_pokemon.temporary_power < player_1_pokemon.temporary_power else player_1_pokemon.name}")
+                    elif pygame.time.get_ticks() - comparison_dia_timer > 500 and pygame.time.get_ticks() - comparison_dia_timer <= 2500:
                         if msg_index < len(comparison_msg):
                             tobe_printed_msg += comparison_msg[msg_index]
                             msg_index = (msg_index + 1) if msg_index < len(comparison_msg) else len(comparison_msg)
