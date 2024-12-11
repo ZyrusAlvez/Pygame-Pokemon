@@ -1459,11 +1459,10 @@ def main():
     pokemon_loaded_images, battle_effects_loaded_images, impact_effects_loaded_images, potion_poison_effects_loaded_images, transitions_loaded_images = load_images()
     menu()
     player1_pokemons, player1_loaded_images, player2_pokemons, player2_loaded_images = pokemon_selection_scene(pokemon_loaded_images, battle_effects_loaded_images)
-    
+    tutorial_popup()
     while fight:
         current_background, map_type = map_randomizer(transitions_loaded_images)
-        if tutorial_popup:
-            tutorial_popup()
+
         new_match_number, dequeued_pokemon, new_root_node = fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, player2_loaded_images, battle_effects_loaded_images, impact_effects_loaded_images,potion_poison_effects_loaded_images, transitions_loaded_images, current_background, map_type, match_number, root_node)    
 
         match_number = new_match_number
