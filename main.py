@@ -398,7 +398,6 @@ def map_randomizer(transition_frames) -> object:
     map_types = ["Grass", "Fire", "Water"]
     starting_show_speed = 0.05
     selected_map = random.choice(map_names)
-    selected_map = "Viridale Forest"
     
     randomization_time = pygame.time.get_ticks()
     transition_time = None
