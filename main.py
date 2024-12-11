@@ -33,7 +33,7 @@ battle_effects = [fireball, waterball, grassball, pokeball, fainted, heal_player
 impact_effects = [firefx, waterfx, grassfx]
 potion_poison_effects = [potion, poison]
 transitions = [opening, closing]
-tutorial_images = [pygame.image.load(f"assets/Tutorial Scenes/{i}.png") for i in range(7)]
+tutorial_images = [pygame.image.load(f"assets/Tutorial Scenes/{i}.png") for i in range(8)]
 # Global Variable
 player1_usedpotion = False
 player2_usedpotion = False
@@ -397,8 +397,8 @@ def map_randomizer(transition_frames) -> object:
     map_names = ["Viridale Forest", "Dragon Dungeon", "Bamboo Bridge"]
     map_types = ["Grass", "Fire", "Water"]
     starting_show_speed = 0.05
-    # selected_map = random.choice(map_names)
-    selected_map = "Bamboo Bridge"
+    selected_map = random.choice(map_names)
+    # selected_map = "Bamboo Bridge"
     
     randomization_time = pygame.time.get_ticks()
     transition_time = None
@@ -1151,7 +1151,7 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                     pass
                 elif pygame.time.get_ticks() - post_battle_timer < queue_duration:
                     post_bat_msg_ypos = 306
-                    if action_done:
+                    if action_done and len(consumables_queue.queue) > 0:
                         action = consumables_queue.dequeue()
                         print(colored(f'"{action}" is dequeue to the Queue', "yellow", attrs=["bold"]))
                         print(f"Queue = {consumables_queue.queue}")
@@ -1159,8 +1159,8 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                         action_done = False
                         dequeue_timer = pygame.time.get_ticks()
                         post_battle_message = ""
-                        if action == None:
-                            action = ""
+                        # if action == None:
+                        #     action = ""
                         if "Potion" in action:
                             queue_effect_frames = potion_frames
                             potion_poison_effects[0].play_audio()
@@ -1168,10 +1168,10 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                             queue_effect_frames = poison_frames
                             potion_poison_effects[1].play_audio()
                         queue_effect_frames_index = 0
-                        if action == "":
-                            show_effect = False
-                        else:
-                            show_effect = True
+                        # if action == "":
+                        #     show_effect = False
+                        # else:
+                        show_effect = True
 
                     if pygame.time.get_ticks() - dequeue_timer < 5000:
                         if action == "Player 1 Used Potion":
@@ -1554,8 +1554,11 @@ def main():
     
     binary_tree = BinaryTreeNode(battle_number)
     while fight:
-        current_background, map_type = map_randomizer()
-        new_match_number, dequeued_pokemon = fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, player2_loaded_images, battle_effects_loaded_images, current_background, map_type, match_number, binary_tree)    
+        if tutorial_popup:
+            tutorial_popup()
+            tutorial_popup = False
+        current_background, map_type = map_randomizer(transition_frames= transitions_loaded_images)
+        new_match_number, dequeued_pokemon = fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, player2_loaded_images, battle_effects_loaded_images,impact_effects_loaded_images, potion_poison_effects_loaded_images, transitions_loaded_images, current_background, map_type, match_number, binary_tree)    
 
         match_number = new_match_number
         
