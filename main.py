@@ -38,7 +38,6 @@ player1_usedpoison = False
 player2_usedpoison = False
 player1_default_pokemom_names = []
 player2_default_pokemom_names = []
-battle_number = 1
 
 # this requires a lot of time to load
 def load_images() -> list:
@@ -1134,6 +1133,48 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
         pygame.display.flip()
         clock.tick(40)
 
+def end_scene(binary_tree: object) -> bool:
+    pygame.mixer.music.load("assets/audio/pokemon-menu.mp3")
+    pygame.mixer.music.set_volume(0.5)
+    pygame.mixer.music.play(-1)
+
+    image = pygame.image.load("assets/End-Result/End-Result-Screen.png")
+    
+    btn_exit = pygame.image.load("assets/End-Result/EXIT-BUTTON.png")
+    btn_exit_rect = btn_exit.get_rect(center=(400, 500))
+
+    print(colored('Counting Left and Right nodes from the binary tree', 'yellow', attrs=['bold']))
+    left_count, right_count = binary_tree.countLeftRightNodes()
+    print(f"left nodes = {left_count}")
+    print(f"right nodes = {right_count}\n")
+    
+    if left_count > right_count:
+        winner = "Player 1"
+    elif left_count < right_count:
+        winner = "Player 2"
+    else:
+        winner = 'Tie'
+    
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                quit()
+                
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if btn_exit_rect.collidepoint(event.pos):
+                    quit() 
+
+        # Render loading  screen
+        screen.blit(image, (0, 0))
+        screen.blit(btn_exit, btn_exit_rect)
+        
+        show_text(str(left_count), 450, 192, screen, 30, origin="topleft", shadow=False, color="Black", highlight=True)
+        show_text(str(right_count), 450, 228, screen, 30, origin="topleft", shadow=False, color="Black", highlight=True)
+        show_text(winner, 420, 268, screen, 30, origin="topleft", shadow=False, color="Black", highlight=True)
+        
+        pygame.display.update()
+        clock.tick(40)
+
 # utility scene        
 def quit():
     if original_pokemons:
@@ -1144,13 +1185,15 @@ def quit():
             battle_effect.clear_residue()
     pygame.quit()
     exit()
-    
+ 
 def main():
     match_number = 0
     fight = True
+    battle_number = 1
     
     pokemon_loaded_images, battle_effects_loaded_images = load_images()
     menu()
+    
     player1_pokemons, player1_loaded_images, player2_pokemons, player2_loaded_images = pokemon_selection_scene(pokemon_loaded_images, battle_effects_loaded_images)
     
     binary_tree = BinaryTreeNode(battle_number)
@@ -1165,10 +1208,13 @@ def main():
         if dequeued_pokemon[1].remaining_health > 0:
             player2_pokemons.enqueue(dequeued_pokemon[1])
             
-        if player1_pokemons.size() <= 0 or player2_pokemons.size() <= 0:
+        # check if both players ran out of pokemon
+        if player1_pokemons.size() <= 2 or player2_pokemons.size() <= 2:
             fight = False
             
         binary_tree.PrintTree()
         print(colored("_______________________________________________________________________________________________________________________________\n", "blue", attrs=["bold"]))
+        
+    end_scene(binary_tree)
 
 main()
