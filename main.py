@@ -1594,7 +1594,7 @@ def main():
             player2_pokemons.enqueue(dequeued_pokemon[1])
             
         # check if both players ran out of pokemon
-        if player1_pokemons.size() <= 2 or player2_pokemons.size() <= 2:
+        if player1_pokemons.size() == 0 or player2_pokemons.size() == 0:
             fight = False
             
         binary_tree.PrintTree()
