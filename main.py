@@ -374,7 +374,8 @@ def map_randomizer(transition_frames) -> object:
     map_names = ["Viridale Forest", "Dragon Dungeon", "Bamboo Bridge"]
     map_types = ["Grass", "Fire", "Water"]
     starting_show_speed = 0.05
-    selected_map = random.choice(map_names)
+    # selected_map = random.choice(map_names)
+    selected_map = "Bamboo Bridge"
     
     randomization_time = pygame.time.get_ticks()
     transition_time = None
@@ -1234,7 +1235,7 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                                 if pygame.time.get_ticks() - player2_faint_animation_interval > 500:
                                     player2_faint_index = (player2_faint_index + 1) % len(battle_effects_loaded_images[4])
                                     player2_faint_animation_interval = pygame.time.get_ticks()
-                                player2_faint_current_img = pygame.transform.flip(pygame.transform.scale(battle_effects_loaded_images[4][player1_faint_index], tuple([measure * 0.18 for measure in battle_effects_loaded_images[4][player1_faint_index].get_size()])), True)
+                                player2_faint_current_img = pygame.transform.flip(pygame.transform.scale(battle_effects_loaded_images[4][player2_faint_index], tuple([measure * 0.18 for measure in battle_effects_loaded_images[4][player1_faint_index].get_size()])), True, False)
                                 player2_faint_current_img_rect = player2_faint_current_img.get_rect(center = (player_2_pokemon_posx, 300))
                                 screen.blit(player2_faint_current_img, player2_faint_current_img_rect)
                                 player2_faint_msg = f"{player_2_pokemon.name} fainted due to exhaustion.\n{player_2_pokemon.name} will be removed from future\nmatch-ups".split("\n")
