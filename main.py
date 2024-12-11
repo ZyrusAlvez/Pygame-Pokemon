@@ -39,8 +39,8 @@ player1_usedpotion = False
 player2_usedpotion = False
 player1_usedpoison = False
 player2_usedpoison = False
-player1_default_pokemom_names = []
-player2_default_pokemom_names = []
+player1_default_pokemon_names = []
+player2_default_pokemon_names = []
 tutorial_popup = True
 
 
@@ -520,9 +520,6 @@ def tutorial_popup():
         
 def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, player2_loaded_images, battleeffects_frames, impacteffect_frames,potionpoison_frames,transition_frames, current_background, map_type, match_number, binary_tree) -> None:
     # Queue for Executing Potion Healings and Poison Damages
-
-   
-
     consumables_queue = Queue() 
     # Stack for Executing Buffs and Nerfs
     buffs_stack = Stack()
@@ -532,7 +529,6 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
     print(f"Queue = {consumables_queue.queue}")
     print(colored("_______________________________________________________________________________________________________________________________", "blue", attrs=["bold"]))
 
-    another_round = False
     player1_ready = False
     player2_ready = False
     global player1_default_pokemon_names
@@ -684,7 +680,10 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
 
     player1_cannot_run = False
     player2_cannot_run = False
-    end_by_run = False
+    player1_end_by_run = False
+    player1_end_by_run_timer = None
+    player2_end_by_run = False
+    player2_end_by_run_timer = None
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -737,8 +736,10 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                                 player1_usedpoison = True
                             elif player1_menu_option_index == 3:
                                 player1_run_chance = random.randint(1,10)
+                                player1_run_chance = 2
                                 if player1_run_chance <= 3:
-                                    end_by_run = True
+                                    player1_end_by_run = True
+                                    player1_show_confirmation = False
                                 else:
                                     player1_show_confirmation = False
                                     player1_fail_run = True
@@ -808,7 +809,8 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                             elif player2_menu_option_index == 3:
                                 player2_run_chance = random.randint(1,10)
                                 if player2_run_chance <= 3:
-                                    end_by_run = True
+                                    player2_end_by_run = True
+                                    player2_show_confirmation = False
                                 else:
                                     player2_show_confirmation = False
                                     player2_fail_run = True
@@ -875,7 +877,16 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
         # Display when player 1 is ready
         if player1_ready:
             show_text("READY", 110, 530, screen, 35, color= "White")
-
+        elif player1_end_by_run or player2_end_by_run:
+            if player1_end_by_run:
+                if player1_end_by_run_timer == None:
+                    player1_end_by_run_timer = pygame.time.get_ticks()
+                if pygame.time.get_ticks() - player1_end_by_run_timer <= 2000:
+                    show_text(f"Player 1 Successfully Managed to Run Away!", screen.get_width()//2 ,250, screen, 30)
+                elif pygame.time.get_ticks() - player1_end_by_run_timer <= 4000 and pygame.time.get_ticks() - player1_end_by_run_timer > 2000:
+                    player_1_pokemon_posx -= 20
+                else:
+                    next_round = True
         # Menu when confirming an action for player 1
         elif player1_show_confirmation:
             player1_text = confirmation_messages[player1_menu_option_index].split("\n") 
@@ -950,6 +961,16 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
 
         if player2_ready:
             show_text("READY", 530, 530, screen, 35, color= "White")
+        elif player1_end_by_run or player2_end_by_run:
+            if player2_end_by_run:
+                if player2_end_by_run_timer == None:
+                    player2_end_by_run_timer = pygame.time.get_ticks()
+                if pygame.time.get_ticks() - player2_end_by_run_timer <= 2000:
+                    show_text(f"Player 2 Successfully Managed to Run Away!", screen.get_width()//2 ,250, screen, 30)
+                elif pygame.time.get_ticks() - player2_end_by_run_timer <= 4000 and pygame.time.get_ticks() - player2_end_by_run_timer > 2000:
+                    player_2_pokemon_posx += 20
+                else:
+                    next_round = True
         # Menu when confirming an action for player 2
         elif player2_show_confirmation:
             player2_text = confirmation_messages[player2_menu_option_index].split("\n")
@@ -1303,23 +1324,7 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
 
                     else:
                         next_round = True
-            if next_round:
-                if node_addition == False:
-                    node_addition = True
-                if next_round_timer == False:
-                    next_round_timer = pygame.time.get_ticks()
-                if pygame.time.get_ticks() - next_round_timer > 3000:
-                    
-                    # add nodes to the binary tree
-                    if player_1_pokemon.temporary_power >= player_2_pokemon.temporary_power:
-                        binary_tree.insert("Player 1 win", "left")
-                    else:
-                        binary_tree.insert("Player 2 win", "right")   
-                    
-                    next_round = False
-                    player_1_pokemon.temporary_power = player_1_pokemon.power
-                    player_2_pokemon.temporary_power = player_2_pokemon.power
-                    return match_number+1, (player_1_pokemon, player_2_pokemon)
+        
                                        
             # Get current frames, resize and rotate them 
             player_1_battle_effect_current_img = pygame.transform.scale(pygame.transform.rotate(player_1_battle_effect_image[player_1_battle_effect_index], -90), tuple([measure * 0.5 for measure in player_1_battle_effect_image[player_1_battle_effect_index].get_size()]))
@@ -1479,6 +1484,27 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
             if transition_frame_index < len(transitions_loaded_images[0])-1:
                 screen.blit(transition_current_img, transition_current_img_rect)
                 transition_frame_index += 1
+        
+        if next_round:
+            if node_addition == False:
+                node_addition = True
+            if next_round_timer == False:
+                next_round_timer = pygame.time.get_ticks()
+            if pygame.time.get_ticks() - next_round_timer > 1500:
+                
+                # add nodes to the binary tree
+                if player1_end_by_run or player2_end_by_run:
+                    pass
+                elif player_1_pokemon.temporary_power >= player_2_pokemon.temporary_power:
+                    binary_tree.insert("Player 1 win", "left")
+                else:
+                    binary_tree.insert("Player 2 win", "right")   
+                
+                next_round = False
+                player_1_pokemon.temporary_power = player_1_pokemon.power
+                player_2_pokemon.temporary_power = player_2_pokemon.power
+                fight = False if player1_end_by_run or player2_end_by_run else True
+                return match_number+1, (player_1_pokemon, player_2_pokemon), fight
 
       
         # Used for knowing specific locations in the screen
@@ -1558,8 +1584,9 @@ def main():
             tutorial_popup()
             tutorial_popup = False
         current_background, map_type = map_randomizer(transition_frames= transitions_loaded_images)
-        new_match_number, dequeued_pokemon = fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, player2_loaded_images, battle_effects_loaded_images,impact_effects_loaded_images, potion_poison_effects_loaded_images, transitions_loaded_images, current_background, map_type, match_number, binary_tree)    
-
+        new_match_number, dequeued_pokemon, fight = fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, player2_loaded_images, battle_effects_loaded_images,impact_effects_loaded_images, potion_poison_effects_loaded_images, transitions_loaded_images, current_background, map_type, match_number, binary_tree)    
+        if not fight:
+            break
         match_number = new_match_number
         
         if dequeued_pokemon[0].remaining_health > 0:
