@@ -1,4 +1,4 @@
-import pygame
+import pygame # type: ignore
 
 def scale(loaded_image, multiply = 1):
     return pygame.transform.scale(loaded_image, (int(loaded_image.get_width() * multiply), int(loaded_image.get_height() * multiply)))

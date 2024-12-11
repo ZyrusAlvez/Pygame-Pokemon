@@ -1,4 +1,5 @@
-import pygame
+import pygame # type: ignore
+from termcolor import colored # type: ignore
 from pokemon import *
 import random, time
 from battleeffects import *
@@ -23,8 +24,9 @@ clock = pygame.time.Clock()
 pygame.display.set_caption("Team Rocket's Pokemon Game")
 pygame.display.set_icon(scale(pygame.image.load("assets/Team-Rocket-Logo/Rocket-Logo.png"), 2))
 pygame.mixer.init()
+print("\n\n\n")
 
-# Global initialization
+# Array for each pokemon objects
 pokemons = [bulbasaur, charizard, blastoise, weepinbell, arcanine, psyduck, scyther, magmar, piplup, farfetchd, moltres, vaporeon]
 original_pokemons = pokemons[:]
 battle_effects = [fireball, waterball, grassball, pokeball, fainted, heal_player]
@@ -182,6 +184,9 @@ def pokemon_selection_scene(pokemon_loaded_images: list, battle_effect_loaded_im
     
     
     def select_pokemon(number_of_selected, focus):
+        if number_of_selected >= 6:
+            return
+        
         selected_pokemon = pokemons[focus]
 
         if number_of_selected % 2 == 0:
@@ -190,17 +195,25 @@ def pokemon_selection_scene(pokemon_loaded_images: list, battle_effect_loaded_im
             
             # add the pokemon to the linked list
             player1_linkedlist.atend(selected_pokemon)
+            print(colored(f'"{selected_pokemon.name}" is added to player 1 linked list of pokemons', "yellow", attrs=["bold"]))
+            print(f"Player 1's linked list: {' <- '.join([p.name for p in player1_linkedlist.show_data()])}\n")
         else:
             # Save the selected Pokemon for player
             player2_loaded_images.append(pokemon_loaded_images[focus])
             
             # add the pokemon to the linked list
             player2_linkedlist.atend(selected_pokemon)
+            print(colored(f'"{selected_pokemon.name}" is added to player 2 linked list of pokemons', "yellow", attrs=["bold"]))
+            print(f"Player 2's linked list: {' <- '.join([p.name for p in player2_linkedlist.show_data()])}\n")
+        
         
         selected_pokemon.play_audio()
         
         # Remove from the selection pool
         pokemons.pop(focus)
+        print(colored(f"\"{selected_pokemon.name}\" was removed from the pokemon array", 'yellow', attrs=['bold']))
+        print(f"new array: {[pokemon.name for pokemon in pokemons]}\n")
+        print(colored("_______________________________________________________________________________________________________________________________", "blue", attrs=["bold"]))
         pokemon_loaded_images.pop(focus)
         pokemon_frame_index.pop(focus)
         focus -= 1
@@ -346,15 +359,25 @@ def pokemon_selection_scene(pokemon_loaded_images: list, battle_effect_loaded_im
         if number_of_selected == 6:
             pygame.mixer.music.stop()
             
+            print(colored("Player 1 and Player 2's linked list will be converted to queue\n", "yellow", attrs=["bold"]))
             # Creates the Queue
             player1_pokemons_queue = Queue()
             player2_pokemons_queue = Queue()
+            print(f"Player 1's Queue : {player1_pokemons_queue.queue}")
+            print(f"Player 2's Queue : {player2_pokemons_queue.queue}\n")
             
             # Convert the linked list data to a Queue
             for data in player1_linkedlist.show_data():
                 player1_pokemons_queue.enqueue(data)
+                print(f"\"{data.name}\" from the Player 1's linked list is enqueue to Player 1's Queue")
+            print("")
             for data in player2_linkedlist.show_data():
                 player2_pokemons_queue.enqueue(data)
+                print(f"\"{data.name}\" from the Player 2's linked list is enqueue to Player 2's Queue")
+                
+            print(f"\nPlayer 1's Queue : {[pokemon.name for pokemon in player1_pokemons_queue.queue]}")
+            print(f"Player 2's Queue : {[pokemon.name for pokemon in player2_pokemons_queue.queue]}")
+            print(colored("_______________________________________________________________________________________________________________________________", "blue", attrs=["bold"]))
             
             # pass the queue for the next scene    
             return player1_pokemons_queue, player1_loaded_images, player2_pokemons_queue, player2_loaded_images
@@ -503,6 +526,13 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
     consumables_queue = Queue() 
     # Stack for Executing Buffs and Nerfs
     buffs_stack = Stack()
+    print(colored("Stack created for temporary effects", "yellow", attrs=["bold"]))
+    print(f"Stack = {buffs_stack.stack}\n")
+    print(colored("Queue created for items", "yellow", attrs=["bold"]))
+    print(f"Queue = {consumables_queue.queue}")
+    print(colored("_______________________________________________________________________________________________________________________________", "blue", attrs=["bold"]))
+
+    another_round = False
     player1_ready = False
     player2_ready = False
     global player1_default_pokemon_names
@@ -516,8 +546,15 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
 
     if player_1_pokemon.type == map_type:
         buffs_stack.push(1) # Number means the player number
+        print(colored("\"1\" is pushed to the stack as the Player 1 has temporary buff", "yellow", attrs=["bold"]))
+        print(f"Stack = {buffs_stack.stack}")
+        print(colored("_______________________________________________________________________________________________________________________________\n", "blue", attrs=["bold"]))
+
     if player_2_pokemon.type == map_type:
         buffs_stack.push(2)
+        print(colored("\"2\" is pushed to the stack as the Player 2 has temporary buff", "yellow", attrs=["bold"]))
+        print(f"Stack = {buffs_stack.stack}")
+        print(colored("_______________________________________________________________________________________________________________________________\n", "blue", attrs=["bold"]))
         
     x_pos = 0
     player1_pokemon_frame_index = [0 for _ in range(3)]
@@ -686,10 +723,16 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                                 player1_ready = True
                             elif player1_menu_option_index == 1:
                                 consumables_queue.enqueue("Player 1 Used Potion")
+                                print(colored('"Player 1 Used Potion" is enqueue to the Queue', "yellow", attrs=["bold"]))
+                                print(f"Queue = {consumables_queue.queue}")
+                                print(colored("_______________________________________________________________________________________________________________________________\n", "blue", attrs=["bold"]))
                                 player1_show_confirmation = False
                                 player1_usedpotion = True
                             elif player1_menu_option_index == 2:
                                 consumables_queue.enqueue("Player 1 Used Poison")
+                                print(colored('"Player 1 Used Poison" is enqueue to the Queue', "yellow", attrs=["bold"]))
+                                print(f"Queue = {consumables_queue.queue}")
+                                print(colored("_______________________________________________________________________________________________________________________________\n", "blue", attrs=["bold"]))
                                 player1_show_confirmation = False
                                 player1_usedpoison = True
                             elif player1_menu_option_index == 3:
@@ -750,10 +793,16 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                                 player2_ready = True 
                             elif player2_menu_option_index == 1:
                                 consumables_queue.enqueue("Player 2 Used Potion")
+                                print(colored('"Player 2 Used Potion" is enqueue to the Queue', "yellow", attrs=["bold"]))
+                                print(f"Queue = {consumables_queue.queue}")
+                                print(colored("_______________________________________________________________________________________________________________________________\n", "blue", attrs=["bold"]))
                                 player2_show_confirmation = False
                                 player2_usedpotion = True
                             elif player2_menu_option_index == 2:
                                 consumables_queue.enqueue("Player 2 Used Poison")
+                                print(colored('"Player 2 Used Poison" is enqueue to the Queue', "yellow", attrs=["bold"]))
+                                print(f"Queue = {consumables_queue.queue}")
+                                print(colored("_______________________________________________________________________________________________________________________________\n", "blue", attrs=["bold"]))
                                 player2_show_confirmation = False
                                 player2_usedpoison = True
                             elif player2_menu_option_index == 3:
@@ -1000,6 +1049,9 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                 fight_dia_duration = 12000
                 for _ in range(len(buffs_stack.stack)):
                         player_buff = buffs_stack.pop()
+                        print(colored(f"\"{player_buff}\" is pop from the stack", 'yellow', attrs=['bold']))
+                        print(f"Stack = {buffs_stack.stack}")
+                        print(colored("_______________________________________________________________________________________________________________________________", "blue", attrs=["bold"]))
                         if player_buff == 1:
                             player1_buff = True
                         if player_buff == 2:
@@ -1101,6 +1153,9 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                     post_bat_msg_ypos = 306
                     if action_done:
                         action = consumables_queue.dequeue()
+                        print(colored(f'"{action}" is dequeue to the Queue', "yellow", attrs=["bold"]))
+                        print(f"Queue = {consumables_queue.queue}")
+                        print(colored("_______________________________________________________________________________________________________________________________\n", "blue", attrs=["bold"]))
                         action_done = False
                         dequeue_timer = pygame.time.get_ticks()
                         post_battle_message = ""
@@ -1250,28 +1305,21 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                         next_round = True
             if next_round:
                 if node_addition == False:
-                    if match_number == 0:
-                        if player_1_pokemon.temporary_power > player_2_pokemon.temporary_power:
-                            root_node = Node("Player 1")
-                        elif player_1_pokemon.temporary_power < player_2_pokemon.temporary_power:
-                            root_node = Node("Player 2")
-                        else:
-                            root_node = Node("Tie")
-                    else:
-                        if player_1_pokemon.temporary_power > player_2_pokemon.temporary_power:
-                            add_node(root_node, "Player 1", "left")
-                        elif player_1_pokemon.temporary_power < player_2_pokemon.temporary_power:
-                            add_node(root_node, "Player 2", "right")
-                        else:
-                            add_node(root_node, "Tie", "left")
                     node_addition = True
                 if next_round_timer == False:
                     next_round_timer = pygame.time.get_ticks()
-                if pygame.time.get_ticks() - next_round_timer > 1500:
+                if pygame.time.get_ticks() - next_round_timer > 3000:
+                    
+                    # add nodes to the binary tree
+                    if player_1_pokemon.temporary_power >= player_2_pokemon.temporary_power:
+                        binary_tree.insert("Player 1 win", "left")
+                    else:
+                        binary_tree.insert("Player 2 win", "right")   
+                    
                     next_round = False
                     player_1_pokemon.temporary_power = player_1_pokemon.power
                     player_2_pokemon.temporary_power = player_2_pokemon.power
-                    return match_number+1, (player_1_pokemon, player_2_pokemon), root_node
+                    return match_number+1, (player_1_pokemon, player_2_pokemon)
                                        
             # Get current frames, resize and rotate them 
             player_1_battle_effect_current_img = pygame.transform.scale(pygame.transform.rotate(player_1_battle_effect_image[player_1_battle_effect_index], -90), tuple([measure * 0.5 for measure in player_1_battle_effect_image[player_1_battle_effect_index].get_size()]))
@@ -1439,7 +1487,49 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
 
         pygame.display.flip()
         clock.tick(40)
+
+def end_scene(binary_tree: object) -> bool:
+    pygame.mixer.music.load("assets/audio/pokemon-menu.mp3")
+    pygame.mixer.music.set_volume(0.5)
+    pygame.mixer.music.play(-1)
+
+    image = pygame.image.load("assets/End-Result/End-Result-Screen.png")
+    
+    btn_exit = pygame.image.load("assets/End-Result/EXIT-BUTTON.png")
+    btn_exit_rect = btn_exit.get_rect(center=(400, 500))
+
+    print(colored('Counting Left and Right nodes from the binary tree', 'yellow', attrs=['bold']))
+    left_count, right_count = binary_tree.countLeftRightNodes()
+    print(f"left nodes = {left_count}")
+    print(f"right nodes = {right_count}\n")
+    
+    if left_count > right_count:
+        winner = "Player 1"
+    elif left_count < right_count:
+        winner = "Player 2"
+    else:
+        winner = 'Tie'
+    
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                quit()
+                
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if btn_exit_rect.collidepoint(event.pos):
+                    quit() 
+
+        # Render loading  screen
+        screen.blit(image, (0, 0))
+        screen.blit(btn_exit, btn_exit_rect)
         
+        show_text(str(left_count), 450, 192, screen, 30, origin="topleft", shadow=False, color="Black", highlight=True)
+        show_text(str(right_count), 450, 228, screen, 30, origin="topleft", shadow=False, color="Black", highlight=True)
+        show_text(winner, 420, 268, screen, 30, origin="topleft", shadow=False, color="Black", highlight=True)
+        
+        pygame.display.update()
+        clock.tick(40)
+
 # utility scene        
 def quit():
     if original_pokemons:
@@ -1450,33 +1540,37 @@ def quit():
             battle_effect.clear_residue()
     pygame.quit()
     exit()
-    
+ 
 def main():
     global tutorial_popup
     match_number = 0
     fight = True
-    root_node = None
+    battle_number = 1
     
     pokemon_loaded_images, battle_effects_loaded_images, impact_effects_loaded_images, potion_poison_effects_loaded_images, transitions_loaded_images = load_images()
     menu()
+    
     player1_pokemons, player1_loaded_images, player2_pokemons, player2_loaded_images = pokemon_selection_scene(pokemon_loaded_images, battle_effects_loaded_images)
-    tutorial_popup()
+    
+    binary_tree = BinaryTreeNode(battle_number)
     while fight:
-        current_background, map_type = map_randomizer(transitions_loaded_images)
-
-        new_match_number, dequeued_pokemon, new_root_node = fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, player2_loaded_images, battle_effects_loaded_images, impact_effects_loaded_images,potion_poison_effects_loaded_images, transitions_loaded_images, current_background, map_type, match_number, root_node)    
+        current_background, map_type = map_randomizer()
+        new_match_number, dequeued_pokemon = fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, player2_loaded_images, battle_effects_loaded_images, current_background, map_type, match_number, binary_tree)    
 
         match_number = new_match_number
-        root_node = new_root_node
-        
-        print(root_node.traversePreOrder())
         
         if dequeued_pokemon[0].remaining_health > 0:
             player1_pokemons.enqueue(dequeued_pokemon[0])
         if dequeued_pokemon[1].remaining_health > 0:
             player2_pokemons.enqueue(dequeued_pokemon[1])
             
-        if player1_pokemons.size() <= 0 or player2_pokemons.size() <= 0:
+        # check if both players ran out of pokemon
+        if player1_pokemons.size() <= 2 or player2_pokemons.size() <= 2:
             fight = False
+            
+        binary_tree.PrintTree()
+        print(colored("_______________________________________________________________________________________________________________________________\n", "blue", attrs=["bold"]))
+        
+    end_scene(binary_tree)
 
 main()

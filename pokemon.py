@@ -1,5 +1,5 @@
-import pygame
-from PIL import Image
+import pygame # type: ignore
+from PIL import Image # type: ignore
 import os
 
 pygame.mixer.init()

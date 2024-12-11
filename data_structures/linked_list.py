@@ -1,7 +1,8 @@
 class LinkedList:
     def __init__(self):
         self.head = None
-        
+    
+    # traverse to every node in the linked list to count its size    
     def count(self):
         printmoko = self.head
         c = 0
@@ -10,6 +11,7 @@ class LinkedList:
             printmoko = printmoko.next
         return c
     
+    # traverse to the linked list and convert it to list to make it easier to iterate
     def show_data(self):
         iterative = []
         printmoko = self.head
@@ -17,7 +19,8 @@ class LinkedList:
             iterative.append(printmoko.data)
             printmoko = printmoko.next
         return iterative
-                
+    
+    # add a new node at the end of the linked list            
     def atend(self, newdata):
         Newnode = Node(newdata)
         if self.head is None:
@@ -27,7 +30,8 @@ class LinkedList:
         while lastnode.next:
             lastnode = lastnode.next
         lastnode.next = Newnode
-        
+    
+    # get the specified node using its positiion    
     def get_data_at(self, position):
         if position < 1:
             raise ValueError("Position must be 1 or greater.")
