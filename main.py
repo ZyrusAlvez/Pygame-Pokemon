@@ -196,7 +196,7 @@ def pokemon_selection_scene(pokemon_loaded_images: list, battle_effect_loaded_im
             # add the pokemon to the linked list
             player1_linkedlist.atend(selected_pokemon)
             print(colored(f'"{selected_pokemon.name}" is added to player 1 linked list of pokemons', "yellow", attrs=["bold"]))
-            print(f"Player 1's linked list: {' -> '.join([p.name for p in player1_linkedlist.show_data()])}\n")
+            print(f"Player 1's linked list: {' <- '.join([p.name for p in player1_linkedlist.show_data()])}\n")
         else:
             # Save the selected Pokemon for player
             player2_loaded_images.append(pokemon_loaded_images[focus])
@@ -204,7 +204,7 @@ def pokemon_selection_scene(pokemon_loaded_images: list, battle_effect_loaded_im
             # add the pokemon to the linked list
             player2_linkedlist.atend(selected_pokemon)
             print(colored(f'"{selected_pokemon.name}" is added to player 2 linked list of pokemons', "yellow", attrs=["bold"]))
-            print(f"Player 2's linked list: {' -> '.join([p.name for p in player2_linkedlist.show_data()])}\n")
+            print(f"Player 2's linked list: {' <- '.join([p.name for p in player2_linkedlist.show_data()])}\n")
         
         
         selected_pokemon.play_audio()
@@ -381,45 +381,6 @@ def pokemon_selection_scene(pokemon_loaded_images: list, battle_effect_loaded_im
             
             # pass the queue for the next scene    
             return player1_pokemons_queue, player1_loaded_images, player2_pokemons_queue, player2_loaded_images
-      
-def tutorial_popup():
-    global tutorial_images
-    def increment_index(): 
-        nonlocal tutorial_index
-        tutorial_index =  tutorial_index + 1 if tutorial_index < len(tutorial_images)- 1 else tutorial_index
-    def decrement_index(): 
-        nonlocal tutorial_index    
-        tutorial_index =  tutorial_index - 1 if tutorial_index > 0 else 0
-    def break_loop(): 
-        global tutorial_popup
-        nonlocal running
-        running = False
-        tutorial_popup = False
-    tutorial_index = 0
-    previous_button = Button(150, screen.get_height() - 35, 100, 35, "Previous", "assets/font/Pokemon-DP-Bold.ttf", "Blue", "Yellow", "Black", decrement_index)
-    next_button = Button(550, screen.get_height() - 35, 100, 35, "Next", "assets/font/Pokemon-DP-Bold.ttf", "Blue", "Yellow", "Black", increment_index)
-    skip_button = Button(350, screen.get_height() - 35, 100, 35, "Skip", "assets/font/Pokemon-DP-Bold.ttf", "Blue", "Yellow", "Black", break_loop)
-    
-    running = True
-    while running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-            previous_button.is_clicked(event)
-            next_button.is_clicked(event)
-            skip_button.is_clicked(event)
-        # Show Current Page of Tutorial   
-        tutorial_images_rect = tutorial_images[tutorial_index].get_rect(topleft = (0,0))
-        screen.blit(tutorial_images[tutorial_index], tutorial_images_rect)
-        if tutorial_index > 0:
-            previous_button.draw(screen)
-        if tutorial_index < len(tutorial_images) - 1:
-            next_button.draw(screen)
-        skip_button.draw(screen)
-        
-        
-        pygame.display.flip()
-        clock.tick(15)      
         
 def map_randomizer(transition_frames) -> object:
     pygame.mixer.init()
@@ -517,6 +478,44 @@ def map_randomizer(transition_frames) -> object:
     # time.sleep(1)
     
     # return current_background, map_types[map_names.index(selected_map)]
+def tutorial_popup():
+    global tutorial_images
+    def increment_index(): 
+        nonlocal tutorial_index
+        tutorial_index =  tutorial_index + 1 if tutorial_index < len(tutorial_images)- 1 else tutorial_index
+    def decrement_index(): 
+        nonlocal tutorial_index    
+        tutorial_index =  tutorial_index - 1 if tutorial_index > 0 else 0
+    def break_loop(): 
+        global tutorial_popup
+        nonlocal running
+        running = False
+        tutorial_popup = False
+    tutorial_index = 0
+    previous_button = Button(150, screen.get_height() - 35, 100, 35, "Previous", "assets/font/Pokemon-DP-Bold.ttf", "Blue", "Yellow", "Black", decrement_index)
+    next_button = Button(550, screen.get_height() - 35, 100, 35, "Next", "assets/font/Pokemon-DP-Bold.ttf", "Blue", "Yellow", "Black", increment_index)
+    skip_button = Button(350, screen.get_height() - 35, 100, 35, "Skip", "assets/font/Pokemon-DP-Bold.ttf", "Blue", "Yellow", "Black", break_loop)
+    
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+            previous_button.is_clicked(event)
+            next_button.is_clicked(event)
+            skip_button.is_clicked(event)
+        # Show Current Page of Tutorial   
+        tutorial_images_rect = tutorial_images[tutorial_index].get_rect(topleft = (0,0))
+        screen.blit(tutorial_images[tutorial_index], tutorial_images_rect)
+        if tutorial_index > 0:
+            previous_button.draw(screen)
+        if tutorial_index < len(tutorial_images) - 1:
+            next_button.draw(screen)
+        skip_button.draw(screen)
+        
+        
+        pygame.display.flip()
+        clock.tick(15)
         
 def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, player2_loaded_images, battleeffects_frames, impacteffect_frames,potionpoison_frames,transition_frames, current_background, map_type, match_number, binary_tree) -> None:
     # Queue for Executing Potion Healings and Poison Damages
@@ -1369,7 +1368,7 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                     player_2_impact_effect.play_audio()
                 if pygame.time.get_ticks() - player2_atk_effect_timer <= 2000:
                     player_2_impact_effect_current_img = pygame.transform.scale(pygame.transform.rotate(player_2_impact_effect_image[player_2_impact_effect_index], 90), player_2_impact_effect_image[player_2_impact_effect_index].get_size())
-                    player_2_impact_effect_rect = player_2_impact_effect_current_img.get_rect(center = (player_1_pokemon_posx - 50, screen.get_height() // 2 + 150))
+                    player_2_impact_effect_rect = player_2_impact_effect_current_img.get_rect(midbottom = (player_1_pokemon_posx, screen.get_height() // 2 + 170))
                     if show_player2_impact:
                         screen.blit(player_2_impact_effect_current_img, player_2_impact_effect_rect)
                     player_2_impact_effect_index += 1 if player_2_impact_effect_index < len(player_2_impact_effect_image)-1 else 0
@@ -1391,8 +1390,8 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                     player1_atk_effect_timer = pygame.time.get_ticks()
                     player_1_impact_effect.play_audio()
                 if pygame.time.get_ticks() - player1_atk_effect_timer <= 2000:
-                    player_1_impact_effect_current_img = pygame.transform.scale(pygame.transform.rotate(player_1_impact_effect_image[player_1_impact_effect_index], 90), player_1_impact_effect_image[player_1_impact_effect_index].get_size())
-                    player_1_impact_effect_rect = player_1_impact_effect_current_img.get_rect(center = (player_2_pokemon_posx + 50, screen.get_height() // 2 + 150))
+                    player_1_impact_effect_current_img = pygame.transform.scale(pygame.transform.rotate(player_1_impact_effect_image[player_1_impact_effect_index], -90), player_1_impact_effect_image[player_1_impact_effect_index].get_size())
+                    player_1_impact_effect_rect = player_1_impact_effect_current_img.get_rect(midbottom = (player_2_pokemon_posx, screen.get_height() // 2 + 170))
                     if show_player1_impact:
                         screen.blit(player_1_impact_effect_current_img, player_1_impact_effect_rect)
                     player_1_impact_effect_index += 1 if player_1_impact_effect_index < len(player_1_impact_effect_image)-1 else 0
