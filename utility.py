@@ -45,8 +45,6 @@ def show_text(text, x_position, y_position, screen, font_size=60, origin="center
     # Blit main text
     screen.blit(rendered_text, rendered_text_rect)
 
-        
-
 def apply_brightness(image, brightness_factor=0.4):
     """
     Uniformly reduces the brightness of an image, including transparent areas.
@@ -111,5 +109,4 @@ class Button:
             if self.rect.collidepoint(event.pos):
                 if self.action:
                     self.action()
-            return True
-        
+            return True    
