@@ -358,7 +358,7 @@ def pokemon_selection_scene(pokemon_loaded_images: list, battle_effect_loaded_im
         
         if number_of_selected == 6:
             pygame.mixer.music.stop()
-            
+            pygame.mixer.Channel(1).stop()
             print(colored("Player 1 and Player 2's linked list will be converted to queue\n", "yellow", attrs=["bold"]))
             # Creates the Queue
             player1_pokemons_queue = Queue()
