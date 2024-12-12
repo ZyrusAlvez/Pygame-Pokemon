@@ -196,7 +196,7 @@ def pokemon_selection_scene(pokemon_loaded_images: list, battle_effect_loaded_im
             # add the pokemon to the linked list
             player1_linkedlist.atend(selected_pokemon)
             print(colored(f'"{selected_pokemon.name}" is added to player 1 linked list of pokemons', "yellow", attrs=["bold"]))
-            print(f"Player 1's linked list: {' <- '.join([p.name for p in player1_linkedlist.show_data()])}\n")
+            print(f"Player 1's linked list: {' -> '.join([p.name for p in player1_linkedlist.show_data()])}\n")
         else:
             # Save the selected Pokemon for player
             player2_loaded_images.append(pokemon_loaded_images[focus])
@@ -204,7 +204,7 @@ def pokemon_selection_scene(pokemon_loaded_images: list, battle_effect_loaded_im
             # add the pokemon to the linked list
             player2_linkedlist.atend(selected_pokemon)
             print(colored(f'"{selected_pokemon.name}" is added to player 2 linked list of pokemons', "yellow", attrs=["bold"]))
-            print(f"Player 2's linked list: {' <- '.join([p.name for p in player2_linkedlist.show_data()])}\n")
+            print(f"Player 2's linked list: {' -> '.join([p.name for p in player2_linkedlist.show_data()])}\n")
         
         
         selected_pokemon.play_audio()
