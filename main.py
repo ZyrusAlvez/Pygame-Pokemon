@@ -1576,6 +1576,7 @@ def quit():
     exit()
  
 def main():
+    print(colored("Data Structure Visualizer", "yellow", attrs=["bold", "underline"]))
     global tutorial_popup
     match_number = 0
     fight = True
