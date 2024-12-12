@@ -735,6 +735,7 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                                 player1_usedpoison = True
                             elif player1_menu_option_index == 3:
                                 player1_run_chance = random.randint(1,10)
+                                player1_run_chance = 3
                                 if player1_run_chance <= 3:
                                     player1_end_by_run = True
                                     player1_show_confirmation = False
@@ -806,6 +807,7 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                                 player2_usedpoison = True
                             elif player2_menu_option_index == 3:
                                 player2_run_chance = random.randint(1,10)
+                                player2_run_chance = 3
                                 if player2_run_chance <= 3:
                                     player2_end_by_run = True
                                     player2_show_confirmation = False
@@ -885,6 +887,8 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                     player_1_pokemon_posx -= 20
                 else:
                     next_round = True
+            elif player2_end_by_run:
+                pass
         # Menu when confirming an action for player 1
         elif player1_show_confirmation:
             player1_text = confirmation_messages[player1_menu_option_index].split("\n") 
@@ -960,7 +964,9 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
         if player2_ready:
             show_text("READY", 530, 530, screen, 35, color= "White")
         elif player1_end_by_run or player2_end_by_run:
-            if player2_end_by_run:
+            if player1_end_by_run:
+                pass
+            elif player2_end_by_run:
                 if player2_end_by_run_timer == None:
                     player2_end_by_run_timer = pygame.time.get_ticks()
                 if pygame.time.get_ticks() - player2_end_by_run_timer <= 2000:
