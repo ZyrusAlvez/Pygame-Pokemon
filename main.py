@@ -825,7 +825,7 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                         elif player2_menu_option_index == 3 and match_number + 1 < 4:
                             player2_cannot_run = True
                             player2timer = pygame.time.get_ticks()
-                        elif player1_menu_option_index == 3 and not player2_can_run:
+                        elif player2_menu_option_index == 3 and not player2_can_run:
                             player2_fail_run = True
                             player2timer = pygame.time.get_ticks()
                         else:
@@ -984,7 +984,7 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                 show_text("Yes", 630, 510, screen, 20, "midleft", color = "Black")
             if player2_confirmation_index == 1:
                 show_text("No", 700, 510, screen, 20, "midleft",highlight= True, color = "Black")
-                player2_arrow_img_rect = player2_arrow_img.get_rect(midleft = (780, 510))
+                player2_arrow_img_rect = player2_arrow_img.get_rect(midleft = (680, 510))
                 screen.blit(player2_arrow_img, player2_arrow_img_rect)
             else:
                 show_text("No", 700, 510, screen, 20, "midleft",color = "Black")
@@ -1503,6 +1503,8 @@ def fight_scene(player1_pokemons, player1_loaded_images, player2_pokemons, playe
                 player_1_pokemon.temporary_power = player_1_pokemon.power
                 player_2_pokemon.temporary_power = player_2_pokemon.power
                 fight = False if player1_end_by_run or player2_end_by_run else True
+                if not fight:
+                    pygame.mixer.Channel(5).stop()
                 return match_number+1, (player_1_pokemon, player_2_pokemon), fight
 
       
