@@ -33,9 +33,9 @@ class Pokemon:
             self.frames.append(frame_path)
         return self.frames
     
-    def animation_clean_up(self):
-        for frame in range(self.frames_number):
-            os.remove(f"./bin/{self.name}frame_{frame}.png")
+    # def animation_clean_up(self):
+    #     for frame in range(self.frames_number):
+    #         os.remove(f"./bin/{self.name}frame_{frame}.png")
 
     def play_audio(self):
         pygame.mixer.init()

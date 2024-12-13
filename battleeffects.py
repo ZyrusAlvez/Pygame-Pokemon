@@ -21,7 +21,10 @@ class BattleEffects:
     
     def clear_residue(self):
         for frames in self.frames:
-            os.remove(frames)
+            try:
+                os.remove(frames)
+            except:
+                continue
     
     def play_audio(self):
         pygame.mixer.init()

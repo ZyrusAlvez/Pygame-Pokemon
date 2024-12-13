@@ -49,32 +49,35 @@ def load_images() -> list:
     loading_complete = False
 
     def load_images_task():
-        nonlocal loading_complete
-        global pokemon_loaded_images, battle_effects_loaded_images, impact_effects_loaded_images, potion_poison_effects_loaded_images, transitions_loaded_images
-        
-        def load_pokemon_frames(pokemon):
-            return [pygame.image.load(frame) for frame in pokemon.animation_frames()]
+        try:
+            nonlocal loading_complete
+            global pokemon_loaded_images, battle_effects_loaded_images, impact_effects_loaded_images, potion_poison_effects_loaded_images, transitions_loaded_images
+            
+            def load_pokemon_frames(pokemon):
+                return [pygame.image.load(frame) for frame in pokemon.animation_frames()]
 
-        def load_effect_frames(effect):
-            return [pygame.image.load(frame) for frame in effect.animation_frames()]
-        
-        def load_impact_frames(impact):
-            return [pygame.image.load(frame) for frame in impact.animation_frames()]
+            def load_effect_frames(effect):
+                return [pygame.image.load(frame) for frame in effect.animation_frames()]
+            
+            def load_impact_frames(impact):
+                return [pygame.image.load(frame) for frame in impact.animation_frames()]
 
-        def load_potion_poison_frames(potion_poison):
-            return [pygame.image.load(frame) for frame in potion_poison.animation_frames()]
-        
-        def load_transition_frames(transitions):
-            return [pygame.image.load(frame) for frame in transitions.animation_frames()]
+            def load_potion_poison_frames(potion_poison):
+                return [pygame.image.load(frame) for frame in potion_poison.animation_frames()]
+            
+            def load_transition_frames(transitions):
+                return [pygame.image.load(frame) for frame in transitions.animation_frames()]
 
-        # Use ThreadPoolExecutor to load frames in parallel
-        with ThreadPoolExecutor() as executor:
-            pokemon_loaded_images = list(executor.map(load_pokemon_frames, pokemons))
-            battle_effects_loaded_images = list(executor.map(load_effect_frames, battle_effects))
-            impact_effects_loaded_images = list(executor.map(load_impact_frames, impact_effects))
-            potion_poison_effects_loaded_images = list(executor.map(load_potion_poison_frames, potion_poison_effects))
-            transitions_loaded_images = list(executor.map(load_transition_frames, transitions))
-        loading_complete = True
+            # Use ThreadPoolExecutor to load frames in parallel
+            with ThreadPoolExecutor() as executor:
+                pokemon_loaded_images = list(executor.map(load_pokemon_frames, pokemons))
+                battle_effects_loaded_images = list(executor.map(load_effect_frames, battle_effects))
+                impact_effects_loaded_images = list(executor.map(load_impact_frames, impact_effects))
+                potion_poison_effects_loaded_images = list(executor.map(load_potion_poison_frames, potion_poison_effects))
+                transitions_loaded_images = list(executor.map(load_transition_frames, transitions))
+            loading_complete = True
+        except:
+            quit()
 
     # Start loading images in a thread
     loading_thread = threading.Thread(target=load_images_task)
@@ -124,13 +127,15 @@ def menu() -> None:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.mixer.music.stop()
-                for pokemon in original_pokemons:
-                    pokemon.animation_clean_up()
-                for battle_effect in battle_effects:
-                    battle_effect.clear_residue()
-                pygame.quit()
-                exit()
                 quit()
+                # for pokemon in original_pokemons:
+                #     pokemon.animation_clean_up()
+                # for battle_effect in battle_effects:
+                #     battle_effect.clear_residue()
+                
+                # pygame.quit()
+                exit()
+                
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN or event.key == pygame.K_SPACE:
@@ -223,14 +228,15 @@ def pokemon_selection_scene(pokemon_loaded_images: list, battle_effect_loaded_im
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.mixer.music.stop()
-                for pokemon in original_pokemons:
-                    pokemon.animation_clean_up()
-                for battle_effect in battle_effects:
-                    battle_effect.clear_residue()
-                pygame.quit()
-                exit()  
                 quit()
+                pygame.mixer.music.stop()
+                # for pokemon in original_pokemons:
+                #     pokemon.animation_clean_up()
+                # for battle_effect in battle_effects:
+                #     battle_effect.clear_residue()
+                # pygame.quit()
+                # exit()  
+                
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
                    sound_select.play()
@@ -413,8 +419,9 @@ def map_randomizer(transition_frames) -> object:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 map_picking_audio_channel.stop()
-                pygame.quit()
-                exit()
+                quit()
+                # pygame.quit()
+                # exit()
         # equivalent of time.sleep(starting_show_speed)
         if pygame.time.get_ticks() - randomization_time <= starting_show_speed * 1000:
             pass
@@ -500,7 +507,8 @@ def tutorial_popup():
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
+                quit()
+                # pygame.quit()
             previous_button.is_clicked(event)
             next_button.is_clicked(event)
             skip_button.is_clicked(event)
@@ -1565,12 +1573,28 @@ def end_scene(binary_tree: object) -> bool:
 
 # utility scene        
 def quit():
-    if original_pokemons:
-        for pokemon in original_pokemons:
-            pokemon.animation_clean_up()
-    if battle_effects:
-        for battle_effect in battle_effects:
-            battle_effect.clear_residue()
+    bin_location = "bin"
+    for file in os.listdir(bin_location):
+        if file == "README.md":
+            continue
+        file_path = os.path.join(bin_location, file)
+        os.remove(file_path)
+    # if original_pokemons:
+    #     for pokemon in original_pokemons:
+    #         pokemon.animation_clean_up()
+    # if battle_effects:
+    #     for battle_effect in battle_effects:
+    #         battle_effect.clear_residue()
+    # if impact_effects:
+    #     for effect in impact_effects:
+    #         effect.clear_residue()
+    # if potion_poison_effects:
+    #     for effect in potion_poison_effects:
+    #         effect.clear_residue()
+    # if transitions:
+    #     for frame in transitions:
+    #         frame.clear_residue()
+    
     pygame.quit()
     exit()
  
@@ -1609,5 +1633,6 @@ def main():
         print(colored("_______________________________________________________________________________________________________________________________\n", "blue", attrs=["bold"]))
         
     end_scene(binary_tree)
+    quit()
 
 main()
