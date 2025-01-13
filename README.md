@@ -42,3 +42,18 @@ To run this project, you will need to install the following libraries:
 1. **Clone the repository**:
    ```bash
    git clone https://github.com/ZyrusAlvez/pokemon-battle-simulator.git
+
+### Sample Output
+![image](https://github.com/user-attachments/assets/c1df3ecb-3d76-4f57-afcf-1b44f085ae66)
+
+![image](https://github.com/user-attachments/assets/8f3582c2-b3f5-47d7-8e73-2352e1d83d9f)
+
+![image](https://github.com/user-attachments/assets/7819c002-ef73-4dae-ab05-2f1b8957039d)
+
+![image](https://github.com/user-attachments/assets/8611a67a-ffe4-402e-85df-5cf49d3add3f)
+
+![image](https://github.com/user-attachments/assets/b511b083-c0a4-4195-a924-addd0134a137)
+
+![image](https://github.com/user-attachments/assets/b3fd8b35-b940-4c1b-aedb-adae41c4a17b)
+
+![image](https://github.com/user-attachments/assets/339e27a9-743f-4764-860c-e7483e8d8679)
